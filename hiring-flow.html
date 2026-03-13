@@ -459,7 +459,7 @@
       <div class="card-command">npm run interview "応募者名" "媒体名"</div>
       <div class="card-details">
         <ul>
-          <li>面接時間：60分</li>
+          <li>面接時間：30分</li>
           <li>14日先まで検索</li>
           <li>持ち物：履歴書・看護師免許の写し</li>
         </ul>
@@ -483,6 +483,27 @@
           <li>志摩が面接担当</li>
           <li>経験・スキル・人柄を確認</li>
           <li>勤務条件のすり合わせ</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: 社内LINE共有（面接後） -->
+  <div class="step right theme-blue">
+    <div class="step-dot"></div>
+    <div class="card" onclick="openModal('modal-4')">
+      <span class="step-number">4</span>
+      <span class="badge badge-manual">手動</span>
+      <div class="card-title">社内LINE共有</div>
+      <div class="card-desc">
+        面接結果を社内LINEでメンバーに共有。<br>
+        経歴は職歴のみ（学歴省略）、資格は正確に記載。
+      </div>
+      <div class="card-details">
+        <ul>
+          <li>基本情報・資格・雇用形態</li>
+          <li>経歴・勤務希望・通勤</li>
+          <li>採用判断のポイント</li>
         </ul>
       </div>
     </div>
@@ -521,11 +542,11 @@
 
 <div class="flow-container">
 
-  <!-- Step 4 -->
+  <!-- Step 5 -->
   <div class="step right theme-purple">
     <div class="step-dot"></div>
-    <div class="card" onclick="openModal('modal-4')">
-      <span class="step-number">4</span>
+    <div class="card" onclick="openModal('modal-5')">
+      <span class="step-number">5</span>
       <span class="badge badge-auto">自動</span>
       <div class="card-title">契約日程調整・採用連絡</div>
       <div class="card-desc">
@@ -545,11 +566,11 @@
     </div>
   </div>
 
-  <!-- Step 5 -->
+  <!-- Step 6 -->
   <div class="step left theme-red">
     <div class="step-dot"></div>
-    <div class="card" onclick="openModal('modal-5')">
-      <span class="step-number">5</span>
+    <div class="card" onclick="openModal('modal-6')">
+      <span class="step-number">6</span>
       <span class="badge badge-auto">自動</span>
       <div class="card-title">雇用契約書・書類一括生成</div>
       <div class="card-desc">
@@ -569,11 +590,11 @@
     </div>
   </div>
 
-  <!-- Step 6 -->
+  <!-- Step 7 -->
   <div class="step right theme-orange">
     <div class="step-dot"></div>
-    <div class="card" onclick="openModal('modal-6')">
-      <span class="step-number">6</span>
+    <div class="card" onclick="openModal('modal-7')">
+      <span class="step-number">7</span>
       <span class="badge badge-manual">対面</span>
       <div class="card-title">契約締結（対面・30分）</div>
       <div class="card-desc">
@@ -590,11 +611,11 @@
     </div>
   </div>
 
-  <!-- Step 7 -->
+  <!-- Step 8 -->
   <div class="step left theme-teal">
     <div class="step-dot"></div>
-    <div class="card" onclick="openModal('modal-7')">
-      <span class="step-number">7</span>
+    <div class="card" onclick="openModal('modal-8')">
+      <span class="step-number">8</span>
       <span class="badge badge-auto">自動</span>
       <div class="card-title">社労士・税理士へ採用報告</div>
       <div class="card-desc">
@@ -609,27 +630,6 @@
           <li>給与・手当の詳細</li>
           <li>扶養者情報・前職</li>
           <li>パートはオンコール手当なし</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- Step 8 -->
-  <div class="step right theme-blue">
-    <div class="step-dot"></div>
-    <div class="card" onclick="openModal('modal-8')">
-      <span class="step-number">8</span>
-      <span class="badge badge-manual">手動</span>
-      <div class="card-title">社内LINE共有</div>
-      <div class="card-desc">
-        採用者の情報をLINEテンプレートで社内メンバーに共有。<br>
-        経歴は職歴のみ（学歴省略）、資格は正確に記載。
-      </div>
-      <div class="card-details">
-        <ul>
-          <li>候補者プロフィール</li>
-          <li>職歴・保有資格</li>
-          <li>入社日・雇用形態</li>
         </ul>
       </div>
     </div>
@@ -721,7 +721,7 @@
         <h3>&#9881; 自動処理の流れ</h3>
         <ul>
           <li>Google Calendarから今後14日間の空き時間を自動取得</li>
-          <li>平日 9:00〜16:00 の中から60分枠を探す</li>
+          <li>平日 9:00〜16:00 の中から30分枠を探す</li>
           <li><strong>3つの候補日（別々の日）</strong>を含むメール文面を生成</li>
           <li>面接場所・持ち物の案内も自動挿入</li>
         </ul>
@@ -784,27 +784,27 @@
         <h3>&#128205; 面接の基本情報</h3>
         <ul>
           <li><strong>場所</strong>：ふくろく訪問看護ステーション（大東市諸福6-1-7 第1福徳荘2階206号室）</li>
-          <li><strong>時間</strong>：約60分</li>
+          <li><strong>時間</strong>：約30分</li>
           <li><strong>担当</strong>：志摩孝政</li>
         </ul>
       </div>
       <div class="modal-section">
         <h3>&#128203; 確認すべきこと</h3>
         <ul>
-          <li>看護師としての経験年数・得意分野</li>
-          <li>精神科訪問看護の経験の有無</li>
-          <li>通勤手段（車 or 電車）と通勤時間</li>
           <li>希望の雇用形態（正社員 or パート）</li>
-          <li>希望の勤務日数・時間帯</li>
-          <li>給与の希望</li>
+          <li>経験・スキル（精神科訪問看護の経験含む）</li>
+          <li>勤務希望（日数・曜日・時間帯）</li>
           <li>いつから勤務可能か</li>
+          <li>通勤手段（車 or 電車）・運転免許の有無</li>
+          <li>家族構成（扶養家族の有無）</li>
+          <li>給与の希望</li>
         </ul>
       </div>
       <div class="modal-section">
         <h3>&#128161; ポイント</h3>
         <div class="tip-box">
-          面接後、社内LINEで候補者情報を共有します。
-          採用の場合は「○○さん採用」、不採用の場合は「○○さん不採用」とClaudeに伝えてください。
+          面接後、まず社内LINEで候補者情報を共有します（次のStep 4）。
+          その後、採用の場合は「○○さん採用」、不採用の場合は「○○さん不採用」とClaudeに伝えてください。
         </div>
       </div>
     </div>
@@ -867,12 +867,71 @@
   </div>
 </div>
 
-<!-- Modal 4: 契約日程調整 -->
+<!-- Modal 4: 社内LINE共有 -->
 <div class="modal-overlay" id="modal-4" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-header">
-      <h2><span class="step-number" style="background:#9b59b6; width:36px; height:36px; font-size:16px;">4</span> 契約日程調整・採用連絡</h2>
+      <h2><span class="step-number" style="background:#3498db; width:36px; height:36px; font-size:16px;">4</span> 社内LINE共有</h2>
       <button class="modal-close" onclick="closeModal('modal-4')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#128172; テンプレート</h3>
+        <div class="example-box" style="border-color:#3498db;">
+          <div class="label">LINE投稿フォーマット</div>
+          <pre>【面接結果共有】○○さん
+
+■ 基本情報
+・氏名：○○（○歳）
+・資格：看護師、精神科訪問看護研修修了
+・希望雇用形態：正社員
+
+■ 経歴（職歴のみ）
+・○○病院 内科病棟（3年）
+・△△訪問看護ステーション（5年）
+
+■ 勤務希望
+・週5日勤務希望
+・曜日：月〜金
+・開始可能日：2026年4月1日
+
+■ 通勤・運転
+・通勤手段：車
+・運転免許：あり
+・片道距離：約8km
+
+■ 家族構成
+・配偶者：あり（扶養なし）
+・子ども：1人（小学生）
+
+■ 確認事項・アクション
+・健康診断：未受診→初出勤までに案内
+・精神科経験あり→即戦力として期待
+
+■ 採用判断のポイント
+・精神科訪問看護の経験が豊富
+・コミュニケーション良好
+・通勤距離も問題なし</pre>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128161; ポイント</h3>
+        <div class="tip-box">
+          面接直後に社内メンバーへ共有します。<br>
+          経歴は<strong>職歴のみ</strong>記載（学歴は省略）。<br>
+          資格は履歴書から正確に読み取って記載してください。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 5: 契約日程調整 -->
+<div class="modal-overlay" id="modal-5" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><span class="step-number" style="background:#9b59b6; width:36px; height:36px; font-size:16px;">5</span> 契約日程調整・採用連絡</h2>
+      <button class="modal-close" onclick="closeModal('modal-5')">&times;</button>
     </div>
     <div class="modal-body">
       <div class="modal-section">
@@ -916,12 +975,12 @@
   </div>
 </div>
 
-<!-- Modal 5: 書類一括生成 -->
-<div class="modal-overlay" id="modal-5" onclick="closeModalOutside(event)">
+<!-- Modal 6: 書類一括生成 -->
+<div class="modal-overlay" id="modal-6" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-header">
-      <h2><span class="step-number" style="background:#e74c3c; width:36px; height:36px; font-size:16px;">5</span> 書類一括生成</h2>
-      <button class="modal-close" onclick="closeModal('modal-5')">&times;</button>
+      <h2><span class="step-number" style="background:#e74c3c; width:36px; height:36px; font-size:16px;">6</span> 書類一括生成</h2>
+      <button class="modal-close" onclick="closeModal('modal-6')">&times;</button>
     </div>
     <div class="modal-body">
       <div class="modal-section">
@@ -976,12 +1035,12 @@
   </div>
 </div>
 
-<!-- Modal 6: 契約締結 -->
-<div class="modal-overlay" id="modal-6" onclick="closeModalOutside(event)">
+<!-- Modal 7: 契約締結 -->
+<div class="modal-overlay" id="modal-7" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-header">
-      <h2><span class="step-number" style="background:#e67e22; width:36px; height:36px; font-size:16px;">6</span> 契約締結</h2>
-      <button class="modal-close" onclick="closeModal('modal-6')">&times;</button>
+      <h2><span class="step-number" style="background:#e67e22; width:36px; height:36px; font-size:16px;">7</span> 契約締結</h2>
+      <button class="modal-close" onclick="closeModal('modal-7')">&times;</button>
     </div>
     <div class="modal-body">
       <div class="modal-section">
@@ -1029,12 +1088,12 @@
   </div>
 </div>
 
-<!-- Modal 7: 社労士報告 -->
-<div class="modal-overlay" id="modal-7" onclick="closeModalOutside(event)">
+<!-- Modal 8: 社労士報告 -->
+<div class="modal-overlay" id="modal-8" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-header">
-      <h2><span class="step-number" style="background:#1abc9c; width:36px; height:36px; font-size:16px;">7</span> 社労士・税理士へ報告</h2>
-      <button class="modal-close" onclick="closeModal('modal-7')">&times;</button>
+      <h2><span class="step-number" style="background:#1abc9c; width:36px; height:36px; font-size:16px;">8</span> 社労士・税理士へ報告</h2>
+      <button class="modal-close" onclick="closeModal('modal-8')">&times;</button>
     </div>
     <div class="modal-body">
       <div class="modal-section">
@@ -1048,7 +1107,8 @@
           <pre>お世話になっております。
 本日1名看護師の正社員を採用したので
 共有させていただきます。
-社会保険加入です。
+
+社会保険：加入でお願いします。
 
 ①氏名：田中花子
 
@@ -1084,46 +1144,6 @@
           <strong>パートの場合</strong>：オンコール手当・夜間出動手当の項目は記載しません。<br>
           書類スキャン（PDF）から読み取れる情報は自動で埋められます。
           Claudeに「顧問に連絡」「社労士に連絡」と伝えてください。
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal 8: LINE共有 -->
-<div class="modal-overlay" id="modal-8" onclick="closeModalOutside(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <h2><span class="step-number" style="background:#3498db; width:36px; height:36px; font-size:16px;">8</span> 社内LINE共有</h2>
-      <button class="modal-close" onclick="closeModal('modal-8')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-section">
-        <h3>&#128172; テンプレート例</h3>
-        <div class="example-box" style="border-color:#3498db;">
-          <div class="label">LINE投稿イメージ</div>
-          <pre>【新メンバー紹介】
-
-氏名：田中花子（たなかはなこ）
-雇用形態：正社員
-入社日：2026年4月1日
-
-【経歴】
-・○○病院 内科病棟（3年）
-・△△訪問看護ステーション（5年）
-
-【保有資格】
-・看護師
-・精神科訪問看護研修修了
-
-よろしくお願いします！</pre>
-        </div>
-      </div>
-      <div class="modal-section">
-        <h3>&#128161; ポイント</h3>
-        <div class="tip-box">
-          経歴は<strong>職歴のみ</strong>記載（学歴は省略）。
-          資格は履歴書から正確に読み取って記載してください。
         </div>
       </div>
     </div>
