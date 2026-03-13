@@ -8,7 +8,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Segoe UI', 'Yu Gothic UI', 'Meiryo', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #e8eaf6 0%, #ede7f6 100%);
     min-height: 100vh;
     padding: 40px 20px;
     color: #333;
@@ -19,10 +19,10 @@
     top: 20px;
     left: 20px;
     z-index: 100;
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.7);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff;
+    border: 1px solid rgba(0,0,0,0.08);
+    color: #546e7a;
     padding: 8px 18px;
     border-radius: 10px;
     font-size: 13px;
@@ -34,19 +34,18 @@
     transition: all 0.2s;
   }
   .back-btn:hover {
-    background: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.9);
     transform: translateX(-2px);
   }
   h1 {
     text-align: center;
-    color: #fff;
+    color: #37474f;
     font-size: 28px;
     margin-bottom: 8px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
   .subtitle {
     text-align: center;
-    color: rgba(255,255,255,0.85);
+    color: #78909c;
     font-size: 14px;
     margin-bottom: 40px;
   }
@@ -62,7 +61,7 @@
     top: 0;
     bottom: 0;
     width: 4px;
-    background: rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.08);
     transform: translateX(-50%);
     border-radius: 2px;
   }
@@ -408,7 +407,7 @@
   }
   .footer {
     text-align: center;
-    color: rgba(255,255,255,0.6);
+    color: #90a4ae;
     font-size: 12px;
     margin-top: 40px;
   }
@@ -661,10 +660,10 @@
 
 <!-- 凡例 -->
 <div style="max-width:900px; margin:40px auto 0; text-align:center;">
-  <div style="background:rgba(255,255,255,0.15); border-radius:12px; padding:16px; display:inline-flex; gap:24px; flex-wrap:wrap; justify-content:center;">
-    <span style="color:#fff; font-size:13px;"><span class="badge badge-auto">自動</span> Claude が自動実行</span>
-    <span style="color:#fff; font-size:13px;"><span class="badge badge-manual">対面</span> 対面で実施</span>
-    <span style="color:#fff; font-size:13px;"><span style="font-family:monospace; color:#ffc0c0; font-size:12px;">npm run ...</span> 実行コマンド</span>
+  <div style="background:rgba(255,255,255,0.7); border-radius:12px; padding:16px; display:inline-flex; gap:24px; flex-wrap:wrap; justify-content:center;">
+    <span style="color:#546e7a; font-size:13px;"><span class="badge badge-auto">自動</span> Claude が自動実行</span>
+    <span style="color:#546e7a; font-size:13px;"><span class="badge badge-manual">対面</span> 対面で実施</span>
+    <span style="color:#546e7a; font-size:13px;"><span style="font-family:monospace; color:#e74c3c; font-size:12px;">npm run ...</span> 実行コマンド</span>
   </div>
 </div>
 
