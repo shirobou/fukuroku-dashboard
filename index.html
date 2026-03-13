@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>業務フローダッシュボード - ふくろく訪問看護ステーション</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Yu Gothic UI', 'Meiryo', sans-serif;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+    color: #333;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  .header h1 {
+    color: #fff;
+    font-size: 32px;
+    margin-bottom: 6px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .header .logo-text {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 2px;
+  }
+  .header .company {
+    color: rgba(255,255,255,0.45);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .flow-card {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 32px 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+  }
+  .flow-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 20px 20px 0 0;
+  }
+  .flow-card:hover {
+    transform: translateY(-8px);
+    background: rgba(255,255,255,0.12);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border-color: rgba(255,255,255,0.25);
+  }
+  .flow-card .icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin-bottom: 18px;
+  }
+  .flow-card h2 {
+    color: #fff;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  .flow-card p {
+    color: rgba(255,255,255,0.6);
+    font-size: 13px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .flow-card .steps-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+  }
+  .flow-card .arrow-icon {
+    position: absolute;
+    bottom: 28px;
+    right: 28px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+  .flow-card:hover .arrow-icon {
+    background: rgba(255,255,255,0.2);
+    transform: translateX(4px);
+  }
+  .flow-card .arrow-icon svg {
+    width: 16px; height: 16px;
+    fill: none;
+    stroke: rgba(255,255,255,0.6);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .flow-card .tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .flow-card .tag {
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* カード色テーマ */
+  .card-hiring::before { background: linear-gradient(90deg, #667eea, #764ba2); }
+  .card-hiring .icon { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+  .card-receipt::before { background: linear-gradient(90deg, #f093fb, #f5576c); }
+  .card-receipt .icon { background: linear-gradient(135deg, #f093fb, #f5576c); }
+
+  .card-expense::before { background: linear-gradient(90deg, #4facfe, #00f2fe); }
+  .card-expense .icon { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+  .card-daily::before { background: linear-gradient(90deg, #43e97b, #38f9d7); }
+  .card-daily .icon { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+  .card-sns::before { background: linear-gradient(90deg, #fa709a, #fee140); }
+  .card-sns .icon { background: linear-gradient(135deg, #fa709a, #fee140); }
+
+  .card-copay::before { background: linear-gradient(90deg, #a18cd1, #fbc2eb); }
+  .card-copay .icon { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+
+  /* 未作成カード */
+  .flow-card.coming-soon {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .flow-card.coming-soon:hover {
+    transform: none;
+    background: rgba(255,255,255,0.06);
+    box-shadow: none;
+    border-color: rgba(255,255,255,0.1);
+  }
+  .coming-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.4);
+  }
+
+  .footer {
+    text-align: center;
+    color: rgba(255,255,255,0.3);
+    font-size: 12px;
+    margin-top: 60px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-text">BUSINESS FLOW DASHBOARD</div>
+  <h1>業務フロー一覧</h1>
+  <div class="company">ふくろく訪問看護ステーション ／ 株式会社T-Connect</div>
+</div>
+
+<div class="grid">
+
+  <!-- 採用フロー（作成済み） -->
+  <a href="hiring-flow.html" class="flow-card card-hiring">
+    <div class="icon">&#128101;</div>
+    <h2>採用フロー</h2>
+    <div class="tags">
+      <span class="tag">面接調整</span>
+      <span class="tag">契約書生成</span>
+      <span class="tag">社労士連絡</span>
+    </div>
+    <p>応募受付から初出勤までの全9ステップ。面接調整・契約書生成・社労士報告を自動化。</p>
+    <div class="steps-count">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      9ステップ ・ 自動化率 60%
+    </div>
+    <div class="arrow-icon">
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </div>
+  </a>
+
+  <!-- レセプト（未作成） -->
+  <div class="flow-card card-receipt coming-soon">
+    <span class="coming-badge">準備中</span>
+    <div class="icon">&#128203;</div>
+    <h2>レセプト業務</h2>
+    <div class="tags">
+      <span class="tag">実績確定</span>
+      <span class="tag">入金確認</span>
+      <span class="tag">領収書郵送</span>
+    </div>
+    <p>毎月1〜4日のレセプト処理。iBow実績確定・入金照合・領収書兼明細書の発行。</p>
+    <div class="steps-count">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+      フロー図を作成予定
+    </div>
+  </div>
+
+  <!-- 経費精算（未作成） -->
+  <div class="flow-card card-expense coming-soon">
+    <span class="coming-badge">準備中</span>
+    <div class="icon">&#128179;</div>
+    <h2>経費精算</h2>
+    <div class="tags">
+      <span class="tag">レシートOCR</span>
+      <span class="tag">シート転記</span>
+      <span class="tag">月次集計</span>
+    </div>
+    <p>レシート撮影からOCR読取・Google Sheets転記・看護師別集計まで。</p>
+    <div class="steps-count">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+      フロー図を作成予定
+    </div>
+  </div>
+
+  <!-- 日常業務（未作成） -->
+  <div class="flow-card card-daily coming-soon">
+    <span class="coming-badge">準備中</span>
+    <div class="icon">&#9728;&#65039;</div>
+    <h2>日常業務</h2>
+    <div class="tags">
+      <span class="tag">朝ブリーフィング</span>
+      <span class="tag">メール対応</span>
+      <span class="tag">記録確認</span>
+    </div>
+    <p>朝の起動ルーティンから日中の業務フロー。メール監視・対応の流れ。</p>
+    <div class="steps-count">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+      フロー図を作成予定
+    </div>
+  </div>
+
+  <!-- SNS運用（未作成） -->
+  <div class="flow-card card-sns coming-soon">
+    <span class="coming-badge">準備中</span>
+    <div class="icon">&#128242;</div>
+    <h2>SNS運用</h2>
+    <div class="tags">
+      <span class="tag">ブログ</span>
+      <span class="tag">Instagram</span>
+      <span class="tag">X</span>
+    </div>
+    <p>コンテンツパック一括生成。1テーマから3チャネル分のコンテンツを自動派生。</p>
+    <div class="steps-count">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+      フロー図を作成予定
+    </div>
+  </div>
+
+  <!-- 自己負担金管理（未作成） -->
+  <div class="flow-card card-copay coming-soon">
+    <span class="coming-badge">準備中</span>
+    <div class="icon">&#128176;</div>
+    <h2>自己負担金管理</h2>
+    <div class="tags">
+      <span class="tag">シートセットアップ</span>
+      <span class="tag">iBow同期</span>
+      <span class="tag">月次管理</span>
+    </div>
+    <p>利用者の自己負担金をiBowから取得し、管理シートに自動反映。</p>
+    <div class="steps-count">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+      フロー図を作成予定
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>ふくろく訪問看護ステーション ／ 株式会社T-Connect</p>
+  <p style="margin-top:4px;">最終更新: 2026年3月13日</p>
+</div>
+
+</body>
+</html>

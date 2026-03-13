@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>採用フロー - ふくろく訪問看護ステーション</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Yu Gothic UI', 'Meiryo', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+    color: #333;
+  }
+  /* 戻るボタン */
+  .back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .back-btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateX(-2px);
+  }
+  h1 {
+    text-align: center;
+    color: #fff;
+    font-size: 28px;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .subtitle {
+    text-align: center;
+    color: rgba(255,255,255,0.85);
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+  .flow-container {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .flow-container::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: rgba(255,255,255,0.3);
+    transform: translateX(-50%);
+    border-radius: 2px;
+  }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step.left .card { margin-right: auto; margin-left: 0; }
+  .step.right .card { margin-left: auto; margin-right: 0; }
+  .step.left { justify-content: flex-start; }
+  .step.right { justify-content: flex-end; }
+  .step-dot {
+    position: absolute;
+    left: 50%;
+    top: 24px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .card {
+    width: 42%;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  }
+  .card::after {
+    content: 'クリックで詳細';
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 10px;
+    color: #ccc;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .card:hover::after { opacity: 1; }
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .card-command {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: 'Consolas', 'Source Code Pro', monospace;
+    font-size: 12px;
+    color: #e74c3c;
+    border-left: 3px solid;
+  }
+  .card-details {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #888;
+  }
+  .card-details ul { list-style: none; padding: 0; }
+  .card-details li {
+    padding: 3px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+  .card-details li::before {
+    content: '\2713';
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .badge-auto { background: #27ae60; }
+  .badge-manual { background: #e67e22; }
+
+  /* 分岐 */
+  .branch-box {
+    max-width: 900px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+  }
+  .branch-card {
+    width: 280px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    text-align: center;
+    transition: transform 0.2s;
+    border-top: 4px solid;
+    cursor: pointer;
+  }
+  .branch-card:hover { transform: translateY(-4px); }
+  .branch-card.adopt { border-color: #27ae60; }
+  .branch-card.reject { border-color: #e74c3c; }
+  .branch-label { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .branch-desc { font-size: 12px; color: #888; line-height: 1.6; }
+  .decision {
+    text-align: center;
+    margin: 10px auto 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .decision-diamond {
+    display: inline-block;
+    background: #fff;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    border: 3px solid #f39c12;
+    color: #f39c12;
+  }
+
+  /* 色テーマ */
+  .theme-blue .step-number { background: #3498db; }
+  .theme-blue .card { border-top: 4px solid #3498db; }
+  .theme-blue .card-command { border-color: #3498db; }
+  .theme-blue .step-dot { background: #3498db; }
+  .theme-blue .card-details li::before { color: #3498db; }
+
+  .theme-green .step-number { background: #27ae60; }
+  .theme-green .card { border-top: 4px solid #27ae60; }
+  .theme-green .card-command { border-color: #27ae60; }
+  .theme-green .step-dot { background: #27ae60; }
+  .theme-green .card-details li::before { color: #27ae60; }
+
+  .theme-orange .step-number { background: #e67e22; }
+  .theme-orange .card { border-top: 4px solid #e67e22; }
+  .theme-orange .card-command { border-color: #e67e22; }
+  .theme-orange .step-dot { background: #e67e22; }
+  .theme-orange .card-details li::before { color: #e67e22; }
+
+  .theme-purple .step-number { background: #9b59b6; }
+  .theme-purple .card { border-top: 4px solid #9b59b6; }
+  .theme-purple .card-command { border-color: #9b59b6; }
+  .theme-purple .step-dot { background: #9b59b6; }
+  .theme-purple .card-details li::before { color: #9b59b6; }
+
+  .theme-red .step-number { background: #e74c3c; }
+  .theme-red .card { border-top: 4px solid #e74c3c; }
+  .theme-red .card-command { border-color: #e74c3c; }
+  .theme-red .step-dot { background: #e74c3c; }
+  .theme-red .card-details li::before { color: #e74c3c; }
+
+  .theme-teal .step-number { background: #1abc9c; }
+  .theme-teal .card { border-top: 4px solid #1abc9c; }
+  .theme-teal .card-command { border-color: #1abc9c; }
+  .theme-teal .step-dot { background: #1abc9c; }
+  .theme-teal .card-details li::before { color: #1abc9c; }
+
+  /* モーダル */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-overlay.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  .modal {
+    background: #fff;
+    border-radius: 20px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+    position: relative;
+  }
+  .modal-header {
+    padding: 28px 28px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .modal-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .modal-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #f0f0f0;
+    color: #999;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .modal-close:hover { background: #e0e0e0; color: #333; }
+  .modal-body {
+    padding: 20px 28px 28px;
+  }
+  .modal-section {
+    margin-bottom: 20px;
+  }
+  .modal-section:last-child { margin-bottom: 0; }
+  .modal-section h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .modal-section p, .modal-section li {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.8;
+  }
+  .modal-section ul { padding-left: 18px; }
+  .modal-section li { margin-bottom: 4px; }
+  .example-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    border-left: 4px solid;
+    margin-top: 8px;
+  }
+  .example-box .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .example-box pre {
+    font-family: 'Consolas', 'Source Code Pro', monospace;
+    font-size: 12px;
+    color: #444;
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+  .tip-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: #92400e;
+    line-height: 1.6;
+  }
+  .doc-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .doc-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .doc-item .doc-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    .flow-container::before { left: 24px; }
+    .step { justify-content: flex-end !important; }
+    .step.left .card, .step.right .card {
+      width: 80%;
+      margin-left: auto;
+      margin-right: 20px;
+    }
+    .step-dot { left: 24px; }
+    .branch-box { flex-direction: column; align-items: center; }
+    .doc-list { grid-template-columns: 1fr; }
+  }
+  .footer {
+    text-align: center;
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-btn">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  ダッシュボードへ戻る
+</a>
+
+<h1>採用フロー</h1>
+<p class="subtitle">ふくろく訪問看護ステーション ／ 株式会社T-Connect</p>
+
+<div class="flow-container">
+
+  <!-- Step 1 -->
+  <div class="step left theme-blue">
+    <div class="step-dot"></div>
+    <div class="card" onclick="openModal('modal-1')">
+      <span class="step-number">1</span>
+      <div class="card-title">応募受付</div>
+      <div class="card-desc">
+        求人媒体（ジョブメドレー等）や直接連絡で応募が届く。<br>
+        メールチェックで新規応募を検知。
+      </div>
+      <div class="card-command">npm run check-mail</div>
+      <div class="card-details">
+        <ul>
+          <li>応募者名・媒体を確認</li>
+          <li>履歴書・経歴を確認</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step right theme-green">
+    <div class="step-dot"></div>
+    <div class="card" onclick="openModal('modal-2')">
+      <span class="step-number">2</span>
+      <span class="badge badge-auto">自動</span>
+      <div class="card-title">面接日程調整</div>
+      <div class="card-desc">
+        Google Calendarの空き状況から<strong>平日9〜16時</strong>の枠を自動取得。<br>
+        <strong>3つの候補日（日にちを分けて）</strong>を提示するメールを生成。
+      </div>
+      <div class="card-command">npm run interview "応募者名" "媒体名"</div>
+      <div class="card-details">
+        <ul>
+          <li>面接時間：60分</li>
+          <li>14日先まで検索</li>
+          <li>持ち物：履歴書・看護師免許の写し</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step left theme-orange">
+    <div class="step-dot"></div>
+    <div class="card" onclick="openModal('modal-3')">
+      <span class="step-number">3</span>
+      <span class="badge badge-manual">対面</span>
+      <div class="card-title">面接実施</div>
+      <div class="card-desc">
+        ふくろく訪問看護ステーションにて対面面接。<br>
+        <strong>大阪府大東市諸福6-1-7</strong> 第1福徳荘2階206号室
+      </div>
+      <div class="card-details">
+        <ul>
+          <li>志摩が面接担当</li>
+          <li>経験・スキル・人柄を確認</li>
+          <li>勤務条件のすり合わせ</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="decision">
+  <div class="decision-diamond">採用判断</div>
+</div>
+
+<div class="branch-box">
+  <div class="branch-card adopt" onclick="openModal('modal-adopt')">
+    <div class="branch-label" style="color:#27ae60;">&#10004; 採用</div>
+    <div class="branch-desc">
+      採用連絡メールを送信。<br>
+      契約日程の調整へ進む
+    </div>
+    <div style="margin-top:8px;">
+      <span class="badge badge-auto">自動</span>
+      <code style="font-size:11px; color:#e74c3c;">npm run contract</code>
+    </div>
+  </div>
+  <div class="branch-card reject" onclick="openModal('modal-reject')">
+    <div class="branch-label" style="color:#e74c3c;">&#10008; 不採用</div>
+    <div class="branch-desc">
+      丁寧なお断りメールを送信。<br>
+      フロー終了。
+    </div>
+    <div style="margin-top:8px;">
+      <span class="badge badge-auto">自動</span>
+      <code style="font-size:11px; color:#e74c3c;">npm run reject</code>
+    </div>
+  </div>
+</div>
+
+<div class="flow-container">
+
+  <!-- Step 4 -->
+  <div class="step right theme-purple">
+    <div class="step-dot"></div>
+    <div class="card" onclick="openModal('modal-4')">
+      <span class="step-number">4</span>
+      <span class="badge badge-auto">自動</span>
+      <div class="card-title">契約日程調整・採用連絡</div>
+      <div class="card-desc">
+        採用通知メール + 契約日時を3候補提示。<br>
+        契約手続きは<strong>約30分</strong>。必要書類を案内。
+      </div>
+      <div class="card-command">npm run contract "応募者名" "媒体名"</div>
+      <div class="card-details">
+        <ul>
+          <li>印鑑（認印可）</li>
+          <li>マイナンバーカード（表裏両面）</li>
+          <li>給与振込口座（通帳 or カード写し）</li>
+          <li>看護師免許証の写し</li>
+          <li>扶養家族のマイナンバーも必要</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step left theme-red">
+    <div class="step-dot"></div>
+    <div class="card" onclick="openModal('modal-5')">
+      <span class="step-number">5</span>
+      <span class="badge badge-auto">自動</span>
+      <div class="card-title">雇用契約書・書類一括生成</div>
+      <div class="card-desc">
+        Google Sheetsに雇用契約書（従業員控え＋会社控え）、<br>
+        秘密保持誓約書、緊急連絡先、初出勤案内を自動生成。
+      </div>
+      <div class="card-command">npm run generate-all</div>
+      <div class="card-details">
+        <ul>
+          <li>雇用契約書（2部）</li>
+          <li>秘密保持誓約書</li>
+          <li>緊急連絡先・交通費申請書</li>
+          <li>初出勤のご案内</li>
+          <li>必要書類チェックリスト</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6 -->
+  <div class="step right theme-orange">
+    <div class="step-dot"></div>
+    <div class="card" onclick="openModal('modal-6')">
+      <span class="step-number">6</span>
+      <span class="badge badge-manual">対面</span>
+      <div class="card-title">契約締結（対面・30分）</div>
+      <div class="card-desc">
+        事務所にて対面で契約書類に署名・捺印。<br>
+        必要書類を受領し、初出勤日を最終確認。
+      </div>
+      <div class="card-details">
+        <ul>
+          <li>契約書に署名捺印</li>
+          <li>秘密保持誓約書に署名</li>
+          <li>書類一式を受領・確認</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 7 -->
+  <div class="step left theme-teal">
+    <div class="step-dot"></div>
+    <div class="card" onclick="openModal('modal-7')">
+      <span class="step-number">7</span>
+      <span class="badge badge-auto">自動</span>
+      <div class="card-title">社労士・税理士へ採用報告</div>
+      <div class="card-desc">
+        採用者情報を所定フォーマットで<strong>南先生</strong>へメール送信。<br>
+        社会保険手続き・給与計算の登録を依頼。
+      </div>
+      <div class="card-command">トリガー: 「顧問に連絡」「社労士に連絡」</div>
+      <div class="card-details">
+        <ul>
+          <li>氏名・生年月日・住所</li>
+          <li>マイナンバー</li>
+          <li>給与・手当の詳細</li>
+          <li>扶養者情報・前職</li>
+          <li>パートはオンコール手当なし</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 8 -->
+  <div class="step right theme-blue">
+    <div class="step-dot"></div>
+    <div class="card" onclick="openModal('modal-8')">
+      <span class="step-number">8</span>
+      <span class="badge badge-manual">手動</span>
+      <div class="card-title">社内LINE共有</div>
+      <div class="card-desc">
+        採用者の情報をLINEテンプレートで社内メンバーに共有。<br>
+        経歴は職歴のみ（学歴省略）、資格は正確に記載。
+      </div>
+      <div class="card-details">
+        <ul>
+          <li>候補者プロフィール</li>
+          <li>職歴・保有資格</li>
+          <li>入社日・雇用形態</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 9 -->
+  <div class="step left theme-green">
+    <div class="step-dot"></div>
+    <div class="card" onclick="openModal('modal-9')">
+      <span class="step-number">9</span>
+      <span class="badge badge-manual">対面</span>
+      <div class="card-title">初出勤</div>
+      <div class="card-desc">
+        初出勤日に事務所でオリエンテーション。<br>
+        担当：<strong>志摩孝政</strong>（090-3229-4350）
+      </div>
+      <div class="card-details">
+        <ul>
+          <li>持ち物：筆記具・昼食・看護用品</li>
+          <li>服装：動きやすい私服</li>
+          <li>健康診断（3ヶ月以内）の確認</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 凡例 -->
+<div style="max-width:900px; margin:40px auto 0; text-align:center;">
+  <div style="background:rgba(255,255,255,0.15); border-radius:12px; padding:16px; display:inline-flex; gap:24px; flex-wrap:wrap; justify-content:center;">
+    <span style="color:#fff; font-size:13px;"><span class="badge badge-auto">自動</span> Claude が自動実行</span>
+    <span style="color:#fff; font-size:13px;"><span class="badge badge-manual">対面</span> 対面で実施</span>
+    <span style="color:#fff; font-size:13px;"><span style="font-family:monospace; color:#ffc0c0; font-size:12px;">npm run ...</span> 実行コマンド</span>
+  </div>
+</div>
+
+<div class="footer">
+  <p>ふくろく訪問看護ステーション ／ 株式会社T-Connect</p>
+  <p style="margin-top:4px;">最終更新: 2026年3月13日</p>
+</div>
+
+<!-- ===== モーダル群 ===== -->
+
+<!-- Modal 1: 応募受付 -->
+<div class="modal-overlay" id="modal-1" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><span class="step-number" style="background:#3498db; width:36px; height:36px; font-size:16px;">1</span> 応募受付</h2>
+      <button class="modal-close" onclick="closeModal('modal-1')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#128269; やること</h3>
+        <ul>
+          <li>メール受信ボックスを確認し、新規応募メールを検知する</li>
+          <li>応募者の名前・応募媒体（ジョブメドレー、直接連絡など）を確認</li>
+          <li>履歴書が添付されていれば内容を確認</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h3>&#128187; コマンド</h3>
+        <div class="example-box" style="border-color:#3498db;">
+          <div class="label">実行コマンド</div>
+          <pre>npm run check-mail</pre>
+        </div>
+        <p style="margin-top:8px;">Xserverウェブメールも同時にBraveで自動オープンされます。</p>
+      </div>
+      <div class="modal-section">
+        <h3>&#128161; ポイント</h3>
+        <div class="tip-box">
+          応募があったら、なるべく早めに面接日程の調整メールを送りましょう。
+          Claudeに「○○さん応募」と伝えるだけで、次のステップ（面接調整）に自動で進みます。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2: 面接日程調整 -->
+<div class="modal-overlay" id="modal-2" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><span class="step-number" style="background:#27ae60; width:36px; height:36px; font-size:16px;">2</span> 面接日程調整</h2>
+      <button class="modal-close" onclick="closeModal('modal-2')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#9881; 自動処理の流れ</h3>
+        <ul>
+          <li>Google Calendarから今後14日間の空き時間を自動取得</li>
+          <li>平日 9:00〜16:00 の中から60分枠を探す</li>
+          <li><strong>3つの候補日（別々の日）</strong>を含むメール文面を生成</li>
+          <li>面接場所・持ち物の案内も自動挿入</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h3>&#128187; コマンド</h3>
+        <div class="example-box" style="border-color:#27ae60;">
+          <div class="label">実行例</div>
+          <pre>npm run interview "田中花子" "ジョブメドレー"</pre>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128231; 生成されるメール例</h3>
+        <div class="example-box" style="border-color:#27ae60;">
+          <div class="label">メール文面イメージ</div>
+          <pre>件名：面接のご案内【ふくろく訪問看護ステーション】
+
+田中花子 様
+
+お世話になっております。
+ふくろく訪問看護ステーションの志摩と申します。
+この度はご応募いただき、誠にありがとうございます。
+
+つきましては、下記日程にて面接をお願いできれば
+と存じます。ご都合の良い日時をお知らせください。
+
+① 3月17日（火） 10:00〜
+② 3月18日（水） 14:00〜
+③ 3月19日（木） 11:00〜
+
+【面接場所】
+ふくろく訪問看護ステーション
+大阪府大東市諸福6-1-7 第1福徳荘2階206号室
+
+【持ち物】
+・履歴書
+・看護師免許証の写し</pre>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128161; ポイント</h3>
+        <div class="tip-box">
+          候補日は必ず<strong>日にちを分けて</strong>提示します（同じ日に3枠ではなく、3日に分ける）。
+          メール文面は送信前に必ず確認してください。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 3: 面接実施 -->
+<div class="modal-overlay" id="modal-3" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><span class="step-number" style="background:#e67e22; width:36px; height:36px; font-size:16px;">3</span> 面接実施</h2>
+      <button class="modal-close" onclick="closeModal('modal-3')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#128205; 面接の基本情報</h3>
+        <ul>
+          <li><strong>場所</strong>：ふくろく訪問看護ステーション（大東市諸福6-1-7 第1福徳荘2階206号室）</li>
+          <li><strong>時間</strong>：約60分</li>
+          <li><strong>担当</strong>：志摩孝政</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h3>&#128203; 確認すべきこと</h3>
+        <ul>
+          <li>看護師としての経験年数・得意分野</li>
+          <li>精神科訪問看護の経験の有無</li>
+          <li>通勤手段（車 or 電車）と通勤時間</li>
+          <li>希望の雇用形態（正社員 or パート）</li>
+          <li>希望の勤務日数・時間帯</li>
+          <li>給与の希望</li>
+          <li>いつから勤務可能か</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h3>&#128161; ポイント</h3>
+        <div class="tip-box">
+          面接後、社内LINEで候補者情報を共有します。
+          採用の場合は「○○さん採用」、不採用の場合は「○○さん不採用」とClaudeに伝えてください。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 採用 -->
+<div class="modal-overlay" id="modal-adopt" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 style="color:#27ae60;">&#10004; 採用の場合</h2>
+      <button class="modal-close" onclick="closeModal('modal-adopt')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#128640; 次のアクション</h3>
+        <ul>
+          <li>Claudeに「○○さん採用」と伝える</li>
+          <li>自動で採用通知＋契約日程調整メールが生成される</li>
+          <li>メール文面を確認して送信</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h3>&#128187; コマンド</h3>
+        <div class="example-box" style="border-color:#27ae60;">
+          <div class="label">トリガーワード例</div>
+          <pre>「田中さん採用」
+「田中さんの採用連絡お願い」
+「契約日調整して」</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 不採用 -->
+<div class="modal-overlay" id="modal-reject" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 style="color:#e74c3c;">&#10008; 不採用の場合</h2>
+      <button class="modal-close" onclick="closeModal('modal-reject')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#128231; お断りメール</h3>
+        <p>丁寧で敬意のある文面で不採用をお伝えします。候補者の良い点にも触れ、今後のご活躍を祈る内容です。</p>
+        <div class="example-box" style="border-color:#e74c3c; margin-top:12px;">
+          <div class="label">件名</div>
+          <pre>選考結果のご連絡</pre>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128187; コマンド</h3>
+        <div class="example-box" style="border-color:#e74c3c;">
+          <div class="label">実行例</div>
+          <pre>npm run reject "田中花子" "ジョブメドレー"</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 4: 契約日程調整 -->
+<div class="modal-overlay" id="modal-4" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><span class="step-number" style="background:#9b59b6; width:36px; height:36px; font-size:16px;">4</span> 契約日程調整・採用連絡</h2>
+      <button class="modal-close" onclick="closeModal('modal-4')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#9881; 自動処理の流れ</h3>
+        <ul>
+          <li>Google Calendarから30分の空き枠を自動検索</li>
+          <li>3つの候補日時（日を分けて）を提示</li>
+          <li>当日の持ち物一覧を自動記載</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h3>&#128188; 持ち物一覧（すべてA4）</h3>
+        <div class="doc-list">
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#fde68a;">&#128196;</div>
+            印鑑（認印可）
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#c7d2fe;">&#128179;</div>
+            マイナンバーカード（表裏）
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#bbf7d0;">&#127974;</div>
+            口座情報（通帳 or カード写し）
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#fecaca;">&#127973;</div>
+            看護師免許証の写し
+          </div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128161; ポイント</h3>
+        <div class="tip-box">
+          <strong>契約手続きは約30分</strong>（1時間半ではありません）。<br>
+          扶養家族がいる場合は、その方のマイナンバーカード（表裏）コピーも必要です。<br>
+          年金手帳は不要です。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 5: 書類一括生成 -->
+<div class="modal-overlay" id="modal-5" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><span class="step-number" style="background:#e74c3c; width:36px; height:36px; font-size:16px;">5</span> 書類一括生成</h2>
+      <button class="modal-close" onclick="closeModal('modal-5')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#128196; 生成される書類（4シート）</h3>
+        <div class="doc-list" style="grid-template-columns:1fr;">
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#c7d2fe;">1</div>
+            <div><strong>必要書類チェックリスト</strong><br><small style="color:#999;">受領すべき書類の一覧</small></div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#fde68a;">2</div>
+            <div><strong>秘密保持誓約書</strong><br><small style="color:#999;">患者情報・SNS禁止等の5条項</small></div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#bbf7d0;">3</div>
+            <div><strong>緊急連絡先・交通費申請書</strong><br><small style="color:#999;">緊急連絡先 + 通勤経路・交通費</small></div>
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#fecaca;">4</div>
+            <div><strong>初出勤のご案内</strong><br><small style="color:#999;">日時・場所・持ち物・服装</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128187; コマンド</h3>
+        <div class="example-box" style="border-color:#e74c3c;">
+          <div class="label">実行例（正社員・月給40万円の場合）</div>
+          <pre>npm run generate-all-docs "田中花子" "正社員" "2026-04-01" "400000" "2026-04-01" "9:00"</pre>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128176; 給与・手当の例（正社員）</h3>
+        <div class="example-box" style="border-color:#e74c3c;">
+          <div class="label">給与構成の例</div>
+          <pre>基本給：400,000円（固定残業代20時間分含む）
+運転手当：月額 5,000円
+車両持ち込み手当：月額 10,000円
+年末年始手当：1回 10,000円（12/31〜1/3）
+オンコール手当：1回 3,000円
+ 夜間出動時：1回 10,000円</pre>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128161; ポイント</h3>
+        <div class="tip-box">
+          <strong>パートの場合</strong>：オンコール手当・夜間出動手当は付きません。<br>
+          <strong>契約書の日付</strong>：雇用契約を結ぶ日を記載（今日の日付ではない）。秘密保持誓約書も同日。<br>
+          <strong>業務内容</strong>：管理者以外は「訪問看護業務および関連業務。」と記載。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 6: 契約締結 -->
+<div class="modal-overlay" id="modal-6" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><span class="step-number" style="background:#e67e22; width:36px; height:36px; font-size:16px;">6</span> 契約締結</h2>
+      <button class="modal-close" onclick="closeModal('modal-6')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#128221; 当日の流れ（約30分）</h3>
+        <ul>
+          <li>印刷した書類一式を用意</li>
+          <li>雇用契約書の内容を一緒に確認</li>
+          <li>契約書に署名・捺印（従業員控え＋会社控え）</li>
+          <li>秘密保持誓約書に署名</li>
+          <li>緊急連絡先・交通費申請書を記入してもらう</li>
+          <li>必要書類（マイナンバー写し等）を受領</li>
+          <li>初出勤日・時間を最終確認</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h3>&#128203; 受領する書類チェック</h3>
+        <div class="doc-list">
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#bbf7d0;">&#10004;</div>
+            署名済み契約書
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#bbf7d0;">&#10004;</div>
+            秘密保持誓約書
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#bbf7d0;">&#10004;</div>
+            マイナンバー写し
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#bbf7d0;">&#10004;</div>
+            口座情報の写し
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#bbf7d0;">&#10004;</div>
+            看護師免許の写し
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#bbf7d0;">&#10004;</div>
+            緊急連絡先記入済み
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 7: 社労士報告 -->
+<div class="modal-overlay" id="modal-7" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><span class="step-number" style="background:#1abc9c; width:36px; height:36px; font-size:16px;">7</span> 社労士・税理士へ報告</h2>
+      <button class="modal-close" onclick="closeModal('modal-7')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#128231; 送信先</h3>
+        <p><strong>南先生</strong>（社労士）：minami300.28.86@gmail.com</p>
+      </div>
+      <div class="modal-section">
+        <h3>&#128196; 報告フォーマット例</h3>
+        <div class="example-box" style="border-color:#1abc9c;">
+          <div class="label">メール本文の例</div>
+          <pre>お世話になっております。
+本日1名看護師の正社員を採用したので
+共有させていただきます。
+社会保険加入です。
+
+①氏名：田中花子
+
+②生年月日：1990年5月15日
+
+③住所：〒577-0000
+ 大阪府東大阪市○○町1-2-3
+
+④マイナンバー：1234 5678 9012
+
+⑤お給料
+・基本給：月給400,000円
+ （固定残業代20時間分/53,600円を含む）
+・運転手当：月額5,000円（運転業務あり）
+・車両持ち込み手当：月額10,000円（自家用車持ち込みあり）
+・年末年始手当：1回10,000円（12/31〜1/3出勤時）
+・オンコール手当：1回3,000円
+（夜間出動時1回10,000円）
+・通勤：車（片道8km×往復×16円＝256円/日）
+
+⑥前職の会社名：○○訪問看護ステーション
+
+⑦扶養者：なし
+
+⑧初出勤日：2026年4月1日（雇用開始日同日）
+
+よろしくお願いいたします</pre>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128161; ポイント</h3>
+        <div class="tip-box">
+          <strong>パートの場合</strong>：オンコール手当・夜間出動手当の項目は記載しません。<br>
+          書類スキャン（PDF）から読み取れる情報は自動で埋められます。
+          Claudeに「顧問に連絡」「社労士に連絡」と伝えてください。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 8: LINE共有 -->
+<div class="modal-overlay" id="modal-8" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><span class="step-number" style="background:#3498db; width:36px; height:36px; font-size:16px;">8</span> 社内LINE共有</h2>
+      <button class="modal-close" onclick="closeModal('modal-8')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#128172; テンプレート例</h3>
+        <div class="example-box" style="border-color:#3498db;">
+          <div class="label">LINE投稿イメージ</div>
+          <pre>【新メンバー紹介】
+
+氏名：田中花子（たなかはなこ）
+雇用形態：正社員
+入社日：2026年4月1日
+
+【経歴】
+・○○病院 内科病棟（3年）
+・△△訪問看護ステーション（5年）
+
+【保有資格】
+・看護師
+・精神科訪問看護研修修了
+
+よろしくお願いします！</pre>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128161; ポイント</h3>
+        <div class="tip-box">
+          経歴は<strong>職歴のみ</strong>記載（学歴は省略）。
+          資格は履歴書から正確に読み取って記載してください。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 9: 初出勤 -->
+<div class="modal-overlay" id="modal-9" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><span class="step-number" style="background:#27ae60; width:36px; height:36px; font-size:16px;">9</span> 初出勤</h2>
+      <button class="modal-close" onclick="closeModal('modal-9')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>&#127775; 初出勤のご案内（自動生成済み）</h3>
+        <ul>
+          <li><strong>出勤場所</strong>：ふくろく訪問看護ステーション（大東市諸福6-1-7）</li>
+          <li><strong>担当</strong>：志摩孝政（090-3229-4350）</li>
+          <li><strong>服装</strong>：動きやすい私服</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h3>&#127890; 持ち物</h3>
+        <div class="doc-list">
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#fde68a;">&#9997;</div>
+            筆記具
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#bbf7d0;">&#127857;</div>
+            昼食
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#c7d2fe;">&#129658;</div>
+            看護用品
+          </div>
+          <div class="doc-item">
+            <div class="doc-icon" style="background:#fecaca;">&#128203;</div>
+            健康診断結果（3ヶ月以内）
+          </div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h3>&#128161; ポイント</h3>
+        <div class="tip-box">
+          健康診断は<strong>3ヶ月以内</strong>のものが必要です。費用は10,000円以内で、領収書を提出すれば給与精算されます。
+          まだ受けていない場合は、初出勤日までに受診するよう案内してください。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+  document.body.style.overflow = '';
+}
+function closeModalOutside(e) {
+  if (e.target === e.currentTarget) {
+    e.target.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.active').forEach(function(m) {
+      m.classList.remove('active');
+    });
+    document.body.style.overflow = '';
+  }
+});
+</script>
+
+</body>
+</html>
