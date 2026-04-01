@@ -29,7 +29,8 @@
   .c3 { border-color:#27ae60; } .c3 .step-num { background:#27ae60; }
   .c4 { border-color:#9b59b6; } .c4 .step-num { background:#9b59b6; }
   .c5 { border-color:#e74c3c; } .c5 .step-num { background:#e74c3c; }
-  .c6 { border-color:#1abc9c; } .c6 .step-num { background:#1abc9c; }
+  .c6 { border-color:#e67e22; } .c6 .step-num { background:#e67e22; }
+  .c7 { border-color:#1abc9c; } .c7 .step-num { background:#1abc9c; }
   .modal-overlay { display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:center;padding:20px; }
   .modal-overlay.active { display:flex; }
   .modal { background:#fff;border-radius:20px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:slideUp .3s ease; }
@@ -95,15 +96,22 @@
 <div class="phase-label"><span>Step 3 ― 出力・保存</span></div>
 
 <div class="card c5" onclick="openModal('m5')">
-  <h3><span class="step-num">5</span> タイムカードPDF出力・保存・共有 <span class="badge badge-manual">手動</span></h3>
-  <p>タイムカードをPDFで出力し、所定フォルダへ保存。南先生に共有し、印刷したタイムカードをファイリングします。</p>
+  <h3><span class="step-num">5</span> タイムカードPDF出力・保存・ファイリング <span class="badge badge-manual">手動</span></h3>
+  <p>タイムカードをPDFで出力し、所定フォルダへ保存。印刷したタイムカードをファイリングします。</p>
   <span class="cmd">KOT &gt; エクスポート / インポート &gt; タイムカード［PDF］</span>
 </div>
 
-<div class="phase-label"><span>Step 4 ― 翌月準備</span></div>
+<div class="phase-label"><span>Step 4 ― 南先生への共有</span></div>
 
 <div class="card c6" onclick="openModal('m6')">
-  <h3><span class="step-num">6</span> 翌月スケジュール登録 <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">6</span> 南先生（社労士）へ月次データ共有 <span class="badge badge-manual">手動</span></h3>
+  <p>タイムカードPDFに加え、経費の立替分や自家用車通勤者のガソリン代をまとめて南先生にメールで共有します。</p>
+</div>
+
+<div class="phase-label"><span>Step 5 ― 翌月準備</span></div>
+
+<div class="card c7" onclick="openModal('m7')">
+  <h3><span class="step-num">7</span> 翌月スケジュール登録 <span class="badge badge-manual">手動</span></h3>
   <p>当月の処理完了後、翌月のスケジュール（予定）をKOTに登録して作業完了です。</p>
 </div>
 
@@ -200,7 +208,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m5" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>5. タイムカードPDF出力・保存・共有</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
+  <div class="modal-header"><h2>5. タイムカードPDF出力・保存・ファイリング</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>PDF出力手順</h3>
       <ul>
@@ -215,9 +223,8 @@
       <div class="example-box"><div class="label">ファイル保存先パス</div><pre>\\192.168.0.60\share\出勤簿\（年度）（職員打刻表）</pre></div>
       <p style="margin-top:8px;font-size:12px;color:#999;">※年度は対象年度に合わせて変更してください（例：2026年度（職員打刻表））</p>
     </div>
-    <div class="modal-section"><h3>共有・ファイリング</h3>
+    <div class="modal-section"><h3>ファイリング</h3>
       <ul>
-        <li>保存したPDFを<strong>南先生（社労士）</strong>にメールで共有</li>
         <li>印刷したタイムカードを<strong>ファイリング</strong>（紙保管）</li>
       </ul>
     </div>
@@ -225,7 +232,34 @@
 </div></div>
 
 <div class="modal-overlay" id="m6" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>6. 翌月スケジュール登録</h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
+  <div class="modal-header"><h2>6. 南先生（社労士）へ月次データ共有</h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>共有するデータ</h3>
+      <p>以下の3点をまとめて南先生にメールで送付します。</p>
+      <ul>
+        <li><strong>タイムカードPDF</strong> ― KOTから出力したもの（備考欄に振替・欠勤理由を記載済み）</li>
+        <li><strong>経費の立替分</strong> ― 従業員が立て替えた経費の明細</li>
+        <li><strong>ガソリン代</strong> ― 自家用車通勤者の走行距離に基づくガソリン代</li>
+      </ul>
+    </div>
+    <div class="modal-section"><h3>送付先</h3>
+      <div class="example-box"><div class="label">南先生メールアドレス</div><pre>minami300.28.86@gmail.com</pre></div>
+    </div>
+    <div class="modal-section"><h3>メール送信方法</h3>
+      <ul>
+        <li>Claudeに「南先生にタイムカードと経費を送って」と依頼</li>
+        <li>文面を確認してから送信（自動では送信されません）</li>
+        <li>送信済みフォルダ（INBOX.Sent）に自動保存されます</li>
+      </ul>
+    </div>
+    <div class="modal-section">
+      <div class="tip-box">経費立替やガソリン代は、経費精算フローで集計したデータを活用します。タイムカードと一緒にまとめて送ることで、南先生側での給与計算がスムーズになります。</div>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="m7" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>7. 翌月スケジュール登録</h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>作業内容</h3>
       <ul>
