@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タイムカード処理フロー - ふくろく訪問看護ステーション</title>
+<style>
+  * { margin:0;padding:0;box-sizing:border-box; }
+  body { font-family:'Segoe UI','Yu Gothic UI','Meiryo',sans-serif; background:linear-gradient(135deg,#e3f2fd 0%,#f3e5f5 100%); min-height:100vh; padding:40px 20px; color:#333; }
+  .back-btn { position:fixed;top:20px;left:20px;z-index:100;background:rgba(255,255,255,0.7);backdrop-filter:blur(8px);border:1px solid rgba(0,0,0,0.08);color:#546e7a;padding:8px 18px;border-radius:10px;font-size:13px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s; }
+  .back-btn:hover { background:rgba(255,255,255,0.9);transform:translateX(-2px); }
+  h1 { text-align:center;color:#546e7a;font-size:28px;margin-bottom:8px; }
+  .subtitle { text-align:center;color:#78909c;font-size:14px;margin-bottom:40px; }
+  .timeline { max-width:800px;margin:0 auto; }
+  .phase-label { text-align:center;margin:30px 0 16px;color:#546e7a;font-size:18px;font-weight:700; }
+  .phase-label span { background:rgba(0,0,0,0.05);padding:6px 20px;border-radius:10px; }
+  .card { background:#fff;border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.1);cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative;border-left:5px solid; }
+  .card:hover { transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.15); }
+  .card::after { content:'クリックで詳細';position:absolute;bottom:6px;right:12px;font-size:10px;color:#ccc;opacity:0;transition:opacity .2s; }
+  .card:hover::after { opacity:1; }
+  .card h3 { font-size:16px;margin-bottom:6px;display:flex;align-items:center;gap:8px; }
+  .card p { font-size:13px;color:#666;line-height:1.7; }
+  .card .cmd { background:#f5f5f5;border-radius:6px;padding:6px 10px;font-family:Consolas,monospace;font-size:11px;color:#e74c3c;margin-top:8px;display:inline-block; }
+  .step-num { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;color:#fff;font-weight:700;font-size:13px;flex-shrink:0; }
+  .badge { display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#fff; }
+  .badge-auto { background:#27ae60; } .badge-manual { background:#e67e22; } .badge-system { background:#3498db; }
+  .c1 { border-color:#f39c12; } .c1 .step-num { background:#f39c12; }
+  .c2 { border-color:#3498db; } .c2 .step-num { background:#3498db; }
+  .c3 { border-color:#27ae60; } .c3 .step-num { background:#27ae60; }
+  .c4 { border-color:#9b59b6; } .c4 .step-num { background:#9b59b6; }
+  .c5 { border-color:#e74c3c; } .c5 .step-num { background:#e74c3c; }
+  .c6 { border-color:#1abc9c; } .c6 .step-num { background:#1abc9c; }
+  .modal-overlay { display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:center;padding:20px; }
+  .modal-overlay.active { display:flex; }
+  .modal { background:#fff;border-radius:20px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:slideUp .3s ease; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+  .modal-header { padding:28px 28px 0;display:flex;align-items:flex-start;justify-content:space-between; }
+  .modal-header h2 { font-size:20px;font-weight:700; }
+  .modal-close { width:36px;height:36px;border-radius:50%;border:none;background:#f0f0f0;color:#999;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .modal-close:hover { background:#e0e0e0;color:#333; }
+  .modal-body { padding:20px 28px 28px; }
+  .modal-section { margin-bottom:18px; }
+  .modal-section:last-child { margin-bottom:0; }
+  .modal-section h3 { font-size:14px;font-weight:700;color:#555;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #f0f0f0; }
+  .modal-section p,.modal-section li { font-size:13px;color:#666;line-height:1.8; }
+  .modal-section ul { padding-left:18px; }
+  .tip-box { background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:12px;color:#92400e;line-height:1.6; }
+  .example-box { background:#f8f9fa;border-radius:12px;padding:14px;border-left:4px solid #5c6bc0;margin-top:8px; }
+  .example-box .label { font-size:11px;font-weight:700;color:#999;letter-spacing:1px;margin-bottom:6px; }
+  .example-box pre { font-family:Consolas,monospace;font-size:12px;color:#444;white-space:pre-wrap;line-height:1.6; }
+  .table-box { width:100%;border-collapse:collapse;margin-top:8px;font-size:12px; }
+  .table-box th { background:#f5f5f5;padding:8px 10px;text-align:left;font-weight:700;color:#555;border-bottom:2px solid #e0e0e0; }
+  .table-box td { padding:8px 10px;border-bottom:1px solid #f0f0f0;color:#666;line-height:1.6; }
+  .table-box tr:last-child td { border-bottom:none; }
+  .footer { text-align:center;color:#90a4ae;font-size:12px;margin-top:40px; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-btn">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  ダッシュボードへ戻る
+</a>
+
+<h1>タイムカード処理・勤怠締めフロー</h1>
+<p class="subtitle">毎月1日に行うKING OF TIMEでの勤怠確認・タイムカード出力・翌月スケジュール登録</p>
+
+<div class="timeline">
+
+<div class="phase-label"><span>Step 1 ― 事前準備</span></div>
+
+<div class="card c1" onclick="openModal('m1')">
+  <h3><span class="step-num">1</span> 関連資料の印刷 <span class="badge badge-manual">手動</span></h3>
+  <p>共有フォルダから「勤務体制一覧表」「出勤予定表」「出勤実績表」の3点を印刷し、手元に準備します。</p>
+</div>
+
+<div class="phase-label"><span>Step 2 ― KOTでの確認・修正</span></div>
+
+<div class="card c2" onclick="openModal('m2')">
+  <h3><span class="step-num">2</span> 打刻抜け・欠勤の修正 <span class="badge badge-manual">手動</span></h3>
+  <p>KOTの「スケジュール管理」から対象者のタイムカードを開き、打刻の抜け漏れや欠勤などの実績を入力します。</p>
+  <span class="cmd">KOT &gt; 全メニュー &gt; スケジュール管理 &gt; タイムカード</span>
+</div>
+
+<div class="card c3" onclick="openModal('m3')">
+  <h3><span class="step-num">3</span> 振替休日・振替出勤の処理 <span class="badge badge-manual">手動</span></h3>
+  <p>シフト振替がある場合、予定と実績の差異を残す形でKOTに入力します。振休の日と振替出勤の日で入力方法が異なります。</p>
+</div>
+
+<div class="card c4" onclick="openModal('m4')">
+  <h3><span class="step-num">4</span> 最終確認 <span class="badge badge-manual">手動</span></h3>
+  <p>「スケジュール管理」画面を再度確認し、予定と実績が完全に一致しているかチェックします。</p>
+</div>
+
+<div class="phase-label"><span>Step 3 ― 出力・保存</span></div>
+
+<div class="card c5" onclick="openModal('m5')">
+  <h3><span class="step-num">5</span> タイムカードPDF出力・保存・共有 <span class="badge badge-manual">手動</span></h3>
+  <p>タイムカードをPDFで出力し、所定フォルダへ保存。南先生に共有し、印刷したタイムカードをファイリングします。</p>
+  <span class="cmd">KOT &gt; エクスポート / インポート &gt; タイムカード［PDF］</span>
+</div>
+
+<div class="phase-label"><span>Step 4 ― 翌月準備</span></div>
+
+<div class="card c6" onclick="openModal('m6')">
+  <h3><span class="step-num">6</span> 翌月スケジュール登録 <span class="badge badge-manual">手動</span></h3>
+  <p>当月の処理完了後、翌月のスケジュール（予定）をKOTに登録して作業完了です。</p>
+</div>
+
+</div>
+
+<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月1日</p></div>
+
+<!-- モーダル -->
+<div class="modal-overlay" id="m1" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>1. 関連資料の印刷</h2><button class="modal-close" onclick="closeModal('m1')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>印刷する資料（3点）</h3>
+      <ul>
+        <li><strong>従業者の勤務の体制及び勤務形態一覧表</strong></li>
+        <li><strong>出勤予定表</strong></li>
+        <li><strong>出勤実績表</strong></li>
+      </ul>
+    </div>
+    <div class="modal-section"><h3>保管場所</h3>
+      <p>共有フォルダから取得します。印刷後、手元に並べてKOTの画面と照合できる状態にしておきます。</p>
+    </div>
+    <div class="modal-section">
+      <div class="tip-box">この3点を見比べながらKOTの入力を行うので、必ず先に印刷してから次のステップに進んでください。</div>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="m2" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>2. 打刻抜け・欠勤の修正</h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>操作手順</h3>
+      <ul>
+        <li>KOTにログイン（<a href="https://s4.ta.kingoftime.jp/admin" target="_blank" style="color:#5c6bc0;">https://s4.ta.kingoftime.jp/admin</a>）</li>
+        <li><strong>全メニュー</strong> &gt; <strong>スケジュール管理</strong> を開く</li>
+        <li>対象者の <strong>タイムカード</strong> を開く</li>
+        <li>印刷資料と照合しながら、打刻抜け・欠勤などを入力</li>
+      </ul>
+    </div>
+    <div class="modal-section"><h3>よくある修正パターン</h3>
+      <ul>
+        <li><strong>打刻忘れ</strong>：出勤 or 退勤の打刻が片方だけ → 実際の時刻を手入力</li>
+        <li><strong>欠勤</strong>：予定は出勤だが休んだ → 休暇区分を設定</li>
+        <li><strong>遅刻・早退</strong>：打刻時刻が予定と異なる → 実績をそのまま残す</li>
+      </ul>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="m3" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>3. 振替休日・振替出勤の処理</h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>考え方</h3>
+      <p>予定していたシフトを振り替えた場合（例：16日の出勤を休みにし、28日の休みを出勤に変更）は、<strong>予定と実績の差異を残す</strong>ため、以下の手順で入力します。</p>
+    </div>
+    <div class="modal-section"><h3>振替休日の日（例：16日 ― 予定は出勤、実際は休み）</h3>
+      <table class="table-box">
+        <tr><th>項目</th><th>設定値</th></tr>
+        <tr><td>パターン</td><td><code>通常勤務（9:00〜17:30）</code>のまま</td></tr>
+        <tr><td>休暇区分</td><td><code>振休</code>（または<code>振替休日</code>）を選択</td></tr>
+        <tr><td>取得単位</td><td><code>全日休暇</code>を選択</td></tr>
+        <tr><td>保存</td><td>対象日にチェック → 保存</td></tr>
+      </table>
+    </div>
+    <div class="modal-section"><h3>振替出勤の日（例：28日 ― 予定は休み、実際は出勤）</h3>
+      <table class="table-box">
+        <tr><th>項目</th><th>設定値</th></tr>
+        <tr><td>パターン</td><td><code>通常勤務（9:00〜17:30）</code>を選択</td></tr>
+        <tr><td>勤務日種別</td><td><code>平日</code>を選択</td></tr>
+        <tr><td>備考</td><td><code>16日の振替出勤</code>と入力</td></tr>
+        <tr><td>保存</td><td>対象日にチェック → 保存</td></tr>
+      </table>
+    </div>
+    <div class="modal-section">
+      <div class="tip-box">振替出勤の備考欄には、必ず<strong>どの日の振替か</strong>を記入してください。後から確認する際に追跡しやすくなります。</div>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="m4" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>4. 最終確認</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>チェックポイント</h3>
+      <ul>
+        <li>「スケジュール管理」画面で全従業員の予定と実績を再確認</li>
+        <li>印刷した資料（勤務体制一覧表・出勤予定表・出勤実績表）との整合性を確認</li>
+        <li>振替休日・振替出勤の入力が正しいか確認</li>
+        <li>打刻抜けや未処理の日がないかチェック</li>
+      </ul>
+    </div>
+    <div class="modal-section">
+      <div class="tip-box">ここで修正漏れがあるとタイムカードPDFに反映されてしまいます。<strong>出力前の最終チェック</strong>なので丁寧に確認してください。</div>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="m5" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>5. タイムカードPDF出力・保存・共有</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>PDF出力手順</h3>
+      <ul>
+        <li><strong>全メニュー</strong> &gt; <strong>エクスポート / インポート</strong> を開く</li>
+        <li>データ出力項目から <strong>タイムカード［PDF］</strong> を選択</li>
+        <li><strong>出力対象年月</strong>を設定</li>
+        <li><strong>出力レイアウト</strong>（横フォーマットなど）を選択</li>
+        <li><strong>データ出力</strong>をクリック</li>
+      </ul>
+    </div>
+    <div class="modal-section"><h3>保存先</h3>
+      <div class="example-box"><div class="label">ファイル保存先パス</div><pre>\\192.168.0.60\share\出勤簿\（年度）（職員打刻表）</pre></div>
+      <p style="margin-top:8px;font-size:12px;color:#999;">※年度は対象年度に合わせて変更してください（例：2026年度（職員打刻表））</p>
+    </div>
+    <div class="modal-section"><h3>共有・ファイリング</h3>
+      <ul>
+        <li>保存したPDFを<strong>南先生（社労士）</strong>にメールで共有</li>
+        <li>印刷したタイムカードを<strong>ファイリング</strong>（紙保管）</li>
+      </ul>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="m6" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>6. 翌月スケジュール登録</h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>作業内容</h3>
+      <ul>
+        <li>当月の処理がすべて完了していることを確認</li>
+        <li>KOTの <strong>スケジュール管理</strong> から翌月分を開く</li>
+        <li>翌月のシフト予定を登録</li>
+      </ul>
+    </div>
+    <div class="modal-section"><h3>補足：従業員の表示順を変えたい場合</h3>
+      <ul>
+        <li><strong>全メニュー</strong> &gt; <strong>従業員</strong> &gt; <strong>従業員設定</strong> を開く</li>
+        <li><strong>表示条件の指定</strong> で部門（訪問看護部門など）を選択し「表示」</li>
+        <li><strong>表示順設定</strong> ボタンから並び順を変更</li>
+      </ul>
+    </div>
+    <div class="modal-section">
+      <div class="tip-box">翌月スケジュールの登録まで完了したら、タイムカード処理・勤怠締め作業はすべて完了です。お疲れさまでした！</div>
+    </div>
+  </div>
+</div></div>
+
+<script>
+function openModal(id){document.getElementById(id).classList.add('active');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('active');document.body.style.overflow='';}
+function closeOut(e){if(e.target===e.currentTarget){e.target.classList.remove('active');document.body.style.overflow='';}}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.active').forEach(function(m){m.classList.remove('active')});document.body.style.overflow='';}});
+</script>
+</body>
+</html>
