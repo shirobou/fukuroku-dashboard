@@ -75,44 +75,53 @@
 <div class="phase-label"><span>毎月 1〜4日</span></div>
 
 <div class="card c1" onclick="openModal('m1')">
-  <h3><span class="step-num">1</span> 実績確定（iBow） <span class="badge badge-auto">半自動</span></h3>
+  <h3><span class="step-num">1</span> 実績確定（iBow） <span class="badge badge-manual">手動</span></h3>
   <p>iBowで各利用者のレセプトを開き、加算にチェックを入れて実績確定。公費書類の到着を必ず確認。</p>
-  <span class="cmd">npm run receipt</span>
 </div>
 
 <div class="card c2" onclick="openModal('m2')">
-  <h3><span class="step-num">2</span> 入金確認（MailNets / アプラス） <span class="badge badge-manual">手動</span></h3>
-  <p>MailNets・アプラスs-webで口座振替の入金結果を確認。引落不能分は直接振込を依頼。</p>
+  <h3><span class="step-num">2</span> 口座情報の登録確認（iBow） <span class="badge badge-manual">手動</span></h3>
+  <p>請求対象者の口座振替情報がiBowに正しく入力されているか確認。支払方法・銀行・支店コード・口座番号・預金者名（半角カタカナ）。</p>
 </div>
 
 <div class="card c3" onclick="openModal('m3')">
-  <h3><span class="step-num">3</span> 領収書兼明細書を郵送 <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">3</span> 前月分の口座振替結果出力（メルネッツ） <span class="badge badge-manual">手動</span></h3>
+  <p>メルネッツからオートネットサービス資金手数料明細表を印刷・ファイリング。振替不能エラーがあれば原因を特定。</p>
+</div>
+
+<div class="card c2" onclick="openModal('m4')">
+  <h3><span class="step-num">4</span> 入金確認（アプラス s-web） <span class="badge badge-manual">手動</span></h3>
+  <p>アプラスs-webで振替結果を確認。引落不能分は直接振込を依頼。自己負担金管理シートに記録。</p>
+</div>
+
+<div class="card c3" onclick="openModal('m5')">
+  <h3><span class="step-num">5</span> 領収書兼明細書を郵送 <span class="badge badge-manual">手動</span></h3>
   <p>iBowからPDF出力 → 窓付き封筒の送付状を作成 → 郵送。自己負担金管理シートに記録。</p>
 </div>
 
 <div class="phase-label"><span>毎月 5〜10日</span></div>
 
-<div class="card c4" onclick="openModal('m4')">
-  <h3><span class="step-num">4</span> 電子レセプトデータ送信 <span class="badge badge-sys">システム</span></h3>
+<div class="card c4" onclick="openModal('m6')">
+  <h3><span class="step-num">6</span> 電子レセプトデータ送信 <span class="badge badge-sys">システム</span></h3>
   <p>iBowからCSVを出力 → 共有フォルダ経由 → オンライン請求パソコンから国保連・社保にアップロード。</p>
 </div>
 
-<div class="card c5" onclick="openModal('m5')">
-  <h3><span class="step-num">5</span> 請求書郵送 + 口座振替データ登録 <span class="badge badge-manual">手動</span></h3>
+<div class="card c5" onclick="openModal('m7')">
+  <h3><span class="step-num">7</span> 請求書郵送 + 口座振替データ登録 <span class="badge badge-manual">手動</span></h3>
   <p>利用者への請求書を印刷・郵送。iBowから口座振替データを出力し、アプラスs-webにアップロード。</p>
 </div>
 
 <div class="phase-label"><span>毎月 15〜25日</span></div>
 
-<div class="card c6" onclick="openModal('m6')">
-  <h3><span class="step-num">6</span> 新規利用者の口座振替登録 <span class="badge badge-manual">手動</span></h3>
+<div class="card c6" onclick="openModal('m8')">
+  <h3><span class="step-num">8</span> 新規利用者の口座振替登録 <span class="badge badge-manual">手動</span></h3>
   <p>口座振替依頼書を記入してもらい、アプラスに簡易書留で送付。管理シートを更新。</p>
 </div>
 
 <div class="phase-label"><span>毎月（通年）</span></div>
 
-<div class="card c2" onclick="openModal('m7')">
-  <h3><span class="step-num">7</span> 書類ファイリング <span class="badge badge-manual">手動</span></h3>
+<div class="card c2" onclick="openModal('m9')">
+  <h3><span class="step-num">9</span> 書類ファイリング <span class="badge badge-manual">手動</span></h3>
   <p>明細書・請求書・領収書兼明細書を印刷してファイリング（事務所の金属棚）。</p>
 </div>
 
@@ -127,7 +136,7 @@
 </div>
 
 <div class="footer">
-  <p>ふくろく訪問看護ステーション ／ 最終更新: 2026年3月13日</p>
+  <p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月2日</p>
 </div>
 
 <!-- モーダル群 -->
@@ -143,11 +152,6 @@
         <li>「レセプト処理」画面で確定状況を確認（確定済 = OK）</li>
       </ul>
     </div>
-    <div class="modal-section"><h3>コマンド（3つのモード）</h3>
-      <div class="example-box"><div class="label">実行例</div><pre>npm run receipt        # 半自動（1件ずつ確認）
-npm run receipt:auto   # 全自動（連続登録）
-npm run receipt:dry    # ドライラン（表示のみ）</pre></div>
-    </div>
     <div class="modal-section">
       <div class="warn-box"><strong>注意：</strong>医療券・自立支援受給者証が届いていない状態で実績確定しないこと！公費書類の到着を必ず確認。</div>
     </div>
@@ -155,11 +159,65 @@ npm run receipt:dry    # ドライラン（表示のみ）</pre></div>
 </div></div>
 
 <div class="modal-overlay" id="m2" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>2. 入金確認</h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
+  <div class="modal-header"><h2>2. 口座情報の登録確認（iBow）</h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>確認項目</h3>
+      <ul>
+        <li><strong>支払い方法</strong>：口座振替が選択されていること</li>
+        <li><strong>引き落とし開始設定</strong>：チェックが入っていること</li>
+        <li><strong>銀行選択</strong>：正しい金融機関が選択されていること</li>
+        <li><strong>支店コード</strong>：正しく入力されていること</li>
+        <li><strong>口座番号</strong>：正しく入力されていること</li>
+        <li><strong>預金者名</strong>：半角カタカナで入力されていること</li>
+      </ul>
+    </div>
+    <div class="modal-section">
+      <div class="tip-box"><strong>預金者名の入力ルール：</strong>半角カタカナで入力。姓と名の間は半角スペースを入れるのが望ましい（スペースなしでもエラーにはならない）。</div>
+    </div>
+    <div class="modal-section">
+      <div class="warn-box"><strong>注意：</strong>新規利用者や口座変更があった利用者は特に注意して確認すること。</div>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="m3" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>3. 前月分の口座振替結果出力</h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>手順</h3>
+      <ul>
+        <li><strong>MailNets（メルネッツ）</strong>にログイン</li>
+        <li><strong>オートネットサービス資金手数料明細表</strong>を出力</li>
+        <li>明細表を<strong>印刷してファイリング</strong></li>
+        <li>振替不能（エラー）がないか確認</li>
+      </ul>
+    </div>
+    <div class="modal-section"><h3>振替結果コード一覧</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;">
+        <tr style="background:#f5f5f5;"><th style="border:1px solid #ddd;padding:8px;text-align:left;">コード</th><th style="border:1px solid #ddd;padding:8px;text-align:left;">内容</th><th style="border:1px solid #ddd;padding:8px;text-align:left;">補足</th></tr>
+        <tr><td style="border:1px solid #ddd;padding:8px;font-weight:700;">0</td><td style="border:1px solid #ddd;padding:8px;">振替済</td><td style="border:1px solid #ddd;padding:8px;">正常処理</td></tr>
+        <tr style="background:#fef2f2;"><td style="border:1px solid #ddd;padding:8px;font-weight:700;">1</td><td style="border:1px solid #ddd;padding:8px;">資金不足</td><td style="border:1px solid #ddd;padding:8px;">預金残高の不足</td></tr>
+        <tr style="background:#fef2f2;"><td style="border:1px solid #ddd;padding:8px;font-weight:700;">2</td><td style="border:1px solid #ddd;padding:8px;">預金取引なし</td><td style="border:1px solid #ddd;padding:8px;">該当口座なし/口座解約済/支店番号・口座番号・名義等の相違</td></tr>
+        <tr style="background:#fef2f2;"><td style="border:1px solid #ddd;padding:8px;font-weight:700;">3</td><td style="border:1px solid #ddd;padding:8px;">預金者都合による振替停止</td><td style="border:1px solid #ddd;padding:8px;">預金者からの振替停止依頼、死亡・相続・差押等</td></tr>
+        <tr style="background:#fef2f2;"><td style="border:1px solid #ddd;padding:8px;font-weight:700;">4</td><td style="border:1px solid #ddd;padding:8px;">預金口座振替依頼書なし</td><td style="border:1px solid #ddd;padding:8px;">依頼書未提出/不備返却中/口座振替契約解約済</td></tr>
+        <tr style="background:#fef2f2;"><td style="border:1px solid #ddd;padding:8px;font-weight:700;">8</td><td style="border:1px solid #ddd;padding:8px;">委託者都合による振替停止</td><td style="border:1px solid #ddd;padding:8px;">弊社からの振替停止依頼</td></tr>
+        <tr style="background:#fef2f2;"><td style="border:1px solid #ddd;padding:8px;font-weight:700;">9</td><td style="border:1px solid #ddd;padding:8px;">その他</td><td style="border:1px solid #ddd;padding:8px;">請求データ不備（データフォーマット上のエラー）</td></tr>
+      </table>
+    </div>
+    <div class="modal-section"><h3>エラー時の対応</h3>
+      <ul>
+        <li><strong>コード1（資金不足）</strong>：利用者に直接振込を依頼</li>
+        <li><strong>コード2（口座情報相違）</strong>：iBowの口座情報を再確認・修正</li>
+        <li><strong>コード4（依頼書なし）</strong>：口座振替依頼書の送付状況を確認</li>
+      </ul>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="m4" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>4. 入金確認</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>確認先システム</h3>
       <ul>
-        <li><strong>MailNets（アプラス）</strong> — 口座振替の入金結果・受領書集計表</li>
         <li><strong>アプラス s-web</strong> — 振替結果（振替日・件数・金額）</li>
       </ul>
     </div>
@@ -176,8 +234,8 @@ npm run receipt:dry    # ドライラン（表示のみ）</pre></div>
   </div>
 </div></div>
 
-<div class="modal-overlay" id="m3" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>3. 領収書兼明細書の郵送</h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
+<div class="modal-overlay" id="m5" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>5. 領収書兼明細書の郵送</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>手順</h3>
       <ul>
@@ -193,8 +251,8 @@ npm run receipt:dry    # ドライラン（表示のみ）</pre></div>
   </div>
 </div></div>
 
-<div class="modal-overlay" id="m4" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>4. 電子レセプトデータ送信</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
+<div class="modal-overlay" id="m6" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>6. 電子レセプトデータ送信</h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>手順</h3>
       <ul>
@@ -221,8 +279,8 @@ npm run receipt:dry    # ドライラン（表示のみ）</pre></div>
   </div>
 </div></div>
 
-<div class="modal-overlay" id="m5" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>5. 請求書郵送 + 口座振替登録</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
+<div class="modal-overlay" id="m7" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>7. 請求書郵送 + 口座振替登録</h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>請求書郵送</h3>
       <ul>
@@ -245,8 +303,8 @@ npm run receipt:dry    # ドライラン（表示のみ）</pre></div>
   </div>
 </div></div>
 
-<div class="modal-overlay" id="m6" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>6. 新規利用者の口座振替登録</h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
+<div class="modal-overlay" id="m8" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>8. 新規利用者の口座振替登録</h2><button class="modal-close" onclick="closeModal('m8')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>手順</h3>
       <ul>
@@ -274,8 +332,8 @@ npm run receipt:dry    # ドライラン（表示のみ）</pre></div>
   </div>
 </div></div>
 
-<div class="modal-overlay" id="m7" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>7. 書類ファイリング</h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
+<div class="modal-overlay" id="m9" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>9. 書類ファイリング</h2><button class="modal-close" onclick="closeModal('m9')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>毎月ファイリングする書類</h3>
       <ul>
