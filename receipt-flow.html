@@ -210,15 +210,21 @@
         <li><strong>コード4（依頼書なし）</strong>：口座振替依頼書の送付状況を確認</li>
       </ul>
     </div>
+    <div class="modal-section">
+      <div class="warn-box"><strong>利用者が死亡した場合：</strong>銀行口座が解約されるため、コード2（預金取引なし）が発生する。ご家族等に連絡し、直接振込で支払いをお願いする。</div>
+    </div>
   </div>
 </div></div>
 
 <div class="modal-overlay" id="m4" onclick="closeOut(event)"><div class="modal">
   <div class="modal-header"><h2>4. 入金確認</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
   <div class="modal-body">
-    <div class="modal-section"><h3>確認先システム</h3>
+    <div class="modal-section"><h3>振替結果データの取込</h3>
       <ul>
-        <li><strong>アプラス s-web</strong> — 振替結果（振替日・件数・金額）</li>
+        <li><strong>アプラス s-web</strong>にログイン（https://s-web.aplus.co.jp/s-web/lcaa01.asp）</li>
+        <li>「<strong>結果データ受信</strong>」（27日振替分）→ 設定はいじらず「<strong>作成</strong>」ボタンを押す</li>
+        <li><strong>batファイル</strong>が作成される</li>
+        <li>iBowレセプト →「<strong>入金管理</strong>」→「<strong>引落結果取込</strong>」からbatファイルを入力する</li>
       </ul>
     </div>
     <div class="modal-section"><h3>確認ポイント</h3>
