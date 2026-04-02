@@ -90,38 +90,43 @@
 </div>
 
 <div class="card c2" onclick="openModal('m4')">
-  <h3><span class="step-num">4</span> 入金確認（アプラス s-web） <span class="badge badge-manual">手動</span></h3>
-  <p>アプラスs-webで振替結果を確認。引落不能分は直接振込を依頼。自己負担金管理シートに記録。</p>
+  <h3><span class="step-num">4</span> 入金確認（アプラス s-web → iBow取込） <span class="badge badge-manual">手動</span></h3>
+  <p>アプラスs-webで振替結果データを受信 → batファイル作成 → iBowレセプトの入金管理に取り込む。</p>
 </div>
 
-<div class="card c3" onclick="openModal('m5')">
-  <h3><span class="step-num">5</span> 領収書兼明細書を郵送 <span class="badge badge-manual">手動</span></h3>
-  <p>iBowからPDF出力 → 窓付き封筒の送付状を作成 → 郵送。自己負担金管理シートに記録。</p>
+<div class="card c5" onclick="openModal('m5')">
+  <h3><span class="step-num">5</span> 自己負担金管理シートの更新 <span class="badge badge-manual">手動</span></h3>
+  <p>入金状況を記録。新規利用者がいる場合は氏名・ふりがな・保険種別等の情報を追記。</p>
+</div>
+
+<div class="card c3" onclick="openModal('m6')">
+  <h3><span class="step-num">6</span> 領収書兼明細書を郵送 <span class="badge badge-manual">手動</span></h3>
+  <p>iBowからPDF出力 → 窓付き封筒の送付状を作成 → 郵送。</p>
 </div>
 
 <div class="phase-label"><span>毎月 5〜10日</span></div>
 
-<div class="card c4" onclick="openModal('m6')">
-  <h3><span class="step-num">6</span> 電子レセプトデータ送信 <span class="badge badge-sys">システム</span></h3>
+<div class="card c4" onclick="openModal('m7')">
+  <h3><span class="step-num">7</span> 電子レセプトデータ送信 <span class="badge badge-sys">システム</span></h3>
   <p>iBowからCSVを出力 → 共有フォルダ経由 → オンライン請求パソコンから国保連・社保にアップロード。</p>
 </div>
 
-<div class="card c5" onclick="openModal('m7')">
-  <h3><span class="step-num">7</span> 請求書郵送 + 口座振替データ登録 <span class="badge badge-manual">手動</span></h3>
+<div class="card c5" onclick="openModal('m8')">
+  <h3><span class="step-num">8</span> 請求書郵送 + 口座振替データ登録 <span class="badge badge-manual">手動</span></h3>
   <p>利用者への請求書を印刷・郵送。iBowから口座振替データを出力し、アプラスs-webにアップロード。</p>
 </div>
 
 <div class="phase-label"><span>毎月 15〜25日</span></div>
 
-<div class="card c6" onclick="openModal('m8')">
-  <h3><span class="step-num">8</span> 新規利用者の口座振替登録 <span class="badge badge-manual">手動</span></h3>
+<div class="card c6" onclick="openModal('m9')">
+  <h3><span class="step-num">9</span> 新規利用者の口座振替登録 <span class="badge badge-manual">手動</span></h3>
   <p>口座振替依頼書を記入してもらい、アプラスに簡易書留で送付。管理シートを更新。</p>
 </div>
 
 <div class="phase-label"><span>毎月（通年）</span></div>
 
-<div class="card c2" onclick="openModal('m9')">
-  <h3><span class="step-num">9</span> 書類ファイリング <span class="badge badge-manual">手動</span></h3>
+<div class="card c2" onclick="openModal('m10')">
+  <h3><span class="step-num">10</span> 書類ファイリング <span class="badge badge-manual">手動</span></h3>
   <p>明細書・請求書・領収書兼明細書を印刷してファイリング（事務所の金属棚）。</p>
 </div>
 
@@ -217,7 +222,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m4" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>4. 入金確認</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
+  <div class="modal-header"><h2>4. 入金確認（アプラス s-web → iBow取込）</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>振替結果データの取込</h3>
       <ul>
@@ -227,13 +232,6 @@
         <li>iBowレセプト →「<strong>入金管理</strong>」→「<strong>引落結果取込</strong>」からbatファイルを入力する</li>
       </ul>
     </div>
-    <div class="modal-section"><h3>確認ポイント</h3>
-      <ul>
-        <li>引落成功 → 自己負担金管理シートに「◎」</li>
-        <li>引落不能（残高不足等）→ 利用者に直接振込を依頼</li>
-        <li>件数と合計金額が一致するか確認</li>
-      </ul>
-    </div>
     <div class="modal-section">
       <div class="tip-box"><strong>引落日：</strong>毎月27日。初回は2ヶ月分まとめて引落。</div>
     </div>
@@ -241,7 +239,35 @@
 </div></div>
 
 <div class="modal-overlay" id="m5" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>5. 領収書兼明細書の郵送</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
+  <div class="modal-header"><h2>5. 自己負担金管理シートの更新</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>新規利用者の追加</h3>
+      <p>新規利用者がいる場合、以下の情報をシートに追記する：</p>
+      <ul>
+        <li><strong>氏名</strong></li>
+        <li><strong>ふりがな</strong></li>
+        <li><strong>施設名/居宅</strong></li>
+        <li><strong>保険種別</strong>（医療保険/介護保険/生活保護/自立支援）</li>
+        <li><strong>訪問開始日</strong></li>
+        <li><strong>アプラス送付状況</strong></li>
+        <li><strong>振替方法</strong>（口座振替/直接振込）</li>
+      </ul>
+    </div>
+    <div class="modal-section"><h3>入金状況の記録</h3>
+      <ul>
+        <li>引落成功 →「<strong>◎</strong>」</li>
+        <li>引落不能（残高不足等）→「<strong>×</strong>」→ 利用者に直接振込を依頼</li>
+        <li>件数と合計金額が一致するか確認</li>
+      </ul>
+    </div>
+    <div class="modal-section">
+      <div class="tip-box"><strong>シートURL：</strong><a href="https://docs.google.com/spreadsheets/d/1oW375J9jvUpfNtFuvezhhCYnsQJxHxa1LzUGQQX6jWI" target="_blank" style="color:#92400e;">自己負担金管理シートを開く</a></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal-overlay" id="m6" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>6. 領収書兼明細書の郵送</h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>手順</h3>
       <ul>
@@ -257,8 +283,8 @@
   </div>
 </div></div>
 
-<div class="modal-overlay" id="m6" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>6. 電子レセプトデータ送信</h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
+<div class="modal-overlay" id="m7" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>7. 電子レセプトデータ送信</h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>手順</h3>
       <ul>
@@ -285,8 +311,8 @@
   </div>
 </div></div>
 
-<div class="modal-overlay" id="m7" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>7. 請求書郵送 + 口座振替登録</h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
+<div class="modal-overlay" id="m8" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>8. 請求書郵送 + 口座振替登録</h2><button class="modal-close" onclick="closeModal('m8')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>請求書郵送</h3>
       <ul>
@@ -309,8 +335,8 @@
   </div>
 </div></div>
 
-<div class="modal-overlay" id="m8" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>8. 新規利用者の口座振替登録</h2><button class="modal-close" onclick="closeModal('m8')">&times;</button></div>
+<div class="modal-overlay" id="m9" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>9. 新規利用者の口座振替登録</h2><button class="modal-close" onclick="closeModal('m9')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>手順</h3>
       <ul>
@@ -338,8 +364,8 @@
   </div>
 </div></div>
 
-<div class="modal-overlay" id="m9" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>9. 書類ファイリング</h2><button class="modal-close" onclick="closeModal('m9')">&times;</button></div>
+<div class="modal-overlay" id="m10" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>10. 書類ファイリング</h2><button class="modal-close" onclick="closeModal('m10')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>毎月ファイリングする書類</h3>
       <ul>
