@@ -31,6 +31,8 @@
   .c5 { border-color:#e74c3c; } .c5 .step-num { background:#e74c3c; }
   .c6 { border-color:#e67e22; } .c6 .step-num { background:#e67e22; }
   .c7 { border-color:#1abc9c; } .c7 .step-num { background:#1abc9c; }
+  .c0 { border-color:#00897b; } .c0 .step-num { background:#00897b; }
+  .c8 { border-color:#e91e63; } .c8 .step-num { background:#e91e63; }
   .modal-overlay { display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:center;padding:20px; }
   .modal-overlay.active { display:flex; }
   .modal { background:#fff;border-radius:20px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:slideUp .3s ease; }
@@ -64,64 +66,99 @@
 </a>
 
 <h1>タイムカード処理・勤怠締めフロー</h1>
-<p class="subtitle">毎月1日に行うKING OF TIMEでの勤怠確認・タイムカード出力・翌月スケジュール登録</p>
+<p class="subtitle">毎月月末〜翌月1日に行うKING OF TIMEでの勤怠確認・タイムカード出力・翌月スケジュール登録</p>
 
 <div class="timeline">
 
-<div class="phase-label"><span>Step 1 ― 事前準備</span></div>
+<div class="phase-label"><span>Step 1 ― 事前確認</span></div>
+
+<div class="card c0" onclick="openModal('m0')">
+  <h3><span class="step-num">1</span> 従業員への勤怠確認依頼 <span class="badge badge-manual">手動</span></h3>
+  <p>毎月月末に従業員へ当月の勤怠確認を依頼します。各自がKOTのマイメニューから打刻確認を行い、「勤怠確認済みとする」をクリックしてもらいます。</p>
+  <span class="cmd">KOT &gt; マイメニュー &gt; 打刻確認 &gt; 勤怠確認済みとする</span>
+</div>
+
+<div class="phase-label"><span>Step 2 ― 事前準備</span></div>
 
 <div class="card c1" onclick="openModal('m1')">
-  <h3><span class="step-num">1</span> 関連資料の印刷 <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">2</span> 関連資料の印刷 <span class="badge badge-manual">手動</span></h3>
   <p>共有フォルダから「勤務体制一覧表」「出勤予定表」「出勤実績表」の3点を印刷し、手元に準備します。</p>
 </div>
 
-<div class="phase-label"><span>Step 2 ― KOTでの確認・修正</span></div>
+<div class="phase-label"><span>Step 3 ― KOTでの確認・修正</span></div>
 
 <div class="card c2" onclick="openModal('m2')">
-  <h3><span class="step-num">2</span> 打刻抜け・欠勤の修正 <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">3</span> 打刻抜け・欠勤の修正 <span class="badge badge-manual">手動</span></h3>
   <p>KOTの「スケジュール管理」から対象者のタイムカードを開き、打刻の抜け漏れや欠勤などの実績を入力します。</p>
   <span class="cmd">KOT &gt; 全メニュー &gt; スケジュール管理 &gt; タイムカード</span>
 </div>
 
 <div class="card c3" onclick="openModal('m3')">
-  <h3><span class="step-num">3</span> 振替休日・振替出勤の処理 <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">4</span> 振替休日・振替出勤の処理 <span class="badge badge-manual">手動</span></h3>
   <p>シフト振替がある場合、予定と実績の差異を残す形でKOTに入力します。振休の日と振替出勤の日で入力方法が異なります。</p>
 </div>
 
 <div class="card c4" onclick="openModal('m4')">
-  <h3><span class="step-num">4</span> 最終確認 <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">5</span> 最終確認 <span class="badge badge-manual">手動</span></h3>
   <p>「スケジュール管理」画面を再度確認し、予定と実績が完全に一致しているかチェックします。</p>
 </div>
 
-<div class="phase-label"><span>Step 3 ― 出力・保存</span></div>
+<div class="phase-label"><span>Step 4 ― 出力・保存</span></div>
 
 <div class="card c5" onclick="openModal('m5')">
-  <h3><span class="step-num">5</span> タイムカードPDF出力・保存・ファイリング <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">6</span> タイムカードPDF出力・保存・ファイリング <span class="badge badge-manual">手動</span></h3>
   <p>タイムカードをPDFで出力し、所定フォルダへ保存。印刷したタイムカードをファイリングします。</p>
   <span class="cmd">KOT &gt; エクスポート / インポート &gt; タイムカード［PDF］</span>
 </div>
 
-<div class="phase-label"><span>Step 4 ― 南先生への共有</span></div>
+<div class="phase-label"><span>Step 5 ― 南先生への共有</span></div>
 
 <div class="card c6" onclick="openModal('m6')">
-  <h3><span class="step-num">6</span> 南先生（社労士）へ月次データ共有 <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">7</span> 南先生（社労士）へ月次データ共有 <span class="badge badge-manual">手動</span></h3>
   <p>タイムカードPDFに加え、経費の立替分や自家用車通勤者のガソリン代をまとめて南先生にメールで共有します。</p>
 </div>
 
-<div class="phase-label"><span>Step 5 ― 翌月準備</span></div>
+<div class="phase-label"><span>Step 6 ― 翌月準備</span></div>
 
 <div class="card c7" onclick="openModal('m7')">
-  <h3><span class="step-num">7</span> 翌月スケジュール登録 <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">8</span> 翌月スケジュール登録 <span class="badge badge-manual">手動</span></h3>
   <p>当月の処理完了後、翌月のスケジュール（予定）をKOTに登録して作業完了です。</p>
 </div>
 
 </div>
 
-<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月1日</p></div>
+<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月3日</p></div>
 
 <!-- モーダル -->
+<div class="modal-overlay" id="m0" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>1. 従業員への勤怠確認依頼</h2><button class="modal-close" onclick="closeModal('m0')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>タイミング</h3>
+      <p>毎月月末（勤怠締め作業の前）に、全従業員へ当月の勤怠確認を依頼します。</p>
+    </div>
+    <div class="modal-section"><h3>従業員に依頼する操作手順</h3>
+      <ul>
+        <li>KOTにログイン</li>
+        <li><strong>マイメニュー</strong> を開く</li>
+        <li><strong>打刻確認</strong> を開く</li>
+        <li>当月の打刻内容を確認し、問題がなければ <strong>「勤怠確認済みとする」</strong> をクリック</li>
+      </ul>
+    </div>
+    <div class="modal-section"><h3>確認のポイント</h3>
+      <ul>
+        <li>打刻漏れや時刻の誤りがないか各自で確認してもらう</li>
+        <li>修正が必要な場合は事務へ連絡してもらう</li>
+        <li>全員の確認が完了してから次のステップ（資料印刷・KOT修正）に進む</li>
+      </ul>
+    </div>
+    <div class="modal-section">
+      <div class="tip-box">従業員本人に勤怠を確認してもらうことで、打刻抜けや誤りの早期発見につながります。全員の「勤怠確認済み」が揃ってから締め作業を開始してください。</div>
+    </div>
+  </div>
+</div></div>
+
 <div class="modal-overlay" id="m1" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>1. 関連資料の印刷</h2><button class="modal-close" onclick="closeModal('m1')">&times;</button></div>
+  <div class="modal-header"><h2>2. 関連資料の印刷</h2><button class="modal-close" onclick="closeModal('m1')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>印刷する資料（3点）</h3>
       <ul>
@@ -140,7 +177,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m2" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>2. 打刻抜け・欠勤の修正</h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
+  <div class="modal-header"><h2>3. 打刻抜け・欠勤の修正</h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>操作手順</h3>
       <ul>
@@ -161,7 +198,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m3" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>3. 振替休日・振替出勤の処理</h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
+  <div class="modal-header"><h2>4. 振替休日・振替出勤の処理</h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>考え方</h3>
       <p>予定していたシフトを振り替えた場合（例：16日の出勤を休みにし、28日の休みを出勤に変更）は、<strong>予定と実績の差異を残す</strong>ため、以下の手順で入力します。</p>
@@ -191,7 +228,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m4" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>4. 最終確認</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
+  <div class="modal-header"><h2>5. 最終確認</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>チェックポイント</h3>
       <ul>
@@ -208,7 +245,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m5" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>5. タイムカードPDF出力・保存・ファイリング</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
+  <div class="modal-header"><h2>6. タイムカードPDF出力・保存・ファイリング</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>PDF出力手順</h3>
       <ul>
@@ -232,7 +269,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m6" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>6. 南先生（社労士）へ月次データ共有</h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
+  <div class="modal-header"><h2>7. 南先生（社労士）へ月次データ共有</h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>共有するデータ</h3>
       <p>以下の3点をまとめて南先生にメールで送付します。</p>
@@ -259,7 +296,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m7" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>7. 翌月スケジュール登録</h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
+  <div class="modal-header"><h2>8. 翌月スケジュール登録</h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>作業内容</h3>
       <ul>
