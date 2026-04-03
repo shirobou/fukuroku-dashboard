@@ -22,12 +22,9 @@
   .step-num { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;color:#fff;font-weight:700;font-size:13px;flex-shrink:0; }
   .badge { display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#fff; }
   .badge-auto { background:#27ae60; } .badge-manual { background:#e67e22; } .badge-ai { background:#9b59b6; }
-  .c1 { border-color:#3498db; } .c1 .step-num { background:#3498db; }
-  .c2 { border-color:#9b59b6; } .c2 .step-num { background:#9b59b6; }
-  .c3 { border-color:#27ae60; } .c3 .step-num { background:#27ae60; }
-  .c4 { border-color:#e67e22; } .c4 .step-num { background:#e67e22; }
-  .c5 { border-color:#1abc9c; } .c5 .step-num { background:#1abc9c; }
-  .c6 { border-color:#e74c3c; } .c6 .step-num { background:#e74c3c; }
+  .c1 { border-color:#3498db; } .c1 .step-num { background:#3498db; }  /* データ収集 */
+  .c2 { border-color:#e67e22; } .c2 .step-num { background:#e67e22; }  /* 記録・集計 */
+  .c3 { border-color:#27ae60; } .c3 .step-num { background:#27ae60; }  /* 出力・反映 */
   .modal-overlay { display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:center;padding:20px; }
   .modal-overlay.active { display:flex; }
   .modal { background:#fff;border-radius:20px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:slideUp .3s ease; }
@@ -49,6 +46,20 @@
   .footer { text-align:center;color:#90a4ae;font-size:12px;margin-top:40px; }
   .cat-grid { display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px; }
   .cat-item { background:#f8f9fa;border-radius:8px;padding:8px 10px;font-size:12px;color:#555; }
+  /* タイムライン俯瞰図 */
+  .gantt-wrap { max-width:800px;margin:0 auto 36px;background:#fff;border-radius:16px;padding:24px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.1); }
+  .gantt-wrap h2 { font-size:16px;color:#546e7a;margin-bottom:16px;text-align:center; }
+  .gantt-axis { display:flex;justify-content:space-between;padding:0 0 8px;border-bottom:2px solid #e0e0e0;margin-bottom:12px;position:relative; }
+  .gantt-axis span { font-size:12px;color:#78909c;font-weight:600; }
+  .gantt-row { display:flex;align-items:center;margin-bottom:6px; }
+  .gantt-label { width:160px;font-size:12px;color:#555;font-weight:600;flex-shrink:0;text-align:right;padding-right:12px; }
+  .gantt-track { flex:1;height:26px;position:relative;border-radius:4px; }
+  .gantt-bar { position:absolute;height:100%;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.5px;transition:all .2s;cursor:pointer; }
+  .gantt-bar:hover { opacity:0.85;transform:scaleY(1.15);box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+  .gantt-divider { position:absolute;top:-8px;bottom:0;width:1px;border-left:1px dashed #ccc;z-index:0; }
+  .gantt-section-label { font-size:11px;color:#999;font-weight:700;margin:12px 0 6px 172px;letter-spacing:1px; }
+  .phase-label { text-align:center;margin:28px 0 14px;color:#546e7a;font-size:17px;font-weight:700; }
+  .phase-label span { background:rgba(0,0,0,0.05);padding:6px 20px;border-radius:10px; }
 </style>
 </head>
 <body>
@@ -61,48 +72,102 @@
 <h1>経費精算フロー</h1>
 <p class="subtitle">レシート撮影からOCR → Google Sheets転記 → 月次レポートまで</p>
 
+<div class="gantt-wrap">
+  <h2>処理タイムライン</h2>
+  <div class="gantt-axis">
+    <span>随時</span><span>毎週金曜</span><span>月末</span><span>月初</span>
+    <div class="gantt-divider" style="left:33%;"></div>
+    <div class="gantt-divider" style="left:66%;"></div>
+  </div>
+
+  <div class="gantt-section-label">データ収集</div>
+
+  <div class="gantt-row">
+    <div class="gantt-label">1. レシート撮影</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:33%;background:#3498db;" onclick="openModal('m1')">随時</div></div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">2. OCR解析</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:20%;width:25%;background:#3498db;" onclick="openModal('m2')">毎週金曜</div></div>
+  </div>
+
+  <div class="gantt-section-label">記録・集計</div>
+
+  <div class="gantt-row">
+    <div class="gantt-label">3. Sheets転記</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:20%;width:25%;background:#e67e22;" onclick="openModal('m3')">毎週金曜</div></div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">4. 看護師別集計</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:50%;width:25%;background:#e67e22;" onclick="openModal('m4')">月末</div></div>
+  </div>
+
+  <div class="gantt-section-label">出力・反映</div>
+
+  <div class="gantt-row">
+    <div class="gantt-label">5. PDF生成</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:50%;width:25%;background:#27ae60;" onclick="openModal('m5')">月末</div></div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">6. 給与反映</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:75%;width:25%;background:#27ae60;" onclick="openModal('m6')">月初</div></div>
+  </div>
+
+  <div style="text-align:right;margin-top:10px;font-size:11px;color:#aaa;">
+    <span style="display:inline-block;width:10px;height:10px;background:#3498db;border-radius:3px;margin-right:2px;"></span> データ収集
+    <span style="display:inline-block;width:10px;height:10px;background:#e67e22;border-radius:3px;margin:0 2px 0 10px;"></span> 記録・集計
+    <span style="display:inline-block;width:10px;height:10px;background:#27ae60;border-radius:3px;margin:0 2px 0 10px;"></span> 出力・反映
+  </div>
+</div>
+
 <div class="timeline">
 
+<div class="phase-label"><span>データ収集（随時〜毎週）</span></div>
+
 <div class="card c1" onclick="openModal('m1')">
-  <h3><span class="step-num">1</span> レシート撮影・アップロード <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">1</span> レシート撮影・アップロード <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">随時</span></h3>
   <p>看護師がGoogleフォームからレシート画像をアップロード（最大10枚）。GASが自動で「経費_未処理」フォルダに移動。</p>
 </div>
 
-<div class="card c2" onclick="openModal('m2')">
-  <h3><span class="step-num">2</span> OCR自動解析 <span class="badge badge-ai">AI</span></h3>
+<div class="card c1" onclick="openModal('m2')">
+  <h3><span class="step-num">2</span> OCR自動解析 <span class="badge badge-ai">AI</span> <span style="font-size:11px;color:#999;font-weight:400;">毎週金曜</span></h3>
   <p>OpenAI Vision APIでレシートを自動解析。日付・金額・店名・品目・経費区分を自動判別。</p>
   <span class="cmd">npm run expense:sync</span>
 </div>
 
-<div class="card c3" onclick="openModal('m3')">
-  <h3><span class="step-num">3</span> Google Sheets転記 <span class="badge badge-auto">自動</span></h3>
+<div class="phase-label"><span>記録・集計（毎週〜月末）</span></div>
+
+<div class="card c2" onclick="openModal('m3')">
+  <h3><span class="step-num">3</span> Google Sheets転記 <span class="badge badge-auto">自動</span> <span style="font-size:11px;color:#999;font-weight:400;">毎週金曜</span></h3>
   <p>解析結果をGoogle Sheetsに自動記録。看護師名・費目・金額・日付・備考・領収書URLを記入。</p>
 </div>
 
-<div class="card c4" onclick="openModal('m4')">
-  <h3><span class="step-num">4</span> 看護師別集計 <span class="badge badge-auto">自動</span></h3>
+<div class="card c2" onclick="openModal('m4')">
+  <h3><span class="step-num">4</span> 看護師別集計 <span class="badge badge-auto">自動</span> <span style="font-size:11px;color:#999;font-weight:400;">月末</span></h3>
   <p>SUMIF関数で各看護師の合計金額を自動計算。月末に実行。</p>
   <span class="cmd">npm run expense:summary</span>
 </div>
 
-<div class="card c5" onclick="openModal('m5')">
-  <h3><span class="step-num">5</span> 月次レポートPDF生成 <span class="badge badge-auto">自動</span></h3>
+<div class="phase-label"><span>出力・反映（月末〜月初）</span></div>
+
+<div class="card c3" onclick="openModal('m5')">
+  <h3><span class="step-num">5</span> 月次レポートPDF生成 <span class="badge badge-auto">自動</span> <span style="font-size:11px;color:#999;font-weight:400;">月末</span></h3>
   <p>経費区分別にグループ化したPDFレポートを生成。税理士への提出用。</p>
   <span class="cmd">npm run expense:report</span>
 </div>
 
-<div class="card c6" onclick="openModal('m6')">
-  <h3><span class="step-num">6</span> 給与反映・確認 <span class="badge badge-manual">手動</span></h3>
+<div class="card c3" onclick="openModal('m6')">
+  <h3><span class="step-num">6</span> 給与反映・確認 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">月初</span></h3>
   <p>月初にGoogle Sheetsで前月の経費を確認し、給与に反映。</p>
 </div>
 
 </div>
 
-<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年3月13日</p></div>
+<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月3日</p></div>
 
 <!-- モーダル群 -->
 <div class="modal-overlay" id="m1" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>1. レシート撮影・アップロード</h2><button class="modal-close" onclick="closeModal('m1')">&times;</button></div>
+  <div class="modal-header"><h2>1. レシート撮影・アップロード <span style="font-size:13px;color:#999;">随時</span></h2><button class="modal-close" onclick="closeModal('m1')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>アップロード方法</h3>
       <ul>
@@ -124,7 +189,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m2" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>2. OCR自動解析</h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
+  <div class="modal-header"><h2>2. OCR自動解析 <span style="font-size:13px;color:#999;">毎週金曜</span></h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>コマンド（3つの方法）</h3>
       <div class="example-box"><div class="label">実行例</div><pre>npm run expense:sync    # フォーム回答を一括処理（推奨）
@@ -152,7 +217,7 @@ npm run expense:ocr &lt;画像&gt; &lt;名前&gt;  # 1枚ずつ処理</pre></div
 </div></div>
 
 <div class="modal-overlay" id="m3" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>3. Google Sheets転記</h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
+  <div class="modal-header"><h2>3. Google Sheets転記 <span style="font-size:13px;color:#999;">毎週金曜</span></h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>シートの列構成</h3>
       <ul>
@@ -172,7 +237,7 @@ npm run expense "福嶋千亜季" "駐車場代" 5000</pre></div>
 </div></div>
 
 <div class="modal-overlay" id="m4" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>4. 看護師別集計</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
+  <div class="modal-header"><h2>4. 看護師別集計 <span style="font-size:13px;color:#999;">月末</span></h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>出力イメージ</h3>
       <div class="example-box"><div class="label">G列〜H列に自動追加</div><pre>看護師名        合計金額
@@ -188,7 +253,7 @@ npm run expense "福嶋千亜季" "駐車場代" 5000</pre></div>
 </div></div>
 
 <div class="modal-overlay" id="m5" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>5. 月次レポートPDF</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
+  <div class="modal-header"><h2>5. 月次レポートPDF <span style="font-size:13px;color:#999;">月末</span></h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>コマンド</h3>
       <div class="example-box"><div class="label">実行例</div><pre>npm run expense:report           # 当月分
@@ -206,7 +271,7 @@ npm run expense:report 2026-02   # 指定月</pre></div>
 </div></div>
 
 <div class="modal-overlay" id="m6" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>6. 給与反映・確認</h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
+  <div class="modal-header"><h2>6. 給与反映・確認 <span style="font-size:13px;color:#999;">月初</span></h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>月初のチェック項目</h3>
       <ul>

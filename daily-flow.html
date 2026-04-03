@@ -24,12 +24,9 @@
   .step-num { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;color:#fff;font-weight:700;font-size:13px;flex-shrink:0; }
   .badge { display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#fff; }
   .badge-auto { background:#27ae60; } .badge-manual { background:#e67e22; }
-  .c1 { border-color:#f39c12; } .c1 .step-num { background:#f39c12; }
-  .c2 { border-color:#3498db; } .c2 .step-num { background:#3498db; }
-  .c3 { border-color:#27ae60; } .c3 .step-num { background:#27ae60; }
-  .c4 { border-color:#9b59b6; } .c4 .step-num { background:#9b59b6; }
-  .c5 { border-color:#e74c3c; } .c5 .step-num { background:#e74c3c; }
-  .c6 { border-color:#1abc9c; } .c6 .step-num { background:#1abc9c; }
+  .c1 { border-color:#3498db; } .c1 .step-num { background:#3498db; }
+  .c2 { border-color:#e67e22; } .c2 .step-num { background:#e67e22; }
+  .c3 { border-color:#9b59b6; } .c3 .step-num { background:#9b59b6; }
   .modal-overlay { display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:center;padding:20px; }
   .modal-overlay.active { display:flex; }
   .modal { background:#fff;border-radius:20px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:slideUp .3s ease; }
@@ -49,6 +46,18 @@
   .example-box .label { font-size:11px;font-weight:700;color:#999;letter-spacing:1px;margin-bottom:6px; }
   .example-box pre { font-family:Consolas,monospace;font-size:12px;color:#444;white-space:pre-wrap;line-height:1.6; }
   .footer { text-align:center;color:#90a4ae;font-size:12px;margin-top:40px; }
+  /* タイムライン俯瞰図 */
+  .gantt-wrap { max-width:800px;margin:0 auto 36px;background:#fff;border-radius:16px;padding:24px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.1); }
+  .gantt-wrap h2 { font-size:16px;color:#546e7a;margin-bottom:16px;text-align:center; }
+  .gantt-axis { display:flex;justify-content:space-between;padding:0 0 8px;border-bottom:2px solid #e0e0e0;margin-bottom:12px;position:relative; }
+  .gantt-axis span { font-size:12px;color:#78909c;font-weight:600; }
+  .gantt-row { display:flex;align-items:center;margin-bottom:6px; }
+  .gantt-label { width:160px;font-size:12px;color:#555;font-weight:600;flex-shrink:0;text-align:right;padding-right:12px; }
+  .gantt-track { flex:1;height:26px;position:relative;border-radius:4px; }
+  .gantt-bar { position:absolute;height:100%;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.5px;transition:all .2s;cursor:pointer; }
+  .gantt-bar:hover { opacity:0.85;transform:scaleY(1.15);box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+  .gantt-divider { position:absolute;top:-8px;bottom:0;width:1px;border-left:1px dashed #ccc;z-index:0; }
+  .gantt-section-label { font-size:11px;color:#999;font-weight:700;margin:12px 0 6px 172px;letter-spacing:1px; }
 </style>
 </head>
 <body>
@@ -61,49 +70,121 @@
 <h1>日常業務フロー</h1>
 <p class="subtitle">朝のブリーフィングからメール監視まで、1日の流れ</p>
 
+<div class="gantt-wrap">
+  <h2>1日のタイムライン</h2>
+  <div class="gantt-axis">
+    <span>9:00</span><span>10:00</span><span>12:00</span><span>15:00</span><span>17:30</span>
+  </div>
+
+  <div class="gantt-section-label" style="margin-left:0;">▸ 朝（始業時）</div>
+
+  <div class="gantt-row">
+    <div class="gantt-label">1. ブリーフィング</div>
+    <div class="gantt-track">
+      <div class="gantt-divider" style="left:12%;"></div>
+      <div class="gantt-divider" style="left:35%;"></div>
+      <div class="gantt-divider" style="left:71%;"></div>
+      <div class="gantt-divider" style="left:94%;"></div>
+      <div class="gantt-bar" style="left:0%;width:6%;background:#3498db;" onclick="openModal('m1')">9:00</div>
+    </div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">2. メール確認</div>
+    <div class="gantt-track">
+      <div class="gantt-divider" style="left:12%;"></div>
+      <div class="gantt-divider" style="left:35%;"></div>
+      <div class="gantt-divider" style="left:71%;"></div>
+      <div class="gantt-divider" style="left:94%;"></div>
+      <div class="gantt-bar" style="left:6%;width:6%;background:#3498db;" onclick="openModal('m2')">9:30</div>
+    </div>
+  </div>
+
+  <div class="gantt-section-label" style="margin-left:0;">▸ 日中</div>
+
+  <div class="gantt-row">
+    <div class="gantt-label">3. メール常駐監視</div>
+    <div class="gantt-track">
+      <div class="gantt-divider" style="left:12%;"></div>
+      <div class="gantt-divider" style="left:35%;"></div>
+      <div class="gantt-divider" style="left:71%;"></div>
+      <div class="gantt-divider" style="left:94%;"></div>
+      <div class="gantt-bar" style="left:12%;width:82%;background:#e67e22;" onclick="openModal('m3')">10:00 - 17:00</div>
+    </div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">4. 書類作成・タスク</div>
+    <div class="gantt-track">
+      <div class="gantt-divider" style="left:12%;"></div>
+      <div class="gantt-divider" style="left:35%;"></div>
+      <div class="gantt-divider" style="left:71%;"></div>
+      <div class="gantt-divider" style="left:94%;"></div>
+      <div class="gantt-bar" style="left:12%;width:82%;background:#e67e22;" onclick="openModal('m4')">10:00 - 17:00</div>
+    </div>
+  </div>
+
+  <div class="gantt-section-label" style="margin-left:0;">▸ 終業時</div>
+
+  <div class="gantt-row">
+    <div class="gantt-label">5. 業務記録</div>
+    <div class="gantt-track">
+      <div class="gantt-divider" style="left:12%;"></div>
+      <div class="gantt-divider" style="left:35%;"></div>
+      <div class="gantt-divider" style="left:71%;"></div>
+      <div class="gantt-divider" style="left:94%;"></div>
+      <div class="gantt-bar" style="left:94%;width:6%;background:#9b59b6;" onclick="openModal('m5')">17:00</div>
+    </div>
+  </div>
+
+  <div style="text-align:right;margin-top:10px;font-size:11px;color:#aaa;">
+    <span style="display:inline-block;width:10px;height:10px;background:#3498db;border-radius:3px;margin-right:2px;"></span> 朝（始業時）
+    <span style="display:inline-block;width:10px;height:10px;background:#e67e22;border-radius:3px;margin:0 2px 0 10px;"></span> 日中
+    <span style="display:inline-block;width:10px;height:10px;background:#9b59b6;border-radius:3px;margin:0 2px 0 10px;"></span> 終業時
+  </div>
+</div>
+
 <div class="timeline">
 
-<div class="phase-label"><span>朝（始業時）</span></div>
+<div class="phase-label"><span>朝（始業時 9:00〜）</span></div>
 
 <div class="card c1" onclick="openModal('m1')">
-  <h3><span class="step-num">1</span> 朝のブリーフィング <span class="badge badge-auto">自動</span></h3>
+  <h3><span class="step-num">1</span> 朝のブリーフィング <span style="font-size:11px;color:#999;font-weight:400;">9:00〜</span> <span class="badge badge-auto">自動</span></h3>
   <p>「おはよう」とClaudeに伝えるだけで、今日の予定＋未読メールを自動取得してDAILY.mdに記録。ウェブメールも自動オープン。</p>
   <span class="cmd">npm run briefing</span>
 </div>
 
-<div class="card c2" onclick="openModal('m2')">
-  <h3><span class="step-num">2</span> メール確認・対応 <span class="badge badge-manual">手動</span></h3>
+<div class="card c1" onclick="openModal('m2')">
+  <h3><span class="step-num">2</span> メール確認・対応 <span style="font-size:11px;color:#999;font-weight:400;">9:30〜</span> <span class="badge badge-manual">手動</span></h3>
   <p>未読メールの中で要対応のものに返信。応募メール → 面接調整、問い合わせ → 回答など。</p>
   <span class="cmd">npm run check-mail</span>
 </div>
 
-<div class="phase-label"><span>日中</span></div>
+<div class="phase-label"><span>日中（10:00〜17:00）</span></div>
 
-<div class="card c3" onclick="openModal('m3')">
-  <h3><span class="step-num">3</span> メール常駐監視 <span class="badge badge-auto">自動</span></h3>
+<div class="card c2" onclick="openModal('m3')">
+  <h3><span class="step-num">3</span> メール常駐監視 <span style="font-size:11px;color:#999;font-weight:400;">常時</span> <span class="badge badge-auto">自動</span></h3>
   <p>15分間隔で新着メールを自動チェック。重要なメールが来たら通知メールを送信。</p>
   <span class="cmd">npm run mail-watch</span>
 </div>
 
-<div class="card c4" onclick="openModal('m4')">
-  <h3><span class="step-num">4</span> 書類作成・タスク処理 <span class="badge badge-manual">手動</span></h3>
+<div class="card c2" onclick="openModal('m4')">
+  <h3><span class="step-num">4</span> 書類作成・タスク処理 <span style="font-size:11px;color:#999;font-weight:400;">随時</span> <span class="badge badge-manual">手動</span></h3>
   <p>契約書作成、経費処理、レセプト処理など、その日のタスクをClaudeに依頼して実行。</p>
 </div>
 
-<div class="phase-label"><span>終業時</span></div>
+<div class="phase-label"><span>終業時（〜17:30）</span></div>
 
-<div class="card c5" onclick="openModal('m5')">
-  <h3><span class="step-num">5</span> 業務記録・引き継ぎ <span class="badge badge-manual">手動</span></h3>
+<div class="card c3" onclick="openModal('m5')">
+  <h3><span class="step-num">5</span> 業務記録・引き継ぎ <span style="font-size:11px;color:#999;font-weight:400;">17:00〜</span> <span class="badge badge-manual">手動</span></h3>
   <p>DAILY.mdに実行した業務を記録。翌日への引き継ぎ事項を整理。</p>
 </div>
 
 </div>
 
-<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年3月13日</p></div>
+<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月3日</p></div>
 
 <!-- モーダル -->
 <div class="modal-overlay" id="m1" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>1. 朝のブリーフィング</h2><button class="modal-close" onclick="closeModal('m1')">&times;</button></div>
+  <div class="modal-header"><h2>1. 朝のブリーフィング <span style="font-size:13px;color:#999;">9:00〜</span></h2><button class="modal-close" onclick="closeModal('m1')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>トリガー</h3>
       <p>Claudeに「おはよう」と伝えるだけで自動実行されます。</p>
@@ -134,7 +215,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m2" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>2. メール確認・対応</h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
+  <div class="modal-header"><h2>2. メール確認・対応 <span style="font-size:13px;color:#999;">9:30〜</span></h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>よくある対応パターン</h3>
       <ul>
@@ -151,7 +232,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m3" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>3. メール常駐監視</h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
+  <div class="modal-header"><h2>3. メール常駐監視 <span style="font-size:13px;color:#999;">常時</span></h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>動作</h3>
       <ul>
@@ -177,7 +258,7 @@ npm run mail-watch:once   # 1回だけチェック</pre></div>
 </div></div>
 
 <div class="modal-overlay" id="m4" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>4. 書類作成・タスク処理</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
+  <div class="modal-header"><h2>4. 書類作成・タスク処理 <span style="font-size:13px;color:#999;">随時</span></h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>Claudeへの依頼でできること</h3>
       <ul>
@@ -195,7 +276,7 @@ npm run mail-watch:once   # 1回だけチェック</pre></div>
 </div></div>
 
 <div class="modal-overlay" id="m5" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>5. 業務記録・引き継ぎ</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
+  <div class="modal-header"><h2>5. 業務記録・引き継ぎ <span style="font-size:13px;color:#999;">17:00〜</span></h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>DAILY.mdの構成</h3>
       <ul>

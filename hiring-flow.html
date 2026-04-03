@@ -255,6 +255,19 @@
   .theme-teal .step-dot { background: #1abc9c; }
   .theme-teal .card-details li::before { color: #1abc9c; }
 
+  /* タイムライン俯瞰図 */
+  .gantt-wrap { max-width:900px;margin:0 auto 36px;background:#fff;border-radius:16px;padding:24px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.1); }
+  .gantt-wrap h2 { font-size:16px;color:#546e7a;margin-bottom:16px;text-align:center; }
+  .gantt-axis { display:flex;justify-content:space-between;padding:0 0 8px;border-bottom:2px solid #e0e0e0;margin-bottom:12px;position:relative; }
+  .gantt-axis span { font-size:12px;color:#78909c;font-weight:600; }
+  .gantt-row { display:flex;align-items:center;margin-bottom:6px; }
+  .gantt-label { width:180px;font-size:12px;color:#555;font-weight:600;flex-shrink:0;text-align:right;padding-right:12px; }
+  .gantt-track { flex:1;height:26px;position:relative;border-radius:4px; }
+  .gantt-bar { position:absolute;height:100%;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.5px;transition:all .2s;cursor:pointer; }
+  .gantt-bar:hover { opacity:0.85;transform:scaleY(1.15);box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+  .gantt-divider { position:absolute;top:-8px;bottom:0;width:1px;border-left:1px dashed #ccc;z-index:0; }
+  .gantt-section-label { font-size:11px;color:#999;font-weight:700;margin:12px 0 6px 192px;letter-spacing:1px; }
+
   /* モーダル */
   .modal-overlay {
     display: none;
@@ -422,6 +435,67 @@
 
 <h1>採用フロー</h1>
 <p class="subtitle">ふくろく訪問看護ステーション ／ 株式会社T-Connect</p>
+
+<div class="gantt-wrap">
+  <h2>採用タイムライン</h2>
+  <div class="gantt-axis">
+    <span>応募</span><span>面接</span><span>採用決定</span><span>契約</span><span>初出勤</span>
+    <div class="gantt-divider" style="left:25%;"></div>
+    <div class="gantt-divider" style="left:50%;"></div>
+    <div class="gantt-divider" style="left:75%;"></div>
+  </div>
+
+  <div class="gantt-section-label">応募〜面接</div>
+
+  <div class="gantt-row">
+    <div class="gantt-label">1. 応募受付</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:10%;background:#3498db;" onclick="openModal('modal-1')">応募日</div></div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">2. 面接日程調整</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:5%;width:15%;background:#3498db;" onclick="openModal('modal-2')">〜数日</div></div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">3. 面接実施</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:20%;width:10%;background:#3498db;" onclick="openModal('modal-3')">面接日</div></div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">4. 社内LINE共有</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:25%;width:10%;background:#3498db;" onclick="openModal('modal-4')">面接後</div></div>
+  </div>
+
+  <div class="gantt-section-label">採用手続き</div>
+
+  <div class="gantt-row">
+    <div class="gantt-label">5. 契約日程調整</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:40%;width:15%;background:#e67e22;" onclick="openModal('modal-5')">採用後</div></div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">6. 書類一括生成</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:50%;width:15%;background:#e67e22;" onclick="openModal('modal-6')">契約前</div></div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">7. 契約締結</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:65%;width:12%;background:#e67e22;" onclick="openModal('modal-7')">契約日</div></div>
+  </div>
+
+  <div class="gantt-section-label">入社準備</div>
+
+  <div class="gantt-row">
+    <div class="gantt-label">8. 社労士・税理士報告</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:72%;width:15%;background:#27ae60;" onclick="openModal('modal-8')">契約後</div></div>
+  </div>
+  <div class="gantt-row">
+    <div class="gantt-label">9. 初出勤</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:90%;width:10%;background:#27ae60;" onclick="openModal('modal-9')">初出勤日</div></div>
+  </div>
+
+  <div style="text-align:right;margin-top:10px;font-size:11px;color:#aaa;">
+    <span style="display:inline-block;width:10px;height:10px;background:#3498db;border-radius:3px;margin-right:2px;"></span> 応募〜面接
+    <span style="display:inline-block;width:10px;height:10px;background:#e67e22;border-radius:3px;margin:0 2px 0 10px;"></span> 採用手続き
+    <span style="display:inline-block;width:10px;height:10px;background:#27ae60;border-radius:3px;margin:0 2px 0 10px;"></span> 入社準備
+  </div>
+</div>
 
 <div class="flow-container">
 
@@ -669,7 +743,7 @@
 
 <div class="footer">
   <p>ふくろく訪問看護ステーション ／ 株式会社T-Connect</p>
-  <p style="margin-top:4px;">最終更新: 2026年3月13日</p>
+  <p style="margin-top:4px;">最終更新: 2026年4月3日</p>
 </div>
 
 <!-- ===== モーダル群 ===== -->

@@ -24,11 +24,8 @@
   .step-num { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;color:#fff;font-weight:700;font-size:13px;flex-shrink:0; }
   .badge { display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#fff; }
   .badge-auto { background:#27ae60; } .badge-manual { background:#e67e22; }
-  .c1 { border-color:#9b59b6; } .c1 .step-num { background:#9b59b6; }
-  .c2 { border-color:#3498db; } .c2 .step-num { background:#3498db; }
-  .c3 { border-color:#27ae60; } .c3 .step-num { background:#27ae60; }
-  .c4 { border-color:#e67e22; } .c4 .step-num { background:#e67e22; }
-  .c5 { border-color:#e74c3c; } .c5 .step-num { background:#e74c3c; }
+  .c1 { border-color:#9b59b6; } .c1 .step-num { background:#9b59b6; }  /* 初期セットアップ */
+  .c2 { border-color:#3498db; } .c2 .step-num { background:#3498db; }  /* 月次運用 */
   .modal-overlay { display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;justify-content:center;align-items:center;padding:20px; }
   .modal-overlay.active { display:flex; }
   .modal { background:#fff;border-radius:20px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.3);animation:slideUp .3s ease; }
@@ -72,7 +69,7 @@
   <span class="cmd">npm run copay:setup -- &lt;シートID&gt;</span>
 </div>
 
-<div class="phase-label"><span>月次運用</span></div>
+<div class="phase-label"><span>月次運用（毎月）</span></div>
 
 <div class="card c2" onclick="openModal('m2')">
   <h3><span class="step-num">2</span> iBowから利用者を同期 <span class="badge badge-auto">自動</span></h3>
@@ -80,28 +77,28 @@
   <span class="cmd">npm run copay:sync</span>
 </div>
 
-<div class="card c3" onclick="openModal('m3')">
+<div class="card c2" onclick="openModal('m3')">
   <h3><span class="step-num">3</span> 請求書・領収書の管理 <span class="badge badge-manual">手動</span></h3>
   <p>毎月の請求書送付・領収書送付・入金確認をシート上で記録。ステータスは記号で管理。</p>
 </div>
 
-<div class="card c4" onclick="openModal('m4')">
+<div class="card c2" onclick="openModal('m4')">
   <h3><span class="step-num">4</span> アプラス口座振替の管理 <span class="badge badge-manual">手動</span></h3>
   <p>新規利用者の口座振替依頼書の送付状況を管理。引落日は毎月27日。</p>
 </div>
 
-<div class="card c5" onclick="openModal('m5')">
+<div class="card c2" onclick="openModal('m5')">
   <h3><span class="step-num">5</span> フィルタービューで確認 <span class="badge badge-manual">手動</span></h3>
   <p>「現行のみ」「全員表示」の2つのビューで利用者を絞り込み。終了者は赤背景で表示。</p>
 </div>
 
 </div>
 
-<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年3月13日</p></div>
+<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月3日</p></div>
 
 <!-- モーダル群 -->
 <div class="modal-overlay" id="m1" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>1. 管理シートのセットアップ</h2><button class="modal-close" onclick="closeModal('m1')">&times;</button></div>
+  <div class="modal-header"><h2>1. 管理シートのセットアップ <span style="font-size:13px;color:#999;">初回のみ</span></h2><button class="modal-close" onclick="closeModal('m1')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>コマンド</h3>
       <div class="example-box"><div class="label">実行例</div><pre>npm run copay:setup -- 1oW375J9jvUpfNtFuvezhhCYnsQJxHxa1LzUGQQX6jWI
@@ -123,7 +120,7 @@ npm run copay:setup -- 1oW375J9jvUpfNtFuvezhhCYnsQJxHxa1LzUGQQX6jWI 2027</pre></
 </div></div>
 
 <div class="modal-overlay" id="m2" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>2. iBowから利用者を同期</h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
+  <div class="modal-header"><h2>2. iBowから利用者を同期 <span style="font-size:13px;color:#999;">毎月</span></h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>処理の流れ</h3>
       <ul>
@@ -147,7 +144,7 @@ npm run copay:setup -- 1oW375J9jvUpfNtFuvezhhCYnsQJxHxa1LzUGQQX6jWI 2027</pre></
 </div></div>
 
 <div class="modal-overlay" id="m3" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>3. 請求書・領収書の管理</h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
+  <div class="modal-header"><h2>3. 請求書・領収書の管理 <span style="font-size:13px;color:#999;">毎月</span></h2><button class="modal-close" onclick="closeModal('m3')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>ステータス記号</h3>
       <div class="status-grid">
@@ -171,7 +168,7 @@ npm run copay:setup -- 1oW375J9jvUpfNtFuvezhhCYnsQJxHxa1LzUGQQX6jWI 2027</pre></
 </div></div>
 
 <div class="modal-overlay" id="m4" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>4. アプラス口座振替の管理</h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
+  <div class="modal-header"><h2>4. アプラス口座振替の管理 <span style="font-size:13px;color:#999;">毎月</span></h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>G列「アプラス送付」のステータス</h3>
       <ul>
@@ -197,7 +194,7 @@ npm run copay:setup -- 1oW375J9jvUpfNtFuvezhhCYnsQJxHxa1LzUGQQX6jWI 2027</pre></
 </div></div>
 
 <div class="modal-overlay" id="m5" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>5. フィルタービュー</h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
+  <div class="modal-header"><h2>5. フィルタービュー <span style="font-size:13px;color:#999;">随時</span></h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>用意されているビュー</h3>
       <ul>
