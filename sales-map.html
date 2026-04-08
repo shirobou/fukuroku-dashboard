@@ -357,11 +357,11 @@ const HOME_LATLNG = { lat: 34.7034, lng: 135.5955 };
 const STORAGE_KEY = 'fukuroku-sales-map-v2';
 
 const CATEGORIES = {
-  hospital:     { label: '病院',               color: '#e53935', icon: 'H', gTypes: ['hospital'], keywords: [] },
-  clinic:       { label: 'クリニック・診療所', color: '#FB8C00', icon: 'C', gTypes: ['doctor'], keywords: ['クリニック', '診療所', '内科'] },
-  pharmacy:     { label: '薬局',               color: '#8E24AA', icon: 'P', gTypes: ['pharmacy'], keywords: [] },
-  nursing_home: { label: '老人ホーム・介護施設', color: '#00897B', icon: 'N', gTypes: [], keywords: ['老人ホーム', '介護施設', 'サ高住', '特別養護老人ホーム', 'グループホーム', 'デイサービス', '居宅介護支援'] },
-  other:        { label: 'その他',             color: '#546E7A', icon: '?', gTypes: [], keywords: [] },
+  hospital:     { label: '病院',               color: '#e53935', icon: '病', gTypes: ['hospital'], keywords: [] },
+  clinic:       { label: 'クリニック・診療所', color: '#FB8C00', icon: '医', gTypes: ['doctor'], keywords: ['クリニック', '診療所', '内科'] },
+  pharmacy:     { label: '薬局',               color: '#8E24AA', icon: '薬', gTypes: ['pharmacy'], keywords: [] },
+  nursing_home: { label: '老人ホーム・介護施設', color: '#00897B', icon: '介', gTypes: [], keywords: ['老人ホーム', '介護施設', 'サ高住', '特別養護老人ホーム', 'グループホーム', 'デイサービス', '居宅介護支援'] },
+  other:        { label: 'その他',             color: '#546E7A', icon: '他', gTypes: [], keywords: [] },
 };
 
 const STATUSES = {
@@ -591,11 +591,11 @@ function createMarkerIcon(category, status) {
   const st = STATUSES[status] || STATUSES.unvisited;
   return {
     path: google.maps.SymbolPath.CIRCLE,
-    scale: 12,
+    scale: 14,
     fillColor: cat.color,
     fillOpacity: 0.9,
     strokeColor: st.color,
-    strokeWeight: 3,
+    strokeWeight: 6,
   };
 }
 
