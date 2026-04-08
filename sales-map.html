@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ふくろく訪問看護ステーション - 営業マップ</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --brand: #2e7d32;
+  --brand-light: #4caf50;
+  --brand-bg: #e8f5e9;
+  --brand-dark: #1b5e20;
+  --gray-50: #fafafa;
+  --gray-100: #f5f5f5;
+  --gray-200: #eeeeee;
+  --gray-300: #e0e0e0;
+  --gray-600: #757575;
+  --gray-800: #424242;
+  --shadow: 0 2px 8px rgba(0,0,0,0.12);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.15);
+  --radius: 8px;
+}
+body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', sans-serif; background: var(--gray-100); color: var(--gray-800); height: 100vh; overflow: hidden; }
+.app { display: flex; height: 100vh; }
+/* Left Sidebar */
+.sidebar-left {
+  width: 300px; min-width: 300px; background: #fff; border-right: 1px solid var(--gray-300);
+  display: flex; flex-direction: column; z-index: 1000; box-shadow: var(--shadow);
+}
+.sidebar-left .logo { padding: 16px; background: var(--brand); color: #fff; text-align: center; }
+.sidebar-left .logo h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
+.sidebar-left .logo p { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+.panel-section { padding: 12px 14px; border-bottom: 1px solid var(--gray-200); }
+.panel-section h3 { font-size: 13px; font-weight: 700; color: var(--brand-dark); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+/* Search */
+.search-row { display: flex; gap: 6px; margin-bottom: 8px; }
+.search-input { flex:1; padding: 8px 10px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 13px; }
+.search-input:focus { outline: none; border-color: var(--brand); }
+.search-btn {
+  width: 100%; padding: 10px; background: var(--brand); color: #fff; border: none;
+  border-radius: var(--radius); cursor: pointer; font-size: 14px; font-weight: 600;
+  transition: background 0.2s;
+}
+.search-btn:hover { background: var(--brand-dark); }
+.search-btn:disabled { background: var(--gray-300); cursor: not-allowed; }
+.search-btn-sm { padding: 8px 12px; font-size: 12px; width: auto; }
+/* Radius select */
+.radius-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+.radius-select { padding: 6px 8px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 13px; background: #fff; }
+/* Category checkboxes */
+.cat-list { display: flex; flex-direction: column; gap: 6px; }
+.cat-item { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.cat-item input { accent-color: var(--brand); }
+.cat-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.cat-count { margin-left: auto; font-size: 11px; color: var(--gray-600); background: var(--gray-200); padding: 1px 6px; border-radius: 10px; }
+/* Status filter */
+.status-filters { display: flex; flex-wrap: wrap; gap: 4px; }
+.status-chip {
+  font-size: 11px; padding: 4px 8px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--gray-300); background: #fff; transition: all 0.2s;
+}
+.status-chip.active { background: var(--brand-bg); border-color: var(--brand); color: var(--brand-dark); font-weight: 600; }
+/* Facility list */
+.facility-list-container { flex: 1; overflow-y: auto; }
+.facility-list-item {
+  padding: 10px 14px; border-bottom: 1px solid var(--gray-200); cursor: pointer;
+  transition: background 0.15s; font-size: 12px;
+}
+.facility-list-item:hover { background: var(--brand-bg); }
+.facility-list-item .fl-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+.facility-list-item .fl-meta { color: var(--gray-600); display: flex; gap: 8px; align-items: center; }
+.fl-status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.fl-rating { font-size: 11px; color: #F9A825; }
+/* Map */
+.map-container { flex: 1; position: relative; }
+#map { width: 100%; height: 100%; }
+/* Right Panel */
+.sidebar-right {
+  width: 360px; min-width: 360px; background: #fff; border-left: 1px solid var(--gray-300);
+  display: flex; flex-direction: column; z-index: 1000; box-shadow: var(--shadow);
+  transform: translateX(100%); transition: transform 0.3s ease; position: absolute; right: 0; top: 0; bottom: 0;
+}
+.sidebar-right.open { transform: translateX(0); }
+.detail-header {
+  padding: 14px; background: var(--brand); color: #fff;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.detail-header h2 { font-size: 15px; font-weight: 700; flex: 1; margin-right: 8px; }
+.close-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 0 4px; }
+.detail-body { flex: 1; overflow-y: auto; padding: 14px; }
+.detail-body .info-row { margin-bottom: 10px; }
+.detail-body .info-label { font-size: 11px; color: var(--gray-600); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.detail-body .info-value { font-size: 14px; margin-top: 2px; }
+.detail-body .info-value a { color: var(--brand); text-decoration: none; }
+.detail-body .info-value a:hover { text-decoration: underline; }
+.status-select { width: 100%; padding: 8px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 13px; background: #fff; }
+.form-group { margin-bottom: 10px; }
+.form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group textarea {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--gray-300); border-radius: var(--radius);
+  font-size: 13px; font-family: inherit; transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--brand); }
+.form-group textarea { resize: vertical; min-height: 60px; }
+.gmaps-btn {
+  display: inline-block; padding: 6px 14px; background: #4285F4; color: #fff; border: none;
+  border-radius: var(--radius); font-size: 12px; cursor: pointer; text-decoration: none; margin-top: 4px;
+}
+.gmaps-btn:hover { background: #3367D6; }
+/* Toolbar */
+.map-toolbar {
+  position: absolute; top: 12px; left: 12px; z-index: 800;
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.toolbar-btn {
+  padding: 8px 14px; background: #fff; border: 1px solid var(--gray-300); border-radius: var(--radius);
+  font-size: 12px; cursor: pointer; box-shadow: var(--shadow); transition: all 0.2s;
+}
+.toolbar-btn:hover { background: var(--brand-bg); border-color: var(--brand); }
+.toolbar-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+/* Loading overlay */
+.loading-overlay {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 900;
+  background: rgba(255,255,255,0.85); display: none; justify-content: center; align-items: center;
+  flex-direction: column; gap: 12px;
+}
+.loading-overlay.show { display: flex; }
+.spinner { width: 40px; height: 40px; border: 4px solid var(--gray-300); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--gray-600); }
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999;
+  padding: 12px 24px; background: var(--gray-800); color: #fff; border-radius: var(--radius);
+  font-size: 13px; box-shadow: var(--shadow-lg); opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+/* Add facility modal */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000;
+  background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #fff; border-radius: 12px; padding: 24px; width: 420px; max-width: 90vw;
+  box-shadow: var(--shadow-lg);
+}
+.modal h3 { font-size: 16px; margin-bottom: 16px; color: var(--brand-dark); }
+.modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+.modal-actions button { padding: 8px 18px; border-radius: var(--radius); font-size: 13px; cursor: pointer; border: 1px solid var(--gray-300); background: #fff; }
+.modal-actions .primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+.modal-actions .primary:hover { background: var(--brand-dark); }
+/* Data actions bar */
+.data-actions { padding: 10px 14px; border-top: 1px solid var(--gray-200); display: flex; gap: 6px; flex-wrap: wrap; }
+.data-actions button {
+  flex: 1; padding: 6px; font-size: 11px; border: 1px solid var(--gray-300); border-radius: var(--radius);
+  background: #fff; cursor: pointer; transition: all 0.2s;
+}
+.data-actions button:hover { background: var(--brand-bg); border-color: var(--brand); }
+/* Stats */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 6px; }
+.stat-card { text-align: center; padding: 6px 4px; background: var(--gray-50); border-radius: 6px; }
+.stat-card .stat-num { font-size: 18px; font-weight: 700; color: var(--brand); }
+.stat-card .stat-label { font-size: 9px; color: var(--gray-600); }
+/* Delete */
+.delete-btn {
+  width: 100%; padding: 8px; background: #fff; color: #e53935; border: 1px solid #e53935;
+  border-radius: var(--radius); cursor: pointer; font-size: 12px; margin-top: 6px;
+}
+.delete-btn:hover { background: #ffebee; }
+/* Place photo */
+.place-photo { width: 100%; height: 140px; object-fit: cover; border-radius: var(--radius); margin-bottom: 10px; }
+/* Rating stars */
+.stars { color: #F9A825; font-size: 13px; }
+/* Visit history */
+.visit-history { margin-top: 8px; }
+.visit-entry {
+  background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius);
+  padding: 10px; margin-bottom: 8px; position: relative;
+}
+.visit-entry .visit-date { font-weight: 700; font-size: 13px; color: var(--brand-dark); margin-bottom: 4px; }
+.visit-entry .visit-memo { font-size: 12px; color: var(--gray-800); white-space: pre-wrap; }
+.visit-entry .visit-action { font-size: 11px; color: var(--brand); margin-top: 4px; }
+.visit-entry .visit-del {
+  position: absolute; top: 6px; right: 8px; background: none; border: none;
+  color: var(--gray-600); cursor: pointer; font-size: 14px; padding: 2px 4px;
+}
+.visit-entry .visit-del:hover { color: #e53935; }
+.add-visit-btn {
+  width: 100%; padding: 8px; background: var(--brand-bg); color: var(--brand-dark); border: 1px dashed var(--brand);
+  border-radius: var(--radius); cursor: pointer; font-size: 12px; font-weight: 600; margin-top: 4px;
+}
+.add-visit-btn:hover { background: var(--brand); color: #fff; }
+/* Business card images */
+.card-images { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.card-img-wrap {
+  position: relative; width: 100px; height: 60px; border-radius: 6px; overflow: hidden;
+  border: 1px solid var(--gray-300); cursor: pointer;
+}
+.card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.card-img-wrap .card-img-del {
+  position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); color: #fff;
+  border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 11px;
+  cursor: pointer; display: none; align-items: center; justify-content: center;
+}
+.card-img-wrap:hover .card-img-del { display: flex; }
+.upload-card-btn {
+  width: 100px; height: 60px; border: 1px dashed var(--gray-300); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  font-size: 22px; color: var(--gray-600); transition: all 0.2s;
+}
+.upload-card-btn:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-bg); }
+/* Image lightbox */
+.lightbox {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 3000;
+  background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; cursor: pointer;
+}
+.lightbox.show { display: flex; }
+.lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+/* Responsive */
+@media (max-width: 1024px) {
+  .sidebar-left { width: 260px; min-width: 260px; }
+  .sidebar-right { width: 320px; min-width: 320px; }
+}
+@media (max-width: 768px) {
+  .sidebar-left { position: absolute; left: -300px; transition: left 0.3s; height: 100%; }
+  .sidebar-left.mobile-open { left: 0; }
+  .sidebar-right { width: 100%; min-width: unset; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Left Sidebar -->
+  <div class="sidebar-left" id="sidebarLeft">
+    <div class="logo">
+      <h1>ふくろく訪問看護ステーション</h1>
+      <p>営業マップダッシュボード（Google Maps版）</p>
+    </div>
+
+    <div class="panel-section">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">施設数</div></div>
+        <div class="stat-card"><div class="stat-num" id="statVisited">0</div><div class="stat-label">訪問済</div></div>
+        <div class="stat-card"><div class="stat-num" id="statContract">0</div><div class="stat-label">契約済</div></div>
+      </div>
+      <div class="radius-row">
+        <span>検索半径:</span>
+        <select id="radiusSelect" class="radius-select">
+          <option value="1000">1 km</option>
+          <option value="2000">2 km</option>
+          <option value="3000" selected>3 km</option>
+          <option value="5000">5 km</option>
+          <option value="10000">10 km</option>
+        </select>
+      </div>
+      <button class="search-btn" id="searchBtn" onclick="searchAllCategories()">周辺施設を検索（Google Places）</button>
+      <div style="margin-top:6px; font-size:11px; color:var(--gray-600);" id="searchStatus"></div>
+    </div>
+
+    <div class="panel-section">
+      <h3>カテゴリ</h3>
+      <div class="cat-list" id="catList"></div>
+    </div>
+
+    <div class="panel-section">
+      <h3>ステータス</h3>
+      <div class="status-filters" id="statusFilters"></div>
+    </div>
+
+    <div class="panel-section" style="padding-bottom:8px;">
+      <h3>施設一覧</h3>
+    </div>
+
+    <div class="facility-list-container" id="facilityList"></div>
+
+    <div class="data-actions">
+      <button onclick="exportData()">エクスポート</button>
+      <button onclick="document.getElementById('importFile').click()">インポート</button>
+      <button onclick="clearAllData()">全削除</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+
+  <!-- Map -->
+  <div class="map-container">
+    <div id="map"></div>
+    <div class="map-toolbar">
+      <button class="toolbar-btn" id="addModeBtn" onclick="toggleAddMode()">+ 施設を追加</button>
+      <button class="toolbar-btn" onclick="gmap.panTo(HOME_LATLNG); gmap.setZoom(15);">自社に戻る</button>
+    </div>
+    <div class="loading-overlay" id="loading">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loadingText">施設を検索中...</div>
+    </div>
+  </div>
+
+  <!-- Right Sidebar -->
+  <div class="sidebar-right" id="sidebarRight">
+    <div class="detail-header">
+      <h2 id="detailTitle">施設詳細</h2>
+      <button class="close-btn" onclick="closeDetail()">&times;</button>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- Add Facility Modal -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3>施設を手動追加</h3>
+    <div class="form-group">
+      <label>施設名 *</label>
+      <input type="text" id="addName" placeholder="例: ○○クリニック">
+    </div>
+    <div class="form-group">
+      <label>カテゴリ</label>
+      <select id="addCategory" class="status-select">
+        <option value="hospital">病院</option>
+        <option value="clinic">クリニック・診療所</option>
+        <option value="pharmacy">薬局</option>
+        <option value="nursing_home">老人ホーム・介護施設</option>
+        <option value="other">その他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>住所</label>
+      <input type="text" id="addAddress" placeholder="大阪府大東市...">
+    </div>
+    <div class="form-group">
+      <label>電話番号</label>
+      <input type="text" id="addPhone" placeholder="072-xxx-xxxx">
+    </div>
+    <div id="addLatLng" style="font-size:12px;color:var(--gray-600);margin-bottom:8px;"></div>
+    <div class="modal-actions">
+      <button onclick="closeAddModal()">キャンセル</button>
+      <button class="primary" onclick="submitAddFacility()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Lightbox for images -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('show')">
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+// ===== Google Maps API Key =====
+const API_KEY = 'AIzaSyAdMiX_cJzfvd2EJS52siTuqQilpHYv88o';
+
+// ===== Constants =====
+const HOME_LATLNG = { lat: 34.7087, lng: 135.6228 };
+const STORAGE_KEY = 'fukuroku-sales-map-v2';
+
+const CATEGORIES = {
+  hospital:     { label: '病院',               color: '#e53935', icon: 'H', gTypes: ['hospital'], keywords: [] },
+  clinic:       { label: 'クリニック・診療所', color: '#FB8C00', icon: 'C', gTypes: ['doctor'], keywords: ['クリニック', '診療所', '内科'] },
+  pharmacy:     { label: '薬局',               color: '#8E24AA', icon: 'P', gTypes: ['pharmacy'], keywords: [] },
+  nursing_home: { label: '老人ホーム・介護施設', color: '#00897B', icon: 'N', gTypes: [], keywords: ['老人ホーム', '介護施設', 'サ高住', '特別養護老人ホーム', 'グループホーム', 'デイサービス', '居宅介護支援'] },
+  other:        { label: 'その他',             color: '#546E7A', icon: '?', gTypes: [], keywords: [] },
+};
+
+const STATUSES = {
+  unvisited:   { label: '未訪問',   color: '#9e9e9e', emoji: '⚪' },
+  visited:     { label: '訪問済み', color: '#1976D2', emoji: '🔵' },
+  negotiating: { label: '商談中',   color: '#F9A825', emoji: '🟡' },
+  contracted:  { label: '契約済み', color: '#2e7d32', emoji: '🟢' },
+  rejected:    { label: 'NG',      color: '#e53935', emoji: '🔴' },
+};
+
+// ===== State =====
+let facilities = {};
+let gMarkers = {};
+let gmap = null;
+let placesService = null;
+let activeFilters = { categories: new Set(Object.keys(CATEGORIES)), statuses: new Set(Object.keys(STATUSES)) };
+let selectedId = null;
+let addMode = false;
+let addLatLng = null;
+let homeMarker = null;
+let radiusCircle = null;
+
+// ===== Load Google Maps API dynamically =====
+function loadGoogleMaps() {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps) { resolve(); return; }
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&language=ja&region=JP`;
+    script.async = true;
+    script.defer = true;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('Google Maps APIの読み込みに失敗しました。APIキーを確認してください。'));
+    document.head.appendChild(script);
+  });
+}
+
+// ===== Initialize =====
+async function init() {
+  showLoading('Google Maps を読み込み中...');
+  try {
+    await loadGoogleMaps();
+  } catch(e) {
+    hideLoading();
+    document.getElementById('map').innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:16px;color:#e53935;padding:40px;text-align:center;">${e.message}<br><br>APIキーの設定とMaps JavaScript API / Places APIの有効化を確認してください。</div>`;
+    return;
+  }
+
+  gmap = new google.maps.Map(document.getElementById('map'), {
+    center: HOME_LATLNG,
+    zoom: 15,
+    mapTypeControl: true,
+    mapTypeControlOptions: { position: google.maps.ControlPosition.TOP_RIGHT },
+    streetViewControl: false,
+    fullscreenControl: false,
+    styles: [
+      { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    ],
+  });
+
+  placesService = new google.maps.places.PlacesService(gmap);
+
+  // Home marker
+  homeMarker = new google.maps.Marker({
+    position: HOME_LATLNG,
+    map: gmap,
+    title: 'ふくろく訪問看護ステーション',
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 28,
+      fillColor: '#2e7d32',
+      fillOpacity: 1,
+      strokeColor: '#fff',
+      strokeWeight: 4,
+    },
+    label: { text: '★', color: '#fff', fontSize: '22px', fontWeight: 'bold' },
+    zIndex: 1000,
+  });
+
+  const homeInfo = new google.maps.InfoWindow({
+    content: '<div style="font-size:14px;"><strong>ふくろく訪問看護ステーション</strong><br>大阪府大東市諸福6-1-7<br>TEL: 072-800-5493</div>',
+  });
+  homeMarker.addListener('click', () => homeInfo.open(gmap, homeMarker));
+
+  // Radius circle
+  updateRadiusCircle();
+  document.getElementById('radiusSelect').addEventListener('change', updateRadiusCircle);
+
+  // Click to add
+  gmap.addListener('click', (e) => {
+    if (!addMode) return;
+    addLatLng = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+    document.getElementById('addLatLng').textContent = `座標: ${addLatLng.lat.toFixed(5)}, ${addLatLng.lng.toFixed(5)}`;
+    document.getElementById('addName').value = '';
+    document.getElementById('addAddress').value = '';
+    document.getElementById('addPhone').value = '';
+    document.getElementById('addCategory').value = 'clinic';
+    document.getElementById('addModal').classList.add('show');
+    toggleAddMode();
+  });
+
+  hideLoading();
+  loadData();
+  renderAll();
+}
+
+function updateRadiusCircle() {
+  const radius = parseInt(document.getElementById('radiusSelect').value);
+  if (radiusCircle) radiusCircle.setMap(null);
+  radiusCircle = new google.maps.Circle({
+    center: HOME_LATLNG,
+    radius: radius,
+    strokeColor: '#2e7d32',
+    strokeOpacity: 0.5,
+    strokeWeight: 1,
+    fillColor: '#2e7d32',
+    fillOpacity: 0.04,
+    map: gmap,
+    clickable: false,
+  });
+}
+
+// ===== Google Places Search =====
+function searchPlacesByType(type, radius) {
+  return new Promise((resolve) => {
+    const request = { location: HOME_LATLNG, radius, type };
+    placesService.nearbySearch(request, (results, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK) resolve(results);
+      else resolve([]);
+    });
+  });
+}
+
+function searchPlacesByKeyword(keyword, radius) {
+  return new Promise((resolve) => {
+    const request = { location: HOME_LATLNG, radius, keyword };
+    placesService.nearbySearch(request, (results, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK) resolve(results);
+      else resolve([]);
+    });
+  });
+}
+
+function getPlaceDetails(placeId) {
+  return new Promise((resolve) => {
+    placesService.getDetails(
+      { placeId, fields: ['name', 'formatted_address', 'formatted_phone_number', 'website', 'rating', 'user_ratings_total', 'opening_hours', 'photos', 'types', 'geometry'] },
+      (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) resolve(place);
+        else resolve(null);
+      }
+    );
+  });
+}
+
+async function searchAllCategories() {
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  const radius = parseInt(document.getElementById('radiusSelect').value);
+  const statusEl = document.getElementById('searchStatus');
+  showLoading('Google Places で施設を検索中...');
+
+  const seenPlaceIds = new Set();
+  let totalAdded = 0;
+
+  for (const [catKey, cat] of Object.entries(CATEGORIES)) {
+    if (catKey === 'other') continue;
+
+    // Search by Google type
+    for (const gType of cat.gTypes) {
+      statusEl.textContent = `${cat.label} を検索中（type: ${gType}）...`;
+      const results = await searchPlacesByType(gType, radius);
+      for (const place of results) {
+        if (seenPlaceIds.has(place.place_id)) continue;
+        seenPlaceIds.add(place.place_id);
+        if (addPlaceResult(place, catKey)) totalAdded++;
+      }
+    }
+
+    // Search by keyword
+    for (const kw of cat.keywords) {
+      statusEl.textContent = `${cat.label} を検索中（"${kw}"）...`;
+      const results = await searchPlacesByKeyword(kw, radius);
+      for (const place of results) {
+        if (seenPlaceIds.has(place.place_id)) continue;
+        seenPlaceIds.add(place.place_id);
+        if (addPlaceResult(place, catKey)) totalAdded++;
+      }
+    }
+  }
+
+  saveData();
+  renderAll();
+  hideLoading();
+  statusEl.textContent = `最終検索: ${new Date().toLocaleString('ja-JP')}`;
+  toast(`${totalAdded}件の新規施設を追加（合計${Object.keys(facilities).length}件）`);
+  btn.disabled = false;
+}
+
+function addPlaceResult(place, category) {
+  const id = 'gp_' + place.place_id;
+  if (facilities[id]) return false;
+
+  facilities[id] = {
+    id,
+    placeId: place.place_id,
+    name: place.name || '',
+    lat: place.geometry.location.lat(),
+    lng: place.geometry.location.lng(),
+    category,
+    address: place.vicinity || '',
+    phone: '',
+    rating: place.rating || null,
+    ratingCount: place.user_ratings_total || 0,
+    status: 'unvisited',
+    contactName: '', contactPhone: '',
+    visits: [], cardImages: [],
+    source: 'google_places',
+    detailsLoaded: false,
+  };
+  addMarker(facilities[id]);
+  return true;
+}
+
+// ===== Markers =====
+function createMarkerIcon(category, status) {
+  const cat = CATEGORIES[category] || CATEGORIES.other;
+  const st = STATUSES[status] || STATUSES.unvisited;
+  return {
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 12,
+    fillColor: cat.color,
+    fillOpacity: 0.9,
+    strokeColor: st.color,
+    strokeWeight: 3,
+  };
+}
+
+function addMarker(f) {
+  if (gMarkers[f.id]) gMarkers[f.id].setMap(null);
+  const cat = CATEGORIES[f.category] || CATEGORIES.other;
+  const marker = new google.maps.Marker({
+    position: { lat: f.lat, lng: f.lng },
+    map: gmap,
+    icon: createMarkerIcon(f.category, f.status),
+    label: { text: cat.icon, color: '#fff', fontSize: '10px', fontWeight: 'bold' },
+    title: f.name,
+  });
+  marker.addListener('click', () => selectFacility(f.id));
+  gMarkers[f.id] = marker;
+}
+
+// ===== UI: Category filter =====
+function renderCatList() {
+  const el = document.getElementById('catList');
+  el.innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => {
+    const count = Object.values(facilities).filter(f => f.category === key).length;
+    const checked = activeFilters.categories.has(key) ? 'checked' : '';
+    return `<label class="cat-item">
+      <input type="checkbox" ${checked} onchange="toggleCategory('${key}', this.checked)">
+      <span class="cat-dot" style="background:${cat.color}"></span>
+      ${cat.label}
+      <span class="cat-count">${count}</span>
+    </label>`;
+  }).join('');
+}
+
+function toggleCategory(key, on) {
+  if (on) activeFilters.categories.add(key); else activeFilters.categories.delete(key);
+  applyFilters();
+}
+
+// ===== UI: Status filter =====
+function renderStatusFilters() {
+  const el = document.getElementById('statusFilters');
+  el.innerHTML = Object.entries(STATUSES).map(([key, st]) => {
+    const active = activeFilters.statuses.has(key) ? 'active' : '';
+    return `<span class="status-chip ${active}" onclick="toggleStatus('${key}')">${st.emoji} ${st.label}</span>`;
+  }).join('');
+}
+
+function toggleStatus(key) {
+  if (activeFilters.statuses.has(key)) activeFilters.statuses.delete(key);
+  else activeFilters.statuses.add(key);
+  renderStatusFilters();
+  applyFilters();
+}
+
+// ===== Filter logic =====
+function applyFilters() {
+  Object.entries(facilities).forEach(([id, f]) => {
+    const show = activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status);
+    if (gMarkers[id]) gMarkers[id].setVisible(show);
+  });
+  renderFacilityList();
+}
+
+// ===== Facility list =====
+function renderFacilityList() {
+  const el = document.getElementById('facilityList');
+  const filtered = Object.values(facilities).filter(f =>
+    activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status)
+  ).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ja'));
+
+  el.innerHTML = filtered.map(f => {
+    const st = STATUSES[f.status] || STATUSES.unvisited;
+    const cat = CATEGORIES[f.category] || CATEGORIES.other;
+    const rating = f.rating ? `<span class="fl-rating">${'★'.repeat(Math.round(f.rating))} ${f.rating}</span>` : '';
+    return `<div class="facility-list-item" onclick="selectFacility('${f.id}')">
+      <div class="fl-name">
+        <span class="fl-status-dot" style="background:${st.color}"></span>
+        ${escHtml(f.name || '名称不明')}
+      </div>
+      <div class="fl-meta">
+        ${cat.label} ${rating}
+      </div>
+    </div>`;
+  }).join('');
+
+  if (filtered.length === 0) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--gray-600);font-size:13px;">施設がありません<br><small>「周辺施設を検索」で取得してください</small></div>';
+  }
+  updateStats();
+}
+
+function updateStats() {
+  const all = Object.values(facilities);
+  document.getElementById('statTotal').textContent = all.length;
+  document.getElementById('statVisited').textContent = all.filter(f => ['visited','negotiating','contracted'].includes(f.status)).length;
+  document.getElementById('statContract').textContent = all.filter(f => f.status === 'contracted').length;
+}
+
+// ===== Select & Detail =====
+async function selectFacility(id) {
+  selectedId = id;
+  const f = facilities[id];
+  if (!f) return;
+
+  document.getElementById('detailTitle').textContent = f.name || '名称不明';
+  document.getElementById('sidebarRight').classList.add('open');
+  if (gMarkers[id]) gmap.panTo({ lat: f.lat, lng: f.lng });
+
+  // Load detailed info from Google Places if not loaded yet
+  if (f.placeId && !f.detailsLoaded) {
+    const details = await getPlaceDetails(f.placeId);
+    if (details) {
+      f.address = details.formatted_address || f.address;
+      f.phone = details.formatted_phone_number || f.phone;
+      f.website = details.website || '';
+      f.rating = details.rating || f.rating;
+      f.ratingCount = details.user_ratings_total || f.ratingCount;
+      if (details.opening_hours) {
+        f.openingHours = details.opening_hours.weekday_text || [];
+      }
+      if (details.photos && details.photos.length > 0) {
+        f.photoUrl = details.photos[0].getUrl({ maxWidth: 400 });
+      }
+      f.detailsLoaded = true;
+      saveData();
+    }
+  }
+
+  renderDetail(f);
+}
+
+function renderDetail(f) {
+  // Migrate old single-visit format to visits array
+  if (!f.visits) f.visits = [];
+  if (f.visitDate && f.visits.length === 0) {
+    f.visits.push({ date: f.visitDate, memo: f.memo || '', nextAction: f.nextAction || '' });
+    delete f.visitDate; delete f.memo; delete f.nextAction;
+    saveData();
+  }
+  if (!f.cardImages) f.cardImages = [];
+
+  const cat = CATEGORIES[f.category] || CATEGORIES.other;
+  const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${f.lat},${f.lng}`;
+  const gmapsPlaceUrl = f.placeId ? `https://www.google.com/maps/place/?q=place_id:${f.placeId}` : gmapsUrl;
+
+  const statusOpts = Object.entries(STATUSES).map(([k, s]) =>
+    `<option value="${k}" ${k === f.status ? 'selected' : ''}>${s.emoji} ${s.label}</option>`
+  ).join('');
+
+  let ratingHtml = '';
+  if (f.rating) {
+    const stars = '★'.repeat(Math.round(f.rating)) + '☆'.repeat(5 - Math.round(f.rating));
+    ratingHtml = `<div class="info-row"><div class="info-label">評価</div><div class="info-value"><span class="stars">${stars}</span> ${f.rating} <span style="color:var(--gray-600);font-size:12px;">(${f.ratingCount}件)</span></div></div>`;
+  }
+
+  let photoHtml = '';
+  if (f.photoUrl) {
+    photoHtml = `<img src="${f.photoUrl}" class="place-photo" alt="${escHtml(f.name)}">`;
+  }
+
+  let hoursHtml = '';
+  if (f.openingHours && f.openingHours.length > 0) {
+    hoursHtml = `<div class="info-row"><div class="info-label">営業時間</div><div class="info-value" style="font-size:12px;line-height:1.6;">${f.openingHours.join('<br>')}</div></div>`;
+  }
+
+  // Visit history HTML
+  const visitsHtml = f.visits.map((v, i) => `
+    <div class="visit-entry">
+      <button class="visit-del" onclick="deleteVisit('${f.id}', ${i})" title="削除">&times;</button>
+      <div class="visit-date">${v.date || '日付なし'}</div>
+      ${v.memo ? `<div class="visit-memo">${escHtml(v.memo)}</div>` : ''}
+      ${v.nextAction ? `<div class="visit-action">次回: ${escHtml(v.nextAction)}</div>` : ''}
+    </div>
+  `).join('');
+
+  // Card images HTML
+  const cardImgsHtml = f.cardImages.map((img, i) => `
+    <div class="card-img-wrap" onclick="showLightbox('${f.id}', ${i})">
+      <img src="${img}" alt="名刺${i+1}">
+      <button class="card-img-del" onclick="event.stopPropagation(); deleteCardImage('${f.id}', ${i})">&times;</button>
+    </div>
+  `).join('');
+
+  document.getElementById('detailBody').innerHTML = `
+    ${photoHtml}
+    <div class="info-row"><div class="info-label">カテゴリ</div><div class="info-value"><span class="cat-dot" style="background:${cat.color};margin-right:4px;"></span> ${cat.label}</div></div>
+    ${ratingHtml}
+    ${f.address ? `<div class="info-row"><div class="info-label">住所</div><div class="info-value">${escHtml(f.address)}</div></div>` : ''}
+    ${f.phone ? `<div class="info-row"><div class="info-label">電話番号</div><div class="info-value"><a href="tel:${f.phone}">${escHtml(f.phone)}</a></div></div>` : ''}
+    ${f.website ? `<div class="info-row"><div class="info-label">ウェブサイト</div><div class="info-value"><a href="${escHtml(f.website)}" target="_blank">${escHtml(f.website)}</a></div></div>` : ''}
+    ${hoursHtml}
+    <div class="info-row" style="display:flex;gap:6px;">
+      <a href="${gmapsPlaceUrl}" target="_blank" class="gmaps-btn">Google Maps で開く</a>
+    </div>
+    <hr style="margin:12px 0;border:none;border-top:1px solid var(--gray-200);">
+
+    <div class="form-group">
+      <label>営業ステータス</label>
+      <select class="status-select" onchange="updateFacilityField('${f.id}','status',this.value)">${statusOpts}</select>
+    </div>
+    <div class="form-group">
+      <label>担当者名</label>
+      <input type="text" value="${escAttr(f.contactName || '')}" onchange="updateFacilityField('${f.id}','contactName',this.value)" placeholder="山田太郎">
+    </div>
+    <div class="form-group">
+      <label>直通電話</label>
+      <input type="text" value="${escAttr(f.contactPhone || '')}" onchange="updateFacilityField('${f.id}','contactPhone',this.value)" placeholder="090-xxxx-xxxx">
+    </div>
+
+    <hr style="margin:12px 0;border:none;border-top:1px solid var(--gray-200);">
+
+    <div class="form-group">
+      <label>名刺画像</label>
+      <div class="card-images">
+        ${cardImgsHtml}
+        <label class="upload-card-btn" title="名刺画像を追加">
+          +
+          <input type="file" accept="image/*" multiple style="display:none" onchange="uploadCardImages('${f.id}', this.files)">
+        </label>
+      </div>
+    </div>
+
+    <hr style="margin:12px 0;border:none;border-top:1px solid var(--gray-200);">
+
+    <div class="form-group">
+      <label>営業履歴（${f.visits.length}件）</label>
+      <div class="visit-history">${visitsHtml}</div>
+      <button class="add-visit-btn" onclick="showAddVisit('${f.id}')">+ 訪問記録を追加</button>
+    </div>
+
+    <div id="addVisitForm" style="display:none; margin-top:8px; padding:12px; background:var(--gray-50); border:1px solid var(--gray-200); border-radius:var(--radius);">
+      <div class="form-group">
+        <label>訪問日</label>
+        <input type="date" id="newVisitDate" value="${new Date().toISOString().slice(0,10)}">
+      </div>
+      <div class="form-group">
+        <label>メモ / 所感</label>
+        <textarea id="newVisitMemo" placeholder="訪問の内容、担当者の反応など..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>次回アクション</label>
+        <input type="text" id="newVisitAction" placeholder="例: パンフレット持参して再訪問">
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="search-btn search-btn-sm" style="flex:1;" onclick="submitVisit('${f.id}')">保存</button>
+        <button class="toolbar-btn" style="flex:0;" onclick="document.getElementById('addVisitForm').style.display='none'">取消</button>
+      </div>
+    </div>
+
+    <hr style="margin:16px 0;border:none;border-top:1px solid var(--gray-200);">
+    <button class="delete-btn" onclick="deleteFacility('${f.id}')">この施設を削除</button>
+  `;
+}
+
+// ===== Visit History =====
+function showAddVisit(id) {
+  document.getElementById('addVisitForm').style.display = 'block';
+  document.getElementById('newVisitDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('newVisitMemo').value = '';
+  document.getElementById('newVisitAction').value = '';
+  document.getElementById('addVisitForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function submitVisit(id) {
+  const f = facilities[id];
+  if (!f) return;
+  if (!f.visits) f.visits = [];
+  const date = document.getElementById('newVisitDate').value;
+  const memo = document.getElementById('newVisitMemo').value.trim();
+  const nextAction = document.getElementById('newVisitAction').value.trim();
+  if (!date && !memo) { toast('日付またはメモを入力してください'); return; }
+  f.visits.unshift({ date, memo, nextAction });
+  saveData();
+  renderDetail(f);
+  toast('訪問記録を追加しました');
+}
+
+function deleteVisit(id, index) {
+  const f = facilities[id];
+  if (!f || !f.visits) return;
+  if (!confirm('この訪問記録を削除しますか？')) return;
+  f.visits.splice(index, 1);
+  saveData();
+  renderDetail(f);
+}
+
+// ===== Card Images =====
+function uploadCardImages(id, files) {
+  const f = facilities[id];
+  if (!f) return;
+  if (!f.cardImages) f.cardImages = [];
+
+  let loaded = 0;
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) continue;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      // Resize to save LocalStorage space
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxW = 800;
+        const scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        f.cardImages.push(dataUrl);
+        loaded++;
+        if (loaded === files.length) {
+          saveData();
+          renderDetail(f);
+          toast(`名刺画像を${loaded}枚追加しました`);
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function deleteCardImage(id, index) {
+  const f = facilities[id];
+  if (!f || !f.cardImages) return;
+  if (!confirm('この画像を削除しますか？')) return;
+  f.cardImages.splice(index, 1);
+  saveData();
+  renderDetail(f);
+}
+
+function showLightbox(id, index) {
+  const f = facilities[id];
+  if (!f || !f.cardImages || !f.cardImages[index]) return;
+  document.getElementById('lightboxImg').src = f.cardImages[index];
+  document.getElementById('lightbox').classList.add('show');
+}
+
+function updateFacilityField(id, field, value) {
+  if (!facilities[id]) return;
+  facilities[id][field] = value;
+  if (field === 'status') {
+    addMarker(facilities[id]);
+    renderFacilityList();
+    renderCatList();
+  }
+  saveData();
+}
+
+function deleteFacility(id) {
+  if (!confirm('この施設を削除しますか？')) return;
+  if (gMarkers[id]) gMarkers[id].setMap(null);
+  delete gMarkers[id];
+  delete facilities[id];
+  closeDetail();
+  saveData();
+  renderAll();
+  toast('施設を削除しました');
+}
+
+function closeDetail() {
+  document.getElementById('sidebarRight').classList.remove('open');
+  selectedId = null;
+}
+
+// ===== Add Mode =====
+function toggleAddMode() {
+  addMode = !addMode;
+  const btn = document.getElementById('addModeBtn');
+  btn.classList.toggle('active', addMode);
+  gmap.setOptions({ draggableCursor: addMode ? 'crosshair' : null });
+  if (addMode) toast('地図上をクリックして施設の位置を指定してください');
+}
+
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('show');
+  addLatLng = null;
+}
+
+function submitAddFacility() {
+  const name = document.getElementById('addName').value.trim();
+  if (!name) { toast('施設名を入力してください'); return; }
+  if (!addLatLng) { toast('位置が指定されていません'); return; }
+
+  const id = 'manual_' + Date.now();
+  facilities[id] = {
+    id, name,
+    lat: addLatLng.lat, lng: addLatLng.lng,
+    category: document.getElementById('addCategory').value,
+    address: document.getElementById('addAddress').value.trim(),
+    phone: document.getElementById('addPhone').value.trim(),
+    status: 'unvisited',
+    contactName: '', contactPhone: '',
+    visits: [], cardImages: [],
+    source: 'manual',
+  };
+  addMarker(facilities[id]);
+  saveData();
+  renderAll();
+  closeAddModal();
+  toast(`${name} を追加しました`);
+  selectFacility(id);
+}
+
+// ===== Data persistence =====
+function saveData() {
+  try {
+    // Don't save photoUrl (regenerated from Places API) and openingHours to save space
+    const toSave = {};
+    for (const [id, f] of Object.entries(facilities)) {
+      const copy = { ...f };
+      delete copy.photoUrl;
+      toSave[id] = copy;
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch (e) { console.error('Save failed:', e); }
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      facilities = JSON.parse(raw);
+      Object.values(facilities).forEach(f => addMarker(f));
+    }
+  } catch (e) { console.error('Load failed:', e); }
+}
+
+function exportData() {
+  const data = JSON.stringify(facilities, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `fukuroku-sales-map-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('営業データをエクスポートしました');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      let count = 0;
+      Object.entries(imported).forEach(([id, f]) => {
+        if (!facilities[id]) count++;
+        facilities[id] = { ...facilities[id], ...f, id };
+        addMarker(facilities[id]);
+      });
+      saveData();
+      renderAll();
+      toast(`${count}件の新規施設をインポートしました`);
+    } catch (err) {
+      toast('インポートに失敗しました');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function clearAllData() {
+  if (!confirm('全ての施設データを削除しますか？（元に戻せません）')) return;
+  Object.values(gMarkers).forEach(m => m.setMap(null));
+  gMarkers = {};
+  facilities = {};
+  saveData();
+  renderAll();
+  closeDetail();
+  toast('全データを削除しました');
+}
+
+// ===== Utilities =====
+function showLoading(text) {
+  document.getElementById('loadingText').textContent = text || '読み込み中...';
+  document.getElementById('loading').classList.add('show');
+}
+function hideLoading() { document.getElementById('loading').classList.remove('show'); }
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escAttr(s) { return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
+function renderAll() {
+  renderCatList();
+  renderStatusFilters();
+  renderFacilityList();
+}
+
+// ===== Start =====
+init();
+</script>
+</body>
+</html>
