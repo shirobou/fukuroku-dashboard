@@ -465,6 +465,18 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   </div>
 </div>
 
+<!-- Search Preview Modal -->
+<div class="modal-overlay" id="previewModal">
+  <div class="modal" style="width:480px;max-height:85vh;overflow-y:auto;">
+    <h3 id="previewTitle">施設情報</h3>
+    <div id="previewContent"></div>
+    <div class="modal-actions">
+      <button onclick="document.getElementById('previewModal').classList.remove('show')">閉じる</button>
+      <button class="primary" id="previewAddBtn">営業先に追加</button>
+    </div>
+  </div>
+</div>
+
 <!-- Help Modal -->
 <div class="modal-overlay" id="helpModal">
   <div class="modal" style="width:500px;max-height:85vh;overflow-y:auto;">
@@ -1832,33 +1844,8 @@ function searchPlace() {
         selectFacility(existingId);
         toast('既に登録済みの施設です');
       } else {
-        // Ask to add
-        if (confirm(`「${place.name}」を営業先に追加しますか？`)) {
-          const cat = guessCategory(place.name, place.types || []);
-          const id = 'gp_' + place.place_id;
-          facilities[id] = {
-            id,
-            placeId: place.place_id,
-            name: place.name || '',
-            lat: loc.lat(),
-            lng: loc.lng(),
-            category: cat,
-            address: place.formatted_address || '',
-            phone: '',
-            rating: place.rating || null,
-            ratingCount: place.user_ratings_total || 0,
-            status: 'unvisited',
-            contactName: '', contactPhone: '',
-            visits: [], cardImages: [],
-            source: 'search',
-            detailsLoaded: false,
-          };
-          addMarker(facilities[id]);
-          saveData();
-          renderAll();
-          selectFacility(id);
-          toast(`${place.name} を追加しました`);
-        }
+        // Get details first, then show preview
+        showSearchPreview(place);
       }
     } else {
       toast('見つかりませんでした。キーワードを変えてみてください');
@@ -1904,6 +1891,83 @@ function selectSearchResult(index) {
   document.getElementById('addSearchResults').innerHTML = `<div style="padding:4px;color:var(--brand);">✓ ${escHtml(p.name)} を選択しました</div>`;
   // Store placeId for later
   window._selectedPlaceId = p.place_id;
+}
+
+async function showSearchPreview(place) {
+  const loc = place.geometry.location;
+  document.getElementById('previewTitle').textContent = place.name || '施設情報';
+
+  // Show modal immediately with basic info
+  let html = '<div style="font-size:13px;color:var(--gray-600);margin-bottom:8px;">詳細を取得中...</div>';
+  document.getElementById('previewContent').innerHTML = html;
+  document.getElementById('previewModal').classList.add('show');
+
+  // Get detailed info
+  const details = await getPlaceDetails(place.place_id);
+  const d = details || {};
+  const cat = guessCategory(d.name || place.name, d.types || place.types || []);
+  const catInfo = CATEGORIES[cat] || CATEGORIES.other;
+
+  let photoHtml = '';
+  if (d.photos && d.photos.length > 0) {
+    photoHtml = `<img src="${d.photos[0].getUrl({ maxWidth: 400 })}" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius);margin-bottom:10px;">`;
+  }
+
+  let ratingHtml = '';
+  if (d.rating) {
+    const stars = '★'.repeat(Math.round(d.rating)) + '☆'.repeat(5 - Math.round(d.rating));
+    ratingHtml = `<div style="margin-bottom:6px;"><span style="color:#F9A825;">${stars}</span> ${d.rating} <span style="color:var(--gray-600);font-size:12px;">(${d.user_ratings_total || 0}件)</span></div>`;
+  }
+
+  let hoursHtml = '';
+  if (d.opening_hours && d.opening_hours.weekday_text) {
+    hoursHtml = `<div style="margin-bottom:8px;"><div style="font-size:11px;font-weight:600;color:var(--gray-600);margin-bottom:2px;">営業時間</div><div style="font-size:11px;line-height:1.6;">${d.opening_hours.weekday_text.join('<br>')}</div></div>`;
+  }
+
+  html = `
+    ${photoHtml}
+    <div style="margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${catInfo.color};"></span>
+      <span style="font-size:12px;font-weight:600;">${catInfo.label}</span>
+    </div>
+    ${ratingHtml}
+    ${d.formatted_address ? `<div style="font-size:13px;margin-bottom:6px;">${escHtml(d.formatted_address)}</div>` : ''}
+    ${d.formatted_phone_number ? `<div style="font-size:13px;margin-bottom:6px;">TEL: <a href="tel:${d.formatted_phone_number}">${escHtml(d.formatted_phone_number)}</a></div>` : ''}
+    ${d.website ? `<div style="font-size:12px;margin-bottom:6px;"><a href="${escHtml(d.website)}" target="_blank" style="color:var(--brand);">${escHtml(d.website)}</a></div>` : ''}
+    ${hoursHtml}
+    <div style="margin-top:8px;"><a href="https://www.google.com/maps/place/?q=place_id:${place.place_id}" target="_blank" class="gmaps-btn" style="font-size:11px;">Google Mapsで確認</a></div>
+  `;
+  document.getElementById('previewContent').innerHTML = html;
+
+  // Set up add button
+  document.getElementById('previewAddBtn').onclick = () => {
+    const id = 'gp_' + place.place_id;
+    facilities[id] = {
+      id,
+      placeId: place.place_id,
+      name: d.name || place.name || '',
+      lat: loc.lat(),
+      lng: loc.lng(),
+      category: cat,
+      address: d.formatted_address || place.formatted_address || '',
+      phone: d.formatted_phone_number || '',
+      website: d.website || '',
+      rating: d.rating || place.rating || null,
+      ratingCount: d.user_ratings_total || place.user_ratings_total || 0,
+      openingHours: (d.opening_hours && d.opening_hours.weekday_text) || [],
+      status: 'unvisited',
+      contactName: '', contactPhone: '',
+      visits: [], cardImages: [],
+      source: 'search',
+      detailsLoaded: true,
+    };
+    addMarker(facilities[id]);
+    saveData();
+    renderAll();
+    document.getElementById('previewModal').classList.remove('show');
+    selectFacility(id);
+    toast(`${facilities[id].name} を追加しました`);
+  };
 }
 
 function guessCategory(name, types) {
