@@ -952,7 +952,6 @@ function renderDetail(f) {
       </div>
       <div class="visit-date">${v.date || '日付なし'}${v.staff ? ` <span style="background:var(--brand-bg);color:var(--brand-dark);padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;">${escHtml(v.staff)}</span>` : ''}</div>
       ${v.memo ? `<div class="visit-memo">${escHtml(v.memo).replace(/\n/g, '<br>')}</div>` : ''}
-      ${v.nextAction ? `<div class="visit-action">次回: ${escHtml(v.nextAction)}</div>` : ''}
     </div>
   `).join('');
 
@@ -1024,10 +1023,6 @@ function renderDetail(f) {
         <label>メモ / 所感</label>
         <textarea id="newVisitMemo" placeholder="訪問の内容、担当者の反応など..."></textarea>
       </div>
-      <div class="form-group">
-        <label>次回アクション</label>
-        <input type="text" id="newVisitAction" placeholder="例: パンフレット持参して再訪問">
-      </div>
       <div style="display:flex;gap:6px;">
         <button class="search-btn search-btn-sm" style="flex:1;" onclick="submitVisit('${f.id}')">保存</button>
         <button class="toolbar-btn" style="flex:0;" onclick="document.getElementById('addVisitForm').style.display='none'">取消</button>
@@ -1055,9 +1050,8 @@ function submitVisit(id) {
   const date = document.getElementById('newVisitDate').value;
   const staff = document.getElementById('newVisitStaff').value;
   const memo = document.getElementById('newVisitMemo').value.trim();
-  const nextAction = document.getElementById('newVisitAction').value.trim();
   if (!date && !memo) { toast('日付またはメモを入力してください'); return; }
-  f.visits.unshift({ date, staff, memo, nextAction });
+  f.visits.unshift({ date, staff, memo });
   saveData();
   renderDetail(f);
   toast('訪問記録を追加しました');
@@ -1073,7 +1067,6 @@ function editVisit(id, index) {
   document.getElementById('newVisitDate').value = v.date || '';
   document.getElementById('newVisitStaff').value = v.staff || '';
   document.getElementById('newVisitMemo').value = v.memo || '';
-  document.getElementById('newVisitAction').value = v.nextAction || '';
   document.getElementById('addVisitForm').scrollIntoView({ behavior: 'smooth' });
 
   // Replace submit button to update instead of add
@@ -1084,7 +1077,6 @@ function editVisit(id, index) {
     v.date = document.getElementById('newVisitDate').value;
     v.staff = document.getElementById('newVisitStaff').value;
     v.memo = document.getElementById('newVisitMemo').value.trim();
-    v.nextAction = document.getElementById('newVisitAction').value.trim();
     saveData();
     renderDetail(f);
     toast('訪問記録を更新しました');
@@ -1454,14 +1446,13 @@ function generateReport() {
   let visitedHtml = '';
   if (visited.length > 0) {
     visitedHtml = `<table>
-      <tr><th>施設名</th><th>カテゴリ</th><th>ステータス</th><th>先方担当</th><th>営業担当</th><th>最終訪問</th><th>次回</th></tr>
+      <tr><th>施設名</th><th>カテゴリ</th><th>ステータス</th><th>先方担当</th><th>営業担当</th><th>最終訪問</th></tr>
       ${visited.map(f => {
         const cat = CATEGORIES[f.category] || CATEGORIES.other;
         const st = STATUSES[f.status] || STATUSES.unvisited;
         const lastVisit = (f.visits && f.visits[0]) ? f.visits[0] : null;
         const lastDate = lastVisit ? (lastVisit.date || '-') : '-';
         const lastStaff = lastVisit ? (lastVisit.staff || '-') : '-';
-        const nextAction = lastVisit ? (lastVisit.nextAction || '-') : '-';
         return `<tr>
           <td><strong>${escHtml(f.name)}</strong></td>
           <td>${cat.label}</td>
@@ -1469,7 +1460,6 @@ function generateReport() {
           <td>${escHtml(f.contactName || '-')}</td>
           <td>${escHtml(lastStaff)}</td>
           <td>${lastDate}</td>
-          <td>${escHtml(nextAction)}</td>
         </tr>`;
       }).join('')}
     </table>`;
@@ -1490,7 +1480,6 @@ function generateReport() {
       <div class="visit-detail">
         <strong>${v.date || '日付なし'}</strong>${v.staff ? ` <span style="background:var(--brand-bg);color:var(--brand-dark);padding:1px 6px;border-radius:8px;font-size:10px;">${escHtml(v.staff)}</span>` : ''} ー ${escHtml(v.facilityName)}
         ${v.memo ? '<br>' + escHtml(v.memo).replace(/\n/g, '<br>') : ''}
-        ${v.nextAction ? '<br><span style="color:var(--brand);">次回: ' + escHtml(v.nextAction) + '</span>' : ''}
       </div>
     `).join('');
   }
@@ -1573,13 +1562,12 @@ function generateFacilityReport(id) {
   let visitsHtml = '';
   if (f.visits.length > 0) {
     visitsHtml = `<table style="table-layout:auto;">
-      <tr><th style="width:30px;">回</th><th style="width:80px;white-space:nowrap;">日付</th><th style="width:60px;white-space:nowrap;">担当者</th><th>内容</th><th style="width:120px;white-space:nowrap;">次回</th></tr>
+      <tr><th style="width:30px;">回</th><th style="width:80px;white-space:nowrap;">日付</th><th style="width:60px;white-space:nowrap;">担当者</th><th>内容</th></tr>
       ${f.visits.map((v, i) => `<tr>
         <td style="text-align:center;font-weight:700;">${f.visits.length - i}</td>
         <td style="white-space:nowrap;">${v.date || '-'}</td>
         <td style="white-space:nowrap;">${escHtml(v.staff || '-')}</td>
         <td>${escHtml(v.memo || '-')}</td>
-        <td>${escHtml(v.nextAction || '-')}</td>
       </tr>`).join('')}
     </table>`;
   } else {
