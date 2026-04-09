@@ -1110,7 +1110,7 @@ function renderDetail(f) {
     <div class="form-group">
       <label>カテゴリ</label>
       <select class="status-select" onchange="updateCategory(selectedId,this.value)">
-        ${Object.entries(CATEGORIES).map(([k, c]) => `<option value="${k}" ${k === f.category ? 'selected' : ''}>${c.icon} ${c.label}</option>`).join('')}
+        ${Object.entries(CATEGORIES).map(([k, c]) => `<option value="${k}" ${k === f.category ? 'selected' : ''}>${c.label}</option>`).join('')}
       </select>
     </div>
     <div class="form-group">
