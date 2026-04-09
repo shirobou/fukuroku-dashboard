@@ -393,11 +393,6 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
     </div>
 
     <div class="panel-section">
-      <h3>エリア <span style="margin-left:auto;font-size:10px;display:flex;gap:4px;"><button onclick="toggleAllAreas(true)" style="background:none;border:1px solid var(--gray-300);border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;">全選択</button><button onclick="toggleAllAreas(false)" style="background:none;border:1px solid var(--gray-300);border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;">全解除</button></span></h3>
-      <div id="areaFilters" style="display:flex;flex-wrap:wrap;gap:4px;font-size:11px;"></div>
-    </div>
-
-    <div class="panel-section">
       <h3>営業担当者 <button onclick="addStaff()" style="margin-left:auto;font-size:10px;padding:2px 8px;border:1px solid var(--gray-300);border-radius:4px;background:#fff;cursor:pointer;">+ 追加</button></h3>
       <div id="staffList" style="display:flex;flex-wrap:wrap;gap:4px;font-size:11px;"></div>
     </div>
@@ -1888,7 +1883,6 @@ function escAttr(s) { return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#
 function renderAll() {
   renderCatList();
   renderStatusFilters();
-  renderAreaFilters();
   renderFacilityList();
 }
 
