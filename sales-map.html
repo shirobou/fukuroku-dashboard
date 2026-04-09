@@ -56,10 +56,11 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 .cat-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .cat-count { margin-left: auto; font-size: 11px; color: var(--gray-600); background: var(--gray-200); padding: 1px 6px; border-radius: 10px; }
 /* Status filter */
-.status-filters { display: flex; flex-wrap: wrap; gap: 4px; }
+.status-filters { display: flex; flex-wrap: nowrap; gap: 4px; overflow-x: auto; }
 .status-chip {
   font-size: 11px; padding: 4px 8px; border-radius: 12px; cursor: pointer;
   border: 1px solid var(--gray-300); background: #fff; transition: all 0.2s;
+  white-space: nowrap; flex-shrink: 0;
 }
 .status-chip.active { background: var(--brand-bg); border-color: var(--brand); color: var(--brand-dark); font-weight: 600; }
 /* Facility list */
