@@ -393,12 +393,18 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
     </div>
 
     <div class="panel-section">
+      <h3>エリア <span style="margin-left:auto;font-size:10px;display:flex;gap:4px;"><button onclick="toggleAllAreas(true)" style="background:none;border:1px solid var(--gray-300);border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;">全選択</button><button onclick="toggleAllAreas(false)" style="background:none;border:1px solid var(--gray-300);border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;">全解除</button></span></h3>
+      <div id="areaFilters" style="display:flex;flex-wrap:wrap;gap:4px;font-size:11px;"></div>
+    </div>
+
+    <div class="panel-section">
       <h3>営業担当者 <button onclick="addStaff()" style="margin-left:auto;font-size:10px;padding:2px 8px;border:1px solid var(--gray-300);border-radius:4px;background:#fff;cursor:pointer;">+ 追加</button></h3>
       <div id="staffList" style="display:flex;flex-wrap:wrap;gap:4px;font-size:11px;"></div>
     </div>
 
     <div class="panel-section" style="padding-bottom:8px;">
       <h3>施設一覧</h3>
+      <input type="text" id="facilitySearchInput" placeholder="施設名で絞り込み..." style="width:100%;padding:6px 10px;border:1px solid var(--gray-300);border-radius:var(--radius);font-size:12px;margin-top:4px;" oninput="renderFacilityList()">
     </div>
 
     <div class="facility-list-container" id="facilityList"></div>
@@ -421,6 +427,8 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
       <div class="toolbar-buttons">
         <button class="toolbar-btn" id="addModeBtn" onclick="toggleAddMode()">+ 営業先を追加</button>
         <button class="toolbar-btn" onclick="gmap.panTo(HOME_LATLNG); gmap.setZoom(15);">自社に戻る</button>
+        <button class="toolbar-btn" onclick="openTodayRoute()" style="background:#FF6D00;color:#fff;border-color:#FF6D00;">ルート</button>
+        <button class="toolbar-btn" onclick="showVisitDashboard()" style="background:#1565C0;color:#fff;border-color:#1565C0;">訪問率</button>
         <button class="toolbar-btn" onclick="generateReport()" style="background:var(--brand);color:#fff;border-color:var(--brand);">報告書</button>
       </div>
     </div>
@@ -967,7 +975,8 @@ function applyFilters() {
     const dist = getDistance(HOME_LATLNG.lat, HOME_LATLNG.lng, f.lat, f.lng);
     const inRadius = dist <= radius;
     const hasActivity = ['visited', 'negotiating', 'contracted', 'today'].includes(f.status);
-    const show = (inRadius || hasActivity) && activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status);
+    const inArea = activeAreas.size === 0 || activeAreas.has(extractCity(f.address));
+    const show = (inRadius || hasActivity) && activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status) && inArea;
     if (gMarkers[id]) gMarkers[id].setVisible(show);
   });
   renderFacilityList();
@@ -977,10 +986,13 @@ function applyFilters() {
 function renderFacilityList() {
   const el = document.getElementById('facilityList');
   const radius = parseInt(document.getElementById('radiusSelect').value);
+  const searchQuery = (document.getElementById('facilitySearchInput')?.value || '').trim().toLowerCase();
   const filtered = Object.values(facilities).filter(f => {
     const dist = getDistance(HOME_LATLNG.lat, HOME_LATLNG.lng, f.lat, f.lng);
     const hasActivity = ['visited', 'negotiating', 'contracted', 'today'].includes(f.status);
-    return (dist <= radius || hasActivity) && activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status);
+    const inArea = activeAreas.size === 0 || activeAreas.has(extractCity(f.address));
+    const matchesSearch = !searchQuery || (f.name || '').toLowerCase().includes(searchQuery) || (f.address || '').toLowerCase().includes(searchQuery);
+    return (dist <= radius || hasActivity) && activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status) && inArea && matchesSearch;
   }).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ja'));
 
   el.innerHTML = filtered.map(f => {
@@ -1876,6 +1888,7 @@ function escAttr(s) { return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#
 function renderAll() {
   renderCatList();
   renderStatusFilters();
+  renderAreaFilters();
   renderFacilityList();
 }
 
@@ -2046,6 +2059,115 @@ function guessCategory(name, types) {
   if (n.includes('訪問看護')) return 'visiting_ns';
   if (n.includes('老人ホーム') || n.includes('サ高住') || n.includes('特養') || n.includes('グループホーム') || n.includes('老健')) return 'residential';
   return 'other';
+}
+
+// ===== Area Filter =====
+let activeAreas = new Set(); // will be populated dynamically
+
+function extractCity(address) {
+  if (!address) return '不明';
+  // Match 〇〇市, 〇〇区, 〇〇町, 〇〇村
+  const m = address.match(/(大阪府|奈良県|京都府|兵庫県)?\s*(.+?[市区町村])/);
+  return m ? m[2] : '不明';
+}
+
+function getAreaSet() {
+  const areas = new Set();
+  Object.values(facilities).forEach(f => areas.add(extractCity(f.address)));
+  return areas;
+}
+
+function renderAreaFilters() {
+  const el = document.getElementById('areaFilters');
+  if (!el) return;
+  const areas = [...getAreaSet()].sort((a, b) => a.localeCompare(b, 'ja'));
+  // Initialize activeAreas with all on first run
+  if (activeAreas.size === 0 && areas.length > 0) {
+    areas.forEach(a => activeAreas.add(a));
+  }
+  el.innerHTML = areas.map(a => {
+    const active = activeAreas.has(a) ? 'active' : '';
+    const count = Object.values(facilities).filter(f => extractCity(f.address) === a).length;
+    return `<span class="status-chip ${active}" onclick="toggleArea('${escAttr(a)}')" style="font-size:10px;">${escHtml(a)} <span style="font-size:9px;opacity:0.7;">${count}</span></span>`;
+  }).join('');
+}
+
+function toggleArea(area) {
+  if (activeAreas.has(area)) activeAreas.delete(area);
+  else activeAreas.add(area);
+  renderAreaFilters();
+  applyFilters();
+}
+
+function toggleAllAreas(on) {
+  if (on) getAreaSet().forEach(a => activeAreas.add(a));
+  else activeAreas.clear();
+  renderAreaFilters();
+  applyFilters();
+}
+
+// ===== Route (Today's visits) =====
+function openTodayRoute() {
+  const todayFacilities = Object.values(facilities).filter(f => f.status === 'today');
+  if (todayFacilities.length === 0) {
+    toast('「本日訪問予定」の施設がありません。ステータスを設定してください');
+    return;
+  }
+  // Build Google Maps directions URL
+  const origin = `${HOME_LATLNG.lat},${HOME_LATLNG.lng}`;
+  const dest = origin; // return to home
+  const waypoints = todayFacilities.map(f => `${f.lat},${f.lng}`).join('|');
+  const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&waypoints=${waypoints}&travelmode=driving`;
+  window.open(url, '_blank');
+}
+
+// ===== Visit Dashboard =====
+function showVisitDashboard() {
+  const all = Object.values(facilities);
+  const areas = [...getAreaSet()].sort((a, b) => a.localeCompare(b, 'ja'));
+
+  // Build table: category x area
+  let tableHtml = '<table><tr><th>カテゴリ＼エリア</th>';
+  areas.forEach(a => { tableHtml += `<th style="white-space:nowrap;">${escHtml(a)}</th>`; });
+  tableHtml += '<th>合計</th></tr>';
+
+  Object.entries(CATEGORIES).forEach(([catKey, cat]) => {
+    const catFacs = all.filter(f => f.category === catKey);
+    if (catFacs.length === 0) return;
+    tableHtml += `<tr><td style="white-space:nowrap;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cat.color};margin-right:3px;"></span>${cat.label}</td>`;
+    let totalVisited = 0, totalAll = 0;
+    areas.forEach(area => {
+      const areaFacs = catFacs.filter(f => extractCity(f.address) === area);
+      const visited = areaFacs.filter(f => ['visited','negotiating','contracted'].includes(f.status)).length;
+      const total = areaFacs.length;
+      totalVisited += visited;
+      totalAll += total;
+      const rate = total > 0 ? Math.round(visited / total * 100) : 0;
+      const bg = rate > 50 ? '#e8f5e9' : rate > 0 ? '#fff8e1' : '';
+      tableHtml += `<td style="text-align:center;background:${bg};">${visited}/${total}<br><span style="font-size:9px;color:var(--gray-600);">${rate}%</span></td>`;
+    });
+    const totalRate = totalAll > 0 ? Math.round(totalVisited / totalAll * 100) : 0;
+    tableHtml += `<td style="text-align:center;font-weight:700;">${totalVisited}/${totalAll}<br><span style="font-size:9px;">${totalRate}%</span></td></tr>`;
+  });
+  tableHtml += '</table>';
+
+  document.getElementById('reportContent').innerHTML = `
+    <h1>訪問率ダッシュボード</h1>
+    <div class="report-meta">
+      <span>ふくろく訪問看護ステーション</span>
+      <span>${new Date().toLocaleDateString('ja-JP')}</span>
+    </div>
+    <h2>カテゴリ × エリア 訪問率</h2>
+    <div style="overflow-x:auto;">${tableHtml}</div>
+    <div style="margin-top:12px;font-size:11px;color:var(--gray-600);">
+      <span style="display:inline-block;width:12px;height:12px;background:#e8f5e9;border:1px solid #ccc;margin-right:4px;"></span>50%以上
+      <span style="display:inline-block;width:12px;height:12px;background:#fff8e1;border:1px solid #ccc;margin-left:12px;margin-right:4px;"></span>1%以上
+    </div>
+    <div class="report-footer">
+      ふくろく訪問看護ステーション ／ 株式会社T-Connect
+    </div>
+  `;
+  document.getElementById('reportOverlay').classList.add('show');
 }
 
 // ===== Help =====
