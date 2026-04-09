@@ -1129,8 +1129,15 @@ function renderDetail(f) {
     </div>
     <div class="form-group">
       <label>営業ステータス</label>
-      <select class="status-select" onchange="updateFacilityField('${f.id}','status',this.value)">${statusOpts}</select>
+      <select class="status-select" onchange="updateFacilityField(selectedId,'status',this.value)">${statusOpts}</select>
     </div>
+    ${f.status === 'today' ? `<div class="form-group">
+      <label>本日の営業担当者</label>
+      <select class="status-select" onchange="updateTodayStaff(selectedId, this.value)">
+        <option value="">（未設定）</option>
+        ${staffList.map(s => `<option value="${escAttr(s.name)}" ${f.todayStaff === s.name ? 'selected' : ''}>${escHtml(s.name)}</option>`).join('')}
+      </select>
+    </div>` : ''}
     <div class="form-group">
       <label>担当者名</label>
       <input type="text" value="${escAttr(f.contactName || '')}" onchange="updateFacilityField('${f.id}','contactName',this.value)" placeholder="山田太郎">
@@ -1345,6 +1352,14 @@ function saveLightboxRotation() {
   img.src = f.cardImages[lightboxImageIndex];
 }
 
+function updateTodayStaff(id, value) {
+  if (!facilities[id]) return;
+  facilities[id].todayStaff = value || '';
+  saveData();
+  renderFacilityList();
+  toast(value ? `${value} を担当に設定しました` : '担当者を解除しました');
+}
+
 function updateCategory(id, value) {
   if (!facilities[id]) return;
   facilities[id].category = value;
@@ -1374,16 +1389,12 @@ function updateFacilityField(id, field, value) {
   if (!facilities[id]) return;
   facilities[id][field] = value;
   if (field === 'status') {
-    if (value === 'today' && staffList.length > 0) {
-      // Ask who is visiting today
-      const staffName = prompt('本日の訪問担当者を入力（' + staffList.map(s => s.name).join('・') + '）:');
-      if (staffName) facilities[id].todayStaff = staffName.trim();
-    } else if (value !== 'today') {
-      delete facilities[id].todayStaff;
-    }
+    if (value !== 'today') delete facilities[id].todayStaff;
     addMarker(facilities[id]);
     renderFacilityList();
     renderCatList();
+    // Re-render detail to show/hide today staff selector
+    if (selectedId === id) renderDetail(facilities[id]);
   }
   saveData();
 }
