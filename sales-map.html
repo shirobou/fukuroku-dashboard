@@ -286,7 +286,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .sidebar-left { width: 260px; min-width: 260px; }
   .sidebar-right { width: 320px; min-width: 320px; }
 }
-@media (max-width: 768px) {
+@media (max-width: 768px), (pointer: coarse) and (max-width: 1024px) {
   .app { flex-direction: column; }
   .sidebar-left {
     position: fixed; left: -280px; top: 0; bottom: 0; width: 280px; min-width: 280px;
@@ -315,13 +315,15 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .report-actions { flex-wrap: wrap; }
   .hide-on-mobile { display: none !important; }
 }
-/* Landscape on mobile */
-@media (max-height: 500px) and (orientation: landscape) {
-  .mobile-menu-btn { width: 36px; height: 36px; font-size: 18px; top: 8px; left: 8px; }
-  .map-toolbar { left: 52px; top: 8px; }
+/* Landscape on mobile - tighter layout */
+@media (pointer: coarse) and (orientation: landscape), (max-height: 500px) {
+  .mobile-menu-btn { width: 36px; height: 36px; font-size: 18px; top: 6px; left: 6px; display: flex !important; }
+  .map-toolbar { left: 48px; top: 6px; }
   .map-toolbar .toolbar-btn { font-size: 10px; padding: 4px 8px; }
-  .sidebar-left { width: 240px; min-width: 240px; }
-  .sidebar-right { width: 50%; min-width: 50%; }
+  .sidebar-left { width: 240px; min-width: 240px; position: fixed; left: -240px; z-index: 2000; }
+  .sidebar-left.mobile-open { left: 0; }
+  .sidebar-right { width: 60%; min-width: unset; position: fixed; z-index: 1500; }
+  .map-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; }
 }
 </style>
 </head>
