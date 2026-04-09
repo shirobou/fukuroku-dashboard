@@ -195,7 +195,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 /* Business card images */
 .card-images { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .card-img-wrap {
-  position: relative; width: 100px; height: 60px; border-radius: 6px; overflow: hidden;
+  position: relative; width: 150px; height: 95px; border-radius: 6px; overflow: hidden;
   border: 1px solid var(--gray-300); cursor: pointer;
 }
 .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
@@ -206,7 +206,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 }
 .card-img-wrap:hover .card-img-del { display: flex; }
 .upload-card-btn {
-  width: 100px; height: 60px; border: 1px dashed var(--gray-300); border-radius: 6px;
+  width: 150px; height: 95px; border: 1px dashed var(--gray-300); border-radius: 6px;
   display: flex; align-items: center; justify-content: center; cursor: pointer;
   font-size: 22px; color: var(--gray-600); transition: all 0.2s;
 }
@@ -214,10 +214,18 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 /* Image lightbox */
 .lightbox {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 3000;
-  background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; cursor: pointer;
+  background: rgba(0,0,0,0.85); display: none; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;
 }
 .lightbox.show { display: flex; }
-.lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+.lightbox img { max-width: 90vw; max-height: 80vh; border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.5); transition: transform 0.3s ease; }
+.lightbox-controls {
+  display: flex; gap: 12px; margin-top: 16px;
+}
+.lightbox-controls button {
+  padding: 10px 20px; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius); cursor: pointer; font-size: 14px; transition: background 0.2s;
+}
+.lightbox-controls button:hover { background: rgba(255,255,255,0.3); }
 /* Report overlay */
 .report-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2500;
@@ -412,8 +420,13 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 </div>
 
 <!-- Lightbox for images -->
-<div class="lightbox" id="lightbox" onclick="this.classList.remove('show')">
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
   <img id="lightboxImg" src="" alt="">
+  <div class="lightbox-controls" onclick="event.stopPropagation()">
+    <button onclick="rotateLightbox(-90)">↶ 左に回転</button>
+    <button onclick="rotateLightbox(90)">↷ 右に回転</button>
+    <button onclick="saveLightboxRotation()">回転を保存</button>
+  </div>
 </div>
 
 <!-- Firebase SDK -->
@@ -1054,11 +1067,61 @@ function deleteCardImage(id, index) {
   renderDetail(f);
 }
 
+let lightboxRotation = 0;
+let lightboxFacilityId = null;
+let lightboxImageIndex = null;
+
 function showLightbox(id, index) {
   const f = facilities[id];
   if (!f || !f.cardImages || !f.cardImages[index]) return;
-  document.getElementById('lightboxImg').src = f.cardImages[index];
+  lightboxFacilityId = id;
+  lightboxImageIndex = index;
+  lightboxRotation = 0;
+  const img = document.getElementById('lightboxImg');
+  img.src = f.cardImages[index];
+  img.style.transform = 'rotate(0deg)';
   document.getElementById('lightbox').classList.add('show');
+}
+
+function closeLightbox(e) {
+  if (e.target.closest('.lightbox-controls')) return;
+  document.getElementById('lightbox').classList.remove('show');
+}
+
+function rotateLightbox(deg) {
+  lightboxRotation = (lightboxRotation + deg) % 360;
+  document.getElementById('lightboxImg').style.transform = `rotate(${lightboxRotation}deg)`;
+}
+
+function saveLightboxRotation() {
+  if (!lightboxFacilityId || lightboxImageIndex === null || lightboxRotation === 0) {
+    toast('回転なし'); return;
+  }
+  const f = facilities[lightboxFacilityId];
+  if (!f || !f.cardImages || !f.cardImages[lightboxImageIndex]) return;
+
+  // Rotate image via canvas and save
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const rot = ((lightboxRotation % 360) + 360) % 360;
+    const swap = rot === 90 || rot === 270;
+    canvas.width = swap ? img.height : img.width;
+    canvas.height = swap ? img.width : img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(rot * Math.PI / 180);
+    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+    f.cardImages[lightboxImageIndex] = dataUrl;
+    saveData();
+    document.getElementById('lightboxImg').src = dataUrl;
+    lightboxRotation = 0;
+    document.getElementById('lightboxImg').style.transform = 'rotate(0deg)';
+    renderDetail(f);
+    toast('回転を保存しました');
+  };
+  img.src = f.cardImages[lightboxImageIndex];
 }
 
 function updateFacilityField(id, field, value) {
