@@ -236,7 +236,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   <div class="sidebar-left" id="sidebarLeft">
     <div class="logo">
       <h1>ふくろく訪問看護ステーション</h1>
-      <p>営業マップダッシュボード（Google Maps版）</p>
+      <p>営業マップダッシュボード <span id="syncStatus" style="font-size:10px;opacity:0.7;">同期中...</span></p>
     </div>
 
     <div class="panel-section">
@@ -348,7 +348,25 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   <img id="lightboxImg" src="" alt="">
 </div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
 <script>
+// ===== Firebase Config =====
+const firebaseConfig = {
+  apiKey: "AIzaSyBt3d0Y0L1jv1HKYu1LQPf-b7miXo5ZbAo",
+  authDomain: "fukuroku-sales.firebaseapp.com",
+  databaseURL: "https://fukuroku-sales-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "fukuroku-sales",
+  storageBucket: "fukuroku-sales.firebasestorage.app",
+  messagingSenderId: "252718829265",
+  appId: "1:252718829265:web:f0980232f3751229fefff0",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const dbRef = db.ref('facilities');
+
 // ===== Google Maps API Key =====
 const API_KEY = 'AIzaSyAdMiX_cJzfvd2EJS52siTuqQilpHYv88o';
 
@@ -965,6 +983,7 @@ function deleteFacility(id) {
   delete gMarkers[id];
   delete facilities[id];
   closeDetail();
+  dbRef.child(id).remove().catch(e => console.error(e));
   saveData();
   renderAll();
   toast('施設を削除しました');
@@ -1014,28 +1033,80 @@ function submitAddFacility() {
   selectFacility(id);
 }
 
-// ===== Data persistence =====
+// ===== Data persistence (Firebase + LocalStorage fallback) =====
 function saveData() {
   try {
-    // Don't save photoUrl (regenerated from Places API) and openingHours to save space
     const toSave = {};
     for (const [id, f] of Object.entries(facilities)) {
       const copy = { ...f };
       delete copy.photoUrl;
       toSave[id] = copy;
     }
+    // Save to Firebase
+    dbRef.set(toSave).catch(e => console.error('Firebase save failed:', e));
+    // Also save locally as cache
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   } catch (e) { console.error('Save failed:', e); }
 }
 
+function saveFacility(id) {
+  // Save single facility to Firebase (more efficient)
+  const f = facilities[id];
+  if (!f) return;
+  const copy = { ...f };
+  delete copy.photoUrl;
+  dbRef.child(id).set(copy).catch(e => console.error('Firebase save failed:', e));
+  // Update local cache
+  try {
+    const toSave = {};
+    for (const [fid, fac] of Object.entries(facilities)) {
+      const c = { ...fac }; delete c.photoUrl; toSave[fid] = c;
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch(e) {}
+}
+
 function loadData() {
+  // First load from localStorage (instant)
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       facilities = JSON.parse(raw);
       Object.values(facilities).forEach(f => addMarker(f));
+      renderAll();
     }
-  } catch (e) { console.error('Load failed:', e); }
+  } catch (e) {}
+
+  // Then sync from Firebase (real-time)
+  dbRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
+
+    // Clear old markers
+    Object.values(gMarkers).forEach(m => m.setMap(null));
+    gMarkers = {};
+
+    facilities = data;
+    Object.values(facilities).forEach(f => addMarker(f));
+    renderAll();
+
+    // Update local cache
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    console.log('Firebase sync: ' + Object.keys(data).length + ' facilities loaded');
+    document.getElementById('syncStatus').textContent = '✓ 同期済み';
+  });
+
+  // Connection status
+  db.ref('.info/connected').on('value', (snap) => {
+    const el = document.getElementById('syncStatus');
+    if (snap.val() === true) {
+      el.textContent = '✓ オンライン同期中';
+      el.style.color = '#a5d6a7';
+    } else {
+      el.textContent = '● オフライン（ローカル保存）';
+      el.style.color = '#ffcc80';
+    }
+  });
 }
 
 function exportData() {
@@ -1079,6 +1150,7 @@ function clearAllData() {
   Object.values(gMarkers).forEach(m => m.setMap(null));
   gMarkers = {};
   facilities = {};
+  dbRef.remove().catch(e => console.error(e));
   saveData();
   renderAll();
   closeDetail();
