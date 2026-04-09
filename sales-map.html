@@ -317,6 +317,11 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
       <div class="status-filters" id="statusFilters"></div>
     </div>
 
+    <div class="panel-section">
+      <h3>営業担当者 <button onclick="addStaff()" style="margin-left:auto;font-size:10px;padding:2px 8px;border:1px solid var(--gray-300);border-radius:4px;background:#fff;cursor:pointer;">+ 追加</button></h3>
+      <div id="staffList" style="display:flex;flex-wrap:wrap;gap:4px;font-size:11px;"></div>
+    </div>
+
     <div class="panel-section" style="padding-bottom:8px;">
       <h3>施設一覧</h3>
     </div>
@@ -326,7 +331,6 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
     <div class="data-actions">
       <button onclick="exportData()">エクスポート</button>
       <button onclick="document.getElementById('importFile').click()">インポート</button>
-      <button onclick="clearAllData()">全削除</button>
       <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
     </div>
   </div>
@@ -335,7 +339,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   <div class="map-container">
     <div id="map"></div>
     <div class="map-toolbar">
-      <button class="toolbar-btn" id="addModeBtn" onclick="toggleAddMode()">+ 施設を追加</button>
+      <button class="toolbar-btn" id="addModeBtn" onclick="toggleAddMode()">+ 営業先を追加</button>
       <button class="toolbar-btn" onclick="gmap.panTo(HOME_LATLNG); gmap.setZoom(15);">自社に戻る</button>
       <button class="toolbar-btn" onclick="generateReport()" style="background:var(--brand);color:#fff;border-color:var(--brand);">営業報告書PDF</button>
     </div>
@@ -358,7 +362,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 <!-- Add Facility Modal -->
 <div class="modal-overlay" id="addModal">
   <div class="modal">
-    <h3>施設を手動追加</h3>
+    <h3>営業先を追加</h3>
     <div class="form-group">
       <label>施設名 *</label>
       <input type="text" id="addName" placeholder="例: ○○クリニック">
@@ -430,6 +434,15 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const dbRef = db.ref('facilities');
+const staffRef = db.ref('staff');
+let staffList = []; // [{name: '志摩孝政'}, ...]
+
+// Load staff from Firebase
+staffRef.on('value', (snap) => {
+  staffList = snap.val() || [];
+  // Re-render detail if open
+  if (selectedId && facilities[selectedId]) renderDetail(facilities[selectedId]);
+});
 
 // ===== Google Maps API Key =====
 const API_KEY = 'AIzaSyAdMiX_cJzfvd2EJS52siTuqQilpHYv88o';
@@ -557,6 +570,7 @@ async function init() {
   hideLoading();
   loadData();
   renderAll();
+  renderStaffList();
 }
 
 function updateRadiusCircle() {
@@ -777,13 +791,15 @@ function renderFacilityList() {
     const st = STATUSES[f.status] || STATUSES.unvisited;
     const cat = CATEGORIES[f.category] || CATEGORIES.other;
     const rating = f.rating ? `<span class="fl-rating">${'★'.repeat(Math.round(f.rating))} ${f.rating}</span>` : '';
+    const lastVisit = (f.visits && f.visits[0]) ? f.visits[0] : null;
+    const lastInfo = lastVisit ? `${lastVisit.date || ''}${lastVisit.staff ? ' ' + lastVisit.staff : ''}` : '';
     return `<div class="facility-list-item" onclick="selectFacility('${f.id}')">
       <div class="fl-name">
         <span class="fl-status-dot" style="background:${st.color}"></span>
         ${escHtml(f.name || '名称不明')}
       </div>
       <div class="fl-meta">
-        ${cat.label} ${rating}
+        ${cat.label} ${rating} ${lastInfo ? `<span style="margin-left:auto;font-size:10px;color:var(--gray-600);">${escHtml(lastInfo)}</span>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -872,7 +888,7 @@ function renderDetail(f) {
   const visitsHtml = f.visits.map((v, i) => `
     <div class="visit-entry">
       <button class="visit-del" onclick="deleteVisit('${f.id}', ${i})" title="削除">&times;</button>
-      <div class="visit-date">${v.date || '日付なし'}</div>
+      <div class="visit-date">${v.date || '日付なし'}${v.staff ? ` <span style="background:var(--brand-bg);color:var(--brand-dark);padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;">${escHtml(v.staff)}</span>` : ''}</div>
       ${v.memo ? `<div class="visit-memo">${escHtml(v.memo)}</div>` : ''}
       ${v.nextAction ? `<div class="visit-action">次回: ${escHtml(v.nextAction)}</div>` : ''}
     </div>
@@ -939,6 +955,10 @@ function renderDetail(f) {
         <input type="date" id="newVisitDate" value="${new Date().toISOString().slice(0,10)}">
       </div>
       <div class="form-group">
+        <label>営業担当者</label>
+        <select id="newVisitStaff" class="status-select">${getStaffOptions('')}</select>
+      </div>
+      <div class="form-group">
         <label>メモ / 所感</label>
         <textarea id="newVisitMemo" placeholder="訪問の内容、担当者の反応など..."></textarea>
       </div>
@@ -954,7 +974,6 @@ function renderDetail(f) {
 
     <hr style="margin:16px 0;border:none;border-top:1px solid var(--gray-200);">
     <button class="search-btn" style="margin-top:8px;font-size:12px;padding:8px;" onclick="generateFacilityReport('${f.id}')">この施設の報告書PDF</button>
-    <button class="delete-btn" onclick="deleteFacility('${f.id}')">この施設を削除</button>
   `;
 }
 
@@ -972,10 +991,11 @@ function submitVisit(id) {
   if (!f) return;
   if (!f.visits) f.visits = [];
   const date = document.getElementById('newVisitDate').value;
+  const staff = document.getElementById('newVisitStaff').value;
   const memo = document.getElementById('newVisitMemo').value.trim();
   const nextAction = document.getElementById('newVisitAction').value.trim();
   if (!date && !memo) { toast('日付またはメモを入力してください'); return; }
-  f.visits.unshift({ date, memo, nextAction });
+  f.visits.unshift({ date, staff, memo, nextAction });
   saveData();
   renderDetail(f);
   toast('訪問記録を追加しました');
@@ -1075,7 +1095,7 @@ function toggleAddMode() {
   const btn = document.getElementById('addModeBtn');
   btn.classList.toggle('active', addMode);
   gmap.setOptions({ draggableCursor: addMode ? 'crosshair' : null });
-  if (addMode) toast('地図上をクリックして施設の位置を指定してください');
+  if (addMode) toast('地図上をクリックして営業先の位置を指定してください');
 }
 
 function closeAddModal() {
@@ -1294,18 +1314,21 @@ function generateReport() {
   let visitedHtml = '';
   if (visited.length > 0) {
     visitedHtml = `<table>
-      <tr><th>施設名</th><th>カテゴリ</th><th>ステータス</th><th>担当者</th><th>最終訪問</th><th>次回アクション</th></tr>
+      <tr><th>施設名</th><th>カテゴリ</th><th>ステータス</th><th>先方担当</th><th>営業担当</th><th>最終訪問</th><th>次回</th></tr>
       ${visited.map(f => {
         const cat = CATEGORIES[f.category] || CATEGORIES.other;
         const st = STATUSES[f.status] || STATUSES.unvisited;
-        const lastVisit = (f.visits && f.visits[0]) ? f.visits[0].date : (f.visitDate || '-');
-        const nextAction = (f.visits && f.visits[0]) ? (f.visits[0].nextAction || '-') : (f.nextAction || '-');
+        const lastVisit = (f.visits && f.visits[0]) ? f.visits[0] : null;
+        const lastDate = lastVisit ? (lastVisit.date || '-') : '-';
+        const lastStaff = lastVisit ? (lastVisit.staff || '-') : '-';
+        const nextAction = lastVisit ? (lastVisit.nextAction || '-') : '-';
         return `<tr>
-          <td><strong>${escHtml(f.name)}</strong><br><span style="font-size:10px;color:#888;">${escHtml(f.address || '')}</span></td>
+          <td><strong>${escHtml(f.name)}</strong></td>
           <td>${cat.label}</td>
           <td><span class="status-badge" style="background:${st.color}">${st.label}</span></td>
           <td>${escHtml(f.contactName || '-')}</td>
-          <td>${lastVisit}</td>
+          <td>${escHtml(lastStaff)}</td>
+          <td>${lastDate}</td>
           <td>${escHtml(nextAction)}</td>
         </tr>`;
       }).join('')}
@@ -1325,7 +1348,7 @@ function generateReport() {
   if (recentVisits.length > 0) {
     recentLogsHtml = recentVisits.map(v => `
       <div class="visit-detail">
-        <strong>${v.date || '日付なし'}</strong> ー ${escHtml(v.facilityName)}
+        <strong>${v.date || '日付なし'}</strong>${v.staff ? ` <span style="background:var(--brand-bg);color:var(--brand-dark);padding:1px 6px;border-radius:8px;font-size:10px;">${escHtml(v.staff)}</span>` : ''} ー ${escHtml(v.facilityName)}
         ${v.memo ? '<br>' + escHtml(v.memo) : ''}
         ${v.nextAction ? '<br><span style="color:var(--brand);">次回: ' + escHtml(v.nextAction) + '</span>' : ''}
       </div>
@@ -1372,52 +1395,59 @@ function generateFacilityReport(id) {
   if (!f.visits) f.visits = [];
   if (!f.cardImages) f.cardImages = [];
 
-  // Visit history
+  // Visit history for report
   let visitsHtml = '';
   if (f.visits.length > 0) {
-    visitsHtml = f.visits.map((v, i) => `
-      <div class="visit-detail">
-        <strong>第${f.visits.length - i}回 ー ${v.date || '日付なし'}</strong>
-        ${v.memo ? '<br>' + escHtml(v.memo) : ''}
-        ${v.nextAction ? '<br><span style="color:var(--brand);">次回アクション: ' + escHtml(v.nextAction) + '</span>' : ''}
-      </div>
-    `).join('');
+    visitsHtml = `<table>
+      <tr><th>回</th><th>日付</th><th>担当者</th><th>内容</th><th>次回アクション</th></tr>
+      ${f.visits.map((v, i) => `<tr>
+        <td style="text-align:center;font-weight:700;">${f.visits.length - i}</td>
+        <td style="white-space:nowrap;">${v.date || '-'}</td>
+        <td style="white-space:nowrap;">${escHtml(v.staff || '-')}</td>
+        <td>${escHtml(v.memo || '-')}</td>
+        <td>${escHtml(v.nextAction || '-')}</td>
+      </tr>`).join('')}
+    </table>`;
   } else {
     visitsHtml = '<p style="color:var(--gray-600);font-size:11px;">訪問記録なし</p>';
   }
 
-  // Card images
+  // Card images for report - larger
   let cardsHtml = '';
   if (f.cardImages.length > 0) {
-    cardsHtml = `<h2>名刺画像</h2><div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-      ${f.cardImages.map(img => `<img src="${img}" style="max-width:200px;max-height:120px;border:1px solid var(--gray-300);border-radius:4px;object-fit:contain;">`).join('')}
+    cardsHtml = `<h2>名刺画像</h2><div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;">
+      ${f.cardImages.map(img => `<img src="${img}" style="max-width:280px;max-height:170px;border:1px solid var(--gray-300);border-radius:6px;object-fit:contain;">`).join('')}
     </div>`;
   }
 
+  // Compact basic info
+  const infoItems = [
+    `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${cat.color};margin-right:2px;"></span>${cat.label}`,
+    `<span class="status-badge" style="background:${st.color}">${st.label}</span>`,
+    f.phone ? `TEL: ${escHtml(f.phone)}` : '',
+    f.rating ? `${'★'.repeat(Math.round(f.rating))} ${f.rating}` : '',
+  ].filter(Boolean);
+
   document.getElementById('reportContent').innerHTML = `
-    <h1>営業先レポート</h1>
+    <h1>${escHtml(f.name)}</h1>
     <div class="report-meta">
       <span>ふくろく訪問看護ステーション</span>
       <span>作成日: ${dateStr}</span>
     </div>
 
-    <h2>施設情報</h2>
-    <table>
-      <tr><th style="width:120px;">施設名</th><td><strong>${escHtml(f.name)}</strong></td></tr>
-      <tr><th>カテゴリ</th><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${cat.color};margin-right:4px;"></span>${cat.label}</td></tr>
-      <tr><th>ステータス</th><td><span class="status-badge" style="background:${st.color}">${st.label}</span></td></tr>
-      ${f.address ? `<tr><th>住所</th><td>${escHtml(f.address)}</td></tr>` : ''}
-      ${f.phone ? `<tr><th>電話番号</th><td>${escHtml(f.phone)}</td></tr>` : ''}
-      ${f.website ? `<tr><th>ウェブサイト</th><td>${escHtml(f.website)}</td></tr>` : ''}
-      ${f.rating ? `<tr><th>評価</th><td>${'★'.repeat(Math.round(f.rating))}${' ☆'.repeat(5 - Math.round(f.rating))} ${f.rating}（${f.ratingCount || 0}件）</td></tr>` : ''}
-      ${f.openingHours && f.openingHours.length > 0 ? `<tr><th>営業時間</th><td style="font-size:10px;line-height:1.6;">${f.openingHours.join('<br>')}</td></tr>` : ''}
-    </table>
+    <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:12px;">
+      <div style="flex:1;">
+        <div style="font-size:12px;margin-bottom:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">${infoItems.join(' | ')}</div>
+        ${f.address ? `<div style="font-size:12px;color:var(--gray-600);margin-bottom:4px;">${escHtml(f.address)}</div>` : ''}
+        ${f.website ? `<div style="font-size:11px;color:var(--gray-600);">${escHtml(f.website)}</div>` : ''}
+        ${f.openingHours && f.openingHours.length > 0 ? `<div style="font-size:10px;color:var(--gray-600);margin-top:4px;line-height:1.5;">${f.openingHours.join(' / ')}</div>` : ''}
+      </div>
+    </div>
 
-    <h2>担当者情報</h2>
-    <table>
-      <tr><th style="width:120px;">担当者名</th><td>${escHtml(f.contactName || '未登録')}</td></tr>
-      <tr><th>直通電話</th><td>${escHtml(f.contactPhone || '未登録')}</td></tr>
-    </table>
+    <h2>先方担当者</h2>
+    <div style="font-size:13px;margin-bottom:12px;padding:8px 12px;background:var(--gray-50);border-radius:var(--radius);">
+      <strong>${escHtml(f.contactName || '未登録')}</strong>${f.contactPhone ? ` ／ ${escHtml(f.contactPhone)}` : ''}
+    </div>
 
     ${cardsHtml}
 
@@ -1430,6 +1460,41 @@ function generateFacilityReport(id) {
   `;
 
   document.getElementById('reportOverlay').classList.add('show');
+}
+
+// ===== Staff Management =====
+function renderStaffList() {
+  const el = document.getElementById('staffList');
+  if (!el) return;
+  el.innerHTML = staffList.map((s, i) => `
+    <span style="background:var(--brand-bg);color:var(--brand-dark);padding:2px 8px;border-radius:10px;display:inline-flex;align-items:center;gap:4px;">
+      ${escHtml(s.name)}
+      <button onclick="removeStaff(${i})" style="background:none;border:none;cursor:pointer;color:var(--gray-600);font-size:12px;padding:0;">&times;</button>
+    </span>
+  `).join('');
+  if (staffList.length === 0) {
+    el.innerHTML = '<span style="color:var(--gray-600);">未登録（「+ 追加」で職員を登録）</span>';
+  }
+}
+
+function addStaff() {
+  const name = prompt('営業担当者の名前を入力:');
+  if (!name || !name.trim()) return;
+  staffList.push({ name: name.trim() });
+  staffRef.set(staffList);
+  renderStaffList();
+}
+
+function removeStaff(index) {
+  if (!confirm(`${staffList[index].name}を削除しますか？`)) return;
+  staffList.splice(index, 1);
+  staffRef.set(staffList);
+  renderStaffList();
+}
+
+function getStaffOptions(selected) {
+  return `<option value="">（未選択）</option>` +
+    staffList.map(s => `<option value="${escAttr(s.name)}" ${s.name === selected ? 'selected' : ''}>${escHtml(s.name)}</option>`).join('');
 }
 
 // ===== Utilities =====
