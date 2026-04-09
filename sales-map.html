@@ -2175,10 +2175,11 @@ function openRouteForStaff(staffName) {
 
 function openRouteForFacilities(facilityList) {
   if (facilityList.length === 0) { toast('該当する施設がありません'); return; }
+  const toPlaceName = (f) => encodeURIComponent(f.name + (f.address ? ' ' + f.address : ''));
   const origin = encodeURIComponent('ふくろく訪問看護ステーション 大阪府大東市諸福6-1-7');
   const lastFacility = facilityList[facilityList.length - 1];
-  const dest = `${lastFacility.lat},${lastFacility.lng}`;
-  const waypoints = facilityList.slice(0, -1).map(f => `${f.lat},${f.lng}`).join('|');
+  const dest = toPlaceName(lastFacility);
+  const waypoints = facilityList.slice(0, -1).map(f => toPlaceName(f)).join('|');
   const url = waypoints
     ? `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&waypoints=${waypoints}&travelmode=driving`
     : `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=driving`;
