@@ -1742,7 +1742,7 @@ function generateFacilityReport(id) {
         <td style="text-align:center;font-weight:700;">${f.visits.length - i}</td>
         <td style="white-space:nowrap;">${v.date || '-'}</td>
         <td style="white-space:nowrap;">${escHtml(v.staff || '-')}</td>
-        <td>${escHtml(v.memo || '-')}</td>
+        <td>${(v.memo ? escHtml(v.memo).replace(/\n/g, '<br>') : '-')}</td>
       </tr>`).join('')}
     </table>`;
   } else {
@@ -1777,7 +1777,7 @@ function generateFacilityReport(id) {
         <div style="font-size:12px;margin-bottom:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">${infoItems.join(' | ')}</div>
         ${f.address ? `<div style="font-size:12px;color:var(--gray-600);margin-bottom:4px;">${escHtml(f.address)}</div>` : ''}
         ${f.website ? `<div style="font-size:11px;color:var(--gray-600);">${escHtml(f.website)}</div>` : ''}
-        ${f.openingHours && f.openingHours.length > 0 ? `<div style="font-size:10px;color:var(--gray-600);margin-top:4px;line-height:1.6;">${f.openingHours.join('<br>')}</div>` : ''}
+        ${f.openingHours && f.openingHours.length > 0 ? `<details style="font-size:10px;color:var(--gray-600);margin-top:4px;"><summary style="cursor:pointer;">営業時間を表示</summary><div style="line-height:1.6;margin-top:4px;">${f.openingHours.join('<br>')}</div></details>` : ''}
       </div>
     </div>
 
