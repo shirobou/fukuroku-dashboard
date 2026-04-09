@@ -1139,13 +1139,14 @@ function renderDetail(f) {
       </select>
     </div>` : ''}
     <div class="form-group">
-      <label>担当者名</label>
-      <input type="text" value="${escAttr(f.contactName || '')}" onchange="updateFacilityField('${f.id}','contactName',this.value)" placeholder="山田太郎">
+      <label>先方担当者名</label>
+      <input type="text" value="${escAttr(f.contactName || '')}" onchange="updateFacilityField(selectedId,'contactName',this.value)" placeholder="山田太郎">
     </div>
     <div class="form-group">
       <label>直通電話</label>
-      <input type="text" value="${escAttr(f.contactPhone || '')}" onchange="updateFacilityField('${f.id}','contactPhone',this.value)" placeholder="090-xxxx-xxxx">
+      <input type="text" value="${escAttr(f.contactPhone || '')}" onchange="updateFacilityField(selectedId,'contactPhone',this.value)" placeholder="090-xxxx-xxxx">
     </div>
+    <button onclick="resetFacilityFields(selectedId)" style="width:100%;padding:6px;font-size:11px;border:1px solid var(--gray-300);border-radius:var(--radius);background:#fff;cursor:pointer;color:var(--gray-600);margin-top:4px;">営業情報をリセット</button>
 
     <hr style="margin:12px 0;border:none;border-top:1px solid var(--gray-200);">
 
@@ -1350,6 +1351,21 @@ function saveLightboxRotation() {
     toast('回転を保存しました');
   };
   img.src = f.cardImages[lightboxImageIndex];
+}
+
+function resetFacilityFields(id) {
+  const f = facilities[id];
+  if (!f) return;
+  if (!confirm('この施設の営業情報（ステータス・担当者・電話・訪問担当）をリセットしますか？\n※訪問履歴と名刺画像は残ります')) return;
+  f.status = 'unvisited';
+  f.contactName = '';
+  f.contactPhone = '';
+  delete f.todayStaff;
+  addMarker(f);
+  saveData();
+  renderAll();
+  renderDetail(f);
+  toast('営業情報をリセットしました');
 }
 
 function updateTodayStaff(id, value) {
