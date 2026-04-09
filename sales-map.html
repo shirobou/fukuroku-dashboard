@@ -289,8 +289,8 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 /* Mobile menu button */
 .mobile-menu-btn {
   display: none; position: fixed; top: 12px; left: 12px; z-index: 2001;
-  width: 40px; height: 40px; background: rgba(0,0,0,0.5); color: #fff; border: none;
-  border-radius: 50%; font-size: 20px; cursor: pointer; box-shadow: var(--shadow-lg);
+  width: 44px; height: 44px; background: var(--brand); color: #fff; border: none;
+  border-radius: 50%; font-size: 22px; cursor: pointer; box-shadow: var(--shadow-lg);
   align-items: center; justify-content: center;
 }
 /* Responsive */
@@ -332,7 +332,6 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .report-page th, .report-page td { padding: 4px 5px; }
   .report-actions { flex-wrap: wrap; }
   .hide-on-mobile { display: none !important; }
-  .mobile-close-sidebar { display: inline-flex !important; }
 }
 /* Landscape on mobile - tighter layout */
 @media (pointer: coarse) and (orientation: landscape), (max-height: 500px) {
@@ -355,11 +354,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   <!-- Left Sidebar -->
   <div class="sidebar-left" id="sidebarLeft">
     <div class="logo">
-      <h1 style="display:flex;align-items:center;justify-content:center;gap:6px;">
-        <span>ふくろく訪問看護ステーション</span>
-        <button onclick="showHelp()" style="background:rgba(255,255,255,0.25);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:13px;cursor:pointer;flex-shrink:0;">?</button>
-        <button class="mobile-close-sidebar" onclick="closeMobileMenu()" style="display:none;background:rgba(255,255,255,0.25);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;flex-shrink:0;">&times;</button>
-      </h1>
+      <h1>ふくろく訪問看護ステーション <button onclick="showHelp()" style="background:rgba(255,255,255,0.25);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:13px;cursor:pointer;vertical-align:middle;">?</button></h1>
       <p>営業マップダッシュボード <span id="syncStatus" style="font-size:10px;opacity:0.7;">同期中...</span></p>
     </div>
 
