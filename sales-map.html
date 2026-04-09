@@ -350,7 +350,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .map-toolbar { left: 48px; top: 6px; right: 8px; }
   .toolbar-search input { padding: 5px 8px; font-size: 11px; }
   .toolbar-buttons .toolbar-btn { font-size: 10px; padding: 4px 8px; }
-  .sidebar-left { width: 240px; min-width: 240px; position: fixed; left: -240px; z-index: 2000; }
+  .sidebar-left { width: 240px; min-width: 240px; position: fixed; left: -240px; z-index: 2000; top: 0; bottom: 0; height: 100vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .sidebar-left.mobile-open { left: 0; }
   .sidebar-right { width: 60%; min-width: unset; position: fixed; z-index: 1500; }
   .map-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; }
