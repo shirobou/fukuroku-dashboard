@@ -1503,7 +1503,7 @@ function generateFacilityReport(id) {
         <div style="font-size:12px;margin-bottom:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">${infoItems.join(' | ')}</div>
         ${f.address ? `<div style="font-size:12px;color:var(--gray-600);margin-bottom:4px;">${escHtml(f.address)}</div>` : ''}
         ${f.website ? `<div style="font-size:11px;color:var(--gray-600);">${escHtml(f.website)}</div>` : ''}
-        ${f.openingHours && f.openingHours.length > 0 ? `<div style="font-size:10px;color:var(--gray-600);margin-top:4px;line-height:1.5;">${f.openingHours.join(' / ')}</div>` : ''}
+        ${f.openingHours && f.openingHours.length > 0 ? `<div style="font-size:10px;color:var(--gray-600);margin-top:4px;line-height:1.6;">${f.openingHours.join('<br>')}</div>` : ''}
       </div>
     </div>
 
