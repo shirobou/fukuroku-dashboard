@@ -112,7 +112,18 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 /* Toolbar */
 .map-toolbar {
   position: absolute; top: 12px; left: 12px; z-index: 800;
-  display: flex; gap: 6px; flex-wrap: wrap;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.toolbar-search {
+  display: flex; gap: 4px;
+}
+.toolbar-search input {
+  flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid var(--gray-300);
+  border-radius: var(--radius); font-size: 13px; box-shadow: var(--shadow);
+}
+.toolbar-search input:focus { outline: none; border-color: var(--brand); }
+.toolbar-buttons {
+  display: flex; gap: 4px; flex-wrap: wrap;
 }
 .toolbar-btn {
   padding: 8px 14px; background: #fff; border: 1px solid var(--gray-300); border-radius: var(--radius);
@@ -304,10 +315,16 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .mobile-menu-btn { display: flex !important; }
   .map-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; }
   .map-toolbar {
-    left: 60px; top: 10px; right: 10px;
-    flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    left: 56px; top: 8px; right: 8px;
+    flex-direction: column; gap: 4px;
   }
-  .map-toolbar .toolbar-btn { font-size: 11px; padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }
+  .toolbar-search { display: flex; gap: 4px; }
+  .toolbar-search input { min-width: 0; flex: 1; padding: 7px 10px; font-size: 12px; }
+  .toolbar-buttons {
+    display: flex; gap: 3px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+  .toolbar-buttons .toolbar-btn { font-size: 10px; padding: 5px 8px; white-space: nowrap; flex-shrink: 0; }
   .report-overlay { padding: 8px; }
   .report-page { padding: 12px; font-size: 11px; width: 100%; }
   .report-page h1 { font-size: 16px; }
@@ -319,8 +336,9 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 /* Landscape on mobile - tighter layout */
 @media (pointer: coarse) and (orientation: landscape), (max-height: 500px) {
   .mobile-menu-btn { width: 36px; height: 36px; font-size: 18px; top: 6px; left: 6px; display: flex !important; }
-  .map-toolbar { left: 48px; top: 6px; }
-  .map-toolbar .toolbar-btn { font-size: 10px; padding: 4px 8px; }
+  .map-toolbar { left: 48px; top: 6px; right: 8px; }
+  .toolbar-search input { padding: 5px 8px; font-size: 11px; }
+  .toolbar-buttons .toolbar-btn { font-size: 10px; padding: 4px 8px; }
   .sidebar-left { width: 240px; min-width: 240px; position: fixed; left: -240px; z-index: 2000; }
   .sidebar-left.mobile-open { left: 0; }
   .sidebar-right { width: 60%; min-width: unset; position: fixed; z-index: 1500; }
@@ -391,14 +409,16 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   <!-- Map -->
   <div class="map-container">
     <div id="map"></div>
-    <div class="map-toolbar">
-      <div style="display:flex;gap:4px;flex:1;min-width:0;">
-        <input type="text" id="placeSearchInput" placeholder="施設名・住所で検索..." style="flex:1;min-width:120px;padding:8px 12px;border:1px solid var(--gray-300);border-radius:var(--radius);font-size:13px;box-shadow:var(--shadow);" onkeydown="if(event.key==='Enter')searchPlace()">
-        <button class="toolbar-btn" onclick="searchPlace()" style="flex-shrink:0;">検索</button>
+    <div class="map-toolbar" id="mapToolbar">
+      <div class="toolbar-search">
+        <input type="text" id="placeSearchInput" placeholder="施設名・住所で検索..." onkeydown="if(event.key==='Enter')searchPlace()">
+        <button class="toolbar-btn" onclick="searchPlace()">検索</button>
       </div>
-      <button class="toolbar-btn" id="addModeBtn" onclick="toggleAddMode()">+ 営業先を追加</button>
-      <button class="toolbar-btn" onclick="gmap.panTo(HOME_LATLNG); gmap.setZoom(15);">自社に戻る</button>
-      <button class="toolbar-btn" onclick="generateReport()" style="background:var(--brand);color:#fff;border-color:var(--brand);">営業報告書PDF</button>
+      <div class="toolbar-buttons">
+        <button class="toolbar-btn" id="addModeBtn" onclick="toggleAddMode()">+ 営業先を追加</button>
+        <button class="toolbar-btn" onclick="gmap.panTo(HOME_LATLNG); gmap.setZoom(15);">自社に戻る</button>
+        <button class="toolbar-btn" onclick="generateReport()" style="background:var(--brand);color:#fff;border-color:var(--brand);">報告書</button>
+      </div>
     </div>
     <div class="loading-overlay" id="loading">
       <div class="spinner"></div>
