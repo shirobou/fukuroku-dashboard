@@ -532,11 +532,12 @@ function migrateCategory(cat) {
 }
 
 const STATUSES = {
-  unvisited:   { label: '未訪問',   color: '#9e9e9e', emoji: '⚪' },
-  visited:     { label: '訪問済み', color: '#1976D2', emoji: '🔵' },
-  negotiating: { label: '商談中',   color: '#F9A825', emoji: '🟡' },
-  contracted:  { label: '契約済み', color: '#2e7d32', emoji: '🟢' },
-  rejected:    { label: 'NG',      color: '#e53935', emoji: '🔴' },
+  unvisited:   { label: '未訪問',     color: '#9e9e9e', emoji: '⚪' },
+  today:       { label: '本日訪問予定', color: '#FF6D00', emoji: '🟠' },
+  visited:     { label: '訪問済み',   color: '#1976D2', emoji: '🔵' },
+  negotiating: { label: '商談中',     color: '#F9A825', emoji: '🟡' },
+  contracted:  { label: '契約済み',   color: '#2e7d32', emoji: '🟢' },
+  rejected:    { label: 'NG',        color: '#e53935', emoji: '🔴' },
 };
 
 // ===== State =====
