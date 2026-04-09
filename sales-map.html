@@ -648,6 +648,8 @@ function updateRadiusCircle() {
     map: gmap,
     clickable: false,
   });
+  // Re-filter markers by new radius
+  applyFilters();
 }
 
 // ===== Google Places Search =====
@@ -834,8 +836,11 @@ function toggleStatus(key) {
 
 // ===== Filter logic =====
 function applyFilters() {
+  const radius = parseInt(document.getElementById('radiusSelect').value);
   Object.entries(facilities).forEach(([id, f]) => {
-    const show = activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status);
+    const dist = getDistance(HOME_LATLNG.lat, HOME_LATLNG.lng, f.lat, f.lng);
+    const inRadius = dist <= radius;
+    const show = inRadius && activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status);
     if (gMarkers[id]) gMarkers[id].setVisible(show);
   });
   renderFacilityList();
@@ -844,9 +849,11 @@ function applyFilters() {
 // ===== Facility list =====
 function renderFacilityList() {
   const el = document.getElementById('facilityList');
-  const filtered = Object.values(facilities).filter(f =>
-    activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status)
-  ).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ja'));
+  const radius = parseInt(document.getElementById('radiusSelect').value);
+  const filtered = Object.values(facilities).filter(f => {
+    const dist = getDistance(HOME_LATLNG.lat, HOME_LATLNG.lng, f.lat, f.lng);
+    return dist <= radius && activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status);
+  }).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ja'));
 
   el.innerHTML = filtered.map(f => {
     const st = STATUSES[f.status] || STATUSES.unvisited;
