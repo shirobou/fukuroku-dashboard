@@ -939,6 +939,7 @@ function renderDetail(f) {
     </div>
 
     <hr style="margin:16px 0;border:none;border-top:1px solid var(--gray-200);">
+    <button class="search-btn" style="margin-top:8px;font-size:12px;padding:8px;" onclick="generateFacilityReport('${f.id}')">この施設の報告書PDF</button>
     <button class="delete-btn" onclick="deleteFacility('${f.id}')">この施設を削除</button>
   `;
 }
@@ -1341,6 +1342,77 @@ function generateReport() {
 
 function closeReport() {
   document.getElementById('reportOverlay').classList.remove('show');
+}
+
+function generateFacilityReport(id) {
+  const f = facilities[id];
+  if (!f) return;
+
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+  const cat = CATEGORIES[f.category] || CATEGORIES.other;
+  const st = STATUSES[f.status] || STATUSES.unvisited;
+  if (!f.visits) f.visits = [];
+  if (!f.cardImages) f.cardImages = [];
+
+  // Visit history
+  let visitsHtml = '';
+  if (f.visits.length > 0) {
+    visitsHtml = f.visits.map((v, i) => `
+      <div class="visit-detail">
+        <strong>第${f.visits.length - i}回 ー ${v.date || '日付なし'}</strong>
+        ${v.memo ? '<br>' + escHtml(v.memo) : ''}
+        ${v.nextAction ? '<br><span style="color:var(--brand);">次回アクション: ' + escHtml(v.nextAction) + '</span>' : ''}
+      </div>
+    `).join('');
+  } else {
+    visitsHtml = '<p style="color:var(--gray-600);font-size:11px;">訪問記録なし</p>';
+  }
+
+  // Card images
+  let cardsHtml = '';
+  if (f.cardImages.length > 0) {
+    cardsHtml = `<h2>名刺画像</h2><div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+      ${f.cardImages.map(img => `<img src="${img}" style="max-width:200px;max-height:120px;border:1px solid var(--gray-300);border-radius:4px;object-fit:contain;">`).join('')}
+    </div>`;
+  }
+
+  document.getElementById('reportContent').innerHTML = `
+    <h1>営業先レポート</h1>
+    <div class="report-meta">
+      <span>ふくろく訪問看護ステーション</span>
+      <span>作成日: ${dateStr}</span>
+    </div>
+
+    <h2>施設情報</h2>
+    <table>
+      <tr><th style="width:120px;">施設名</th><td><strong>${escHtml(f.name)}</strong></td></tr>
+      <tr><th>カテゴリ</th><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${cat.color};margin-right:4px;"></span>${cat.label}</td></tr>
+      <tr><th>ステータス</th><td><span class="status-badge" style="background:${st.color}">${st.label}</span></td></tr>
+      ${f.address ? `<tr><th>住所</th><td>${escHtml(f.address)}</td></tr>` : ''}
+      ${f.phone ? `<tr><th>電話番号</th><td>${escHtml(f.phone)}</td></tr>` : ''}
+      ${f.website ? `<tr><th>ウェブサイト</th><td>${escHtml(f.website)}</td></tr>` : ''}
+      ${f.rating ? `<tr><th>評価</th><td>${'★'.repeat(Math.round(f.rating))}${' ☆'.repeat(5 - Math.round(f.rating))} ${f.rating}（${f.ratingCount || 0}件）</td></tr>` : ''}
+      ${f.openingHours && f.openingHours.length > 0 ? `<tr><th>営業時間</th><td style="font-size:10px;line-height:1.6;">${f.openingHours.join('<br>')}</td></tr>` : ''}
+    </table>
+
+    <h2>担当者情報</h2>
+    <table>
+      <tr><th style="width:120px;">担当者名</th><td>${escHtml(f.contactName || '未登録')}</td></tr>
+      <tr><th>直通電話</th><td>${escHtml(f.contactPhone || '未登録')}</td></tr>
+    </table>
+
+    ${cardsHtml}
+
+    <h2>訪問履歴（${f.visits.length}件）</h2>
+    ${visitsHtml}
+
+    <div class="report-footer">
+      ふくろく訪問看護ステーション ／ 株式会社T-Connect ／ ${dateStr} 作成
+    </div>
+  `;
+
+  document.getElementById('reportOverlay').classList.add('show');
 }
 
 // ===== Utilities =====
