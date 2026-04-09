@@ -453,7 +453,7 @@ let staffList = []; // [{name: '志摩孝政'}, ...]
 // Load staff from Firebase
 staffRef.on('value', (snap) => {
   staffList = snap.val() || [];
-  // Re-render detail if open
+  renderStaffList();
   if (selectedId && facilities[selectedId]) renderDetail(facilities[selectedId]);
 });
 
