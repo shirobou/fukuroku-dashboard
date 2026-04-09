@@ -313,6 +313,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .report-page table { font-size: 10px; display: block; overflow-x: auto; }
   .report-page th, .report-page td { padding: 4px 5px; }
   .report-actions { flex-wrap: wrap; }
+  .hide-on-mobile { display: none !important; }
 }
 /* Landscape on mobile */
 @media (max-height: 500px) and (orientation: landscape) {
@@ -453,8 +454,8 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 <div class="report-overlay" id="reportOverlay">
   <div>
     <div class="report-actions">
-      <button class="print-btn" onclick="window.print()">PDF保存 / 印刷</button>
-      <button class="print-btn" onclick="saveReportAsImage()" style="background:#1976D2;">画像で保存</button>
+      <button class="print-btn hide-on-mobile" onclick="window.print()">PDF保存 / 印刷</button>
+      <button class="print-btn" onclick="saveReportAsImage()" style="background:#1976D2;">画像で保存・共有</button>
       <button class="close-report-btn" onclick="closeReport()">閉じる</button>
     </div>
     <div class="report-page" id="reportContent"></div>
