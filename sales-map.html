@@ -2108,10 +2108,13 @@ function openTodayRoute() {
     return;
   }
   // Build Google Maps directions URL
-  const origin = `${HOME_LATLNG.lat},${HOME_LATLNG.lng}`;
-  const dest = origin; // return to home
-  const waypoints = todayFacilities.map(f => `${f.lat},${f.lng}`).join('|');
-  const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&waypoints=${waypoints}&travelmode=driving`;
+  const origin = encodeURIComponent('ふくろく訪問看護ステーション 大阪府大東市諸福6-1-7');
+  const lastFacility = todayFacilities[todayFacilities.length - 1];
+  const dest = `${lastFacility.lat},${lastFacility.lng}`;
+  const waypoints = todayFacilities.slice(0, -1).map(f => `${f.lat},${f.lng}`).join('|');
+  const url = waypoints
+    ? `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&waypoints=${waypoints}&travelmode=driving`
+    : `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=driving`;
   window.open(url, '_blank');
 }
 
