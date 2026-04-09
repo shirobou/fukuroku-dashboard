@@ -423,7 +423,6 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
         <button class="toolbar-btn" id="addModeBtn" onclick="toggleAddMode()">+ 営業先を追加</button>
         <button class="toolbar-btn" onclick="gmap.panTo(HOME_LATLNG); gmap.setZoom(15);">自社に戻る</button>
         <button class="toolbar-btn" onclick="openTodayRoute()" style="background:#FF6D00;color:#fff;border-color:#FF6D00;">ルート</button>
-        <button class="toolbar-btn" onclick="showVisitDashboard()" style="background:#1565C0;color:#fff;border-color:#1565C0;">訪問率</button>
         <button class="toolbar-btn" onclick="generateReport()" style="background:var(--brand);color:#fff;border-color:var(--brand);">報告書</button>
       </div>
     </div>
@@ -995,7 +994,9 @@ function renderFacilityList() {
     const cat = CATEGORIES[f.category] || CATEGORIES.other;
     const rating = f.rating ? `<span class="fl-rating">${'★'.repeat(Math.round(f.rating))} ${f.rating}</span>` : '';
     const lastVisit = (f.visits && f.visits[0]) ? f.visits[0] : null;
-    const lastInfo = lastVisit ? `${lastVisit.date || ''}${lastVisit.staff ? ' ' + lastVisit.staff : ''}` : '';
+    const lastInfo = f.status === 'today' && f.todayStaff
+      ? `本日: ${f.todayStaff}`
+      : (lastVisit ? `${lastVisit.date || ''}${lastVisit.staff ? ' ' + lastVisit.staff : ''}` : '');
     return `<div class="facility-list-item" onclick="selectFacility('${f.id}')">
       <div class="fl-name">
         <span class="fl-status-dot" style="background:${st.color}"></span>
@@ -1373,6 +1374,13 @@ function updateFacilityField(id, field, value) {
   if (!facilities[id]) return;
   facilities[id][field] = value;
   if (field === 'status') {
+    if (value === 'today' && staffList.length > 0) {
+      // Ask who is visiting today
+      const staffName = prompt('本日の訪問担当者を入力（' + staffList.map(s => s.name).join('・') + '）:');
+      if (staffName) facilities[id].todayStaff = staffName.trim();
+    } else if (value !== 'today') {
+      delete facilities[id].todayStaff;
+    }
     addMarker(facilities[id]);
     renderFacilityList();
     renderCatList();
@@ -2107,11 +2115,54 @@ function openTodayRoute() {
     toast('「本日訪問予定」の施設がありません。ステータスを設定してください');
     return;
   }
-  // Build Google Maps directions URL
+
+  // Check if any have assignedStaff
+  const staffNames = [...new Set(todayFacilities.map(f => f.todayStaff || '').filter(Boolean))];
+
+  if (staffNames.length === 0) {
+    // No staff assigned, show all
+    openRouteForFacilities(todayFacilities);
+  } else {
+    // Show staff selection
+    const allOption = `<div onclick="openRouteForStaff('')" style="padding:8px 12px;border-bottom:1px solid var(--gray-200);cursor:pointer;font-weight:600;" onmouseover="this.style.background='var(--brand-bg)'" onmouseout="this.style.background=''">全員（${todayFacilities.length}件）</div>`;
+    const staffOptions = staffNames.map(s => {
+      const count = todayFacilities.filter(f => f.todayStaff === s).length;
+      return `<div onclick="openRouteForStaff('${escAttr(s)}')" style="padding:8px 12px;border-bottom:1px solid var(--gray-200);cursor:pointer;" onmouseover="this.style.background='var(--brand-bg)'" onmouseout="this.style.background=''">${escHtml(s)}（${count}件）</div>`;
+    }).join('');
+    const unassigned = todayFacilities.filter(f => !f.todayStaff).length;
+    const unassignedOption = unassigned > 0 ? `<div onclick="openRouteForStaff('__none__')" style="padding:8px 12px;border-bottom:1px solid var(--gray-200);cursor:pointer;color:var(--gray-600);" onmouseover="this.style.background='var(--brand-bg)'" onmouseout="this.style.background=''">担当未設定（${unassigned}件）</div>` : '';
+
+    document.getElementById('reportContent').innerHTML = `
+      <h1>ルート表示</h1>
+      <div class="report-meta"><span>誰のルートを表示しますか？</span></div>
+      <div style="border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;margin-top:12px;">
+        ${allOption}${staffOptions}${unassignedOption}
+      </div>
+      <div style="margin-top:16px;font-size:11px;color:var(--gray-600);">
+        ※担当者は施設の詳細パネルで「本日訪問予定」に変更する際に設定できます
+      </div>
+    `;
+    document.getElementById('reportOverlay').classList.add('show');
+  }
+}
+
+function openRouteForStaff(staffName) {
+  document.getElementById('reportOverlay').classList.remove('show');
+  let todayFacilities = Object.values(facilities).filter(f => f.status === 'today');
+  if (staffName === '__none__') {
+    todayFacilities = todayFacilities.filter(f => !f.todayStaff);
+  } else if (staffName) {
+    todayFacilities = todayFacilities.filter(f => f.todayStaff === staffName);
+  }
+  openRouteForFacilities(todayFacilities);
+}
+
+function openRouteForFacilities(facilityList) {
+  if (facilityList.length === 0) { toast('該当する施設がありません'); return; }
   const origin = encodeURIComponent('ふくろく訪問看護ステーション 大阪府大東市諸福6-1-7');
-  const lastFacility = todayFacilities[todayFacilities.length - 1];
+  const lastFacility = facilityList[facilityList.length - 1];
   const dest = `${lastFacility.lat},${lastFacility.lng}`;
-  const waypoints = todayFacilities.slice(0, -1).map(f => `${f.lat},${f.lng}`).join('|');
+  const waypoints = facilityList.slice(0, -1).map(f => `${f.lat},${f.lng}`).join('|');
   const url = waypoints
     ? `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&waypoints=${waypoints}&travelmode=driving`
     : `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=driving`;
