@@ -274,19 +274,37 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .status-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
+/* Mobile menu button */
+.mobile-menu-btn {
+  display: none; position: fixed; top: 12px; left: 12px; z-index: 2001;
+  width: 44px; height: 44px; background: var(--brand); color: #fff; border: none;
+  border-radius: 50%; font-size: 22px; cursor: pointer; box-shadow: var(--shadow-lg);
+  align-items: center; justify-content: center;
+}
 /* Responsive */
 @media (max-width: 1024px) {
   .sidebar-left { width: 260px; min-width: 260px; }
   .sidebar-right { width: 320px; min-width: 320px; }
 }
 @media (max-width: 768px) {
-  .sidebar-left { position: absolute; left: -300px; transition: left 0.3s; height: 100%; }
+  .sidebar-left {
+    position: fixed; left: -300px; top: 0; bottom: 0; width: 280px; min-width: 280px;
+    transition: left 0.3s; z-index: 2000;
+  }
   .sidebar-left.mobile-open { left: 0; }
-  .sidebar-right { width: 100%; min-width: unset; }
+  .mobile-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1999; }
+  .mobile-overlay.show { display: block; }
+  .sidebar-right { position: fixed; right: 0; top: 0; bottom: 0; width: 100%; min-width: unset; z-index: 1500; }
+  .mobile-menu-btn { display: flex !important; }
+  .map-toolbar { left: 60px; top: 12px; }
+  .map-toolbar .toolbar-btn { font-size: 11px; padding: 6px 10px; }
 }
 </style>
 </head>
 <body>
+<button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">☰</button>
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
 <div class="app">
   <!-- Left Sidebar -->
   <div class="sidebar-left" id="sidebarLeft">
@@ -900,9 +918,12 @@ function renderDetail(f) {
   // Visit history HTML
   const visitsHtml = f.visits.map((v, i) => `
     <div class="visit-entry">
-      <button class="visit-del" onclick="deleteVisit('${f.id}', ${i})" title="削除">&times;</button>
+      <div style="position:absolute;top:6px;right:8px;display:flex;gap:4px;">
+        <button onclick="editVisit('${f.id}', ${i})" style="background:none;border:none;cursor:pointer;color:var(--gray-600);font-size:12px;padding:0;" title="編集">✏️</button>
+        <button onclick="deleteVisit('${f.id}', ${i})" style="background:none;border:none;cursor:pointer;color:var(--gray-600);font-size:12px;padding:0;" title="削除">&times;</button>
+      </div>
       <div class="visit-date">${v.date || '日付なし'}${v.staff ? ` <span style="background:var(--brand-bg);color:var(--brand-dark);padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;">${escHtml(v.staff)}</span>` : ''}</div>
-      ${v.memo ? `<div class="visit-memo">${escHtml(v.memo)}</div>` : ''}
+      ${v.memo ? `<div class="visit-memo">${escHtml(v.memo).replace(/\n/g, '<br>')}</div>` : ''}
       ${v.nextAction ? `<div class="visit-action">次回: ${escHtml(v.nextAction)}</div>` : ''}
     </div>
   `).join('');
@@ -1012,6 +1033,34 @@ function submitVisit(id) {
   saveData();
   renderDetail(f);
   toast('訪問記録を追加しました');
+}
+
+function editVisit(id, index) {
+  const f = facilities[id];
+  if (!f || !f.visits || !f.visits[index]) return;
+  const v = f.visits[index];
+
+  // Show the add visit form pre-filled with existing data
+  document.getElementById('addVisitForm').style.display = 'block';
+  document.getElementById('newVisitDate').value = v.date || '';
+  document.getElementById('newVisitStaff').value = v.staff || '';
+  document.getElementById('newVisitMemo').value = v.memo || '';
+  document.getElementById('newVisitAction').value = v.nextAction || '';
+  document.getElementById('addVisitForm').scrollIntoView({ behavior: 'smooth' });
+
+  // Replace submit button to update instead of add
+  const form = document.getElementById('addVisitForm');
+  const saveBtn = form.querySelector('.search-btn');
+  saveBtn.textContent = '更新';
+  saveBtn.onclick = () => {
+    v.date = document.getElementById('newVisitDate').value;
+    v.staff = document.getElementById('newVisitStaff').value;
+    v.memo = document.getElementById('newVisitMemo').value.trim();
+    v.nextAction = document.getElementById('newVisitAction').value.trim();
+    saveData();
+    renderDetail(f);
+    toast('訪問記録を更新しました');
+  };
 }
 
 function deleteVisit(id, index) {
@@ -1412,7 +1461,7 @@ function generateReport() {
     recentLogsHtml = recentVisits.map(v => `
       <div class="visit-detail">
         <strong>${v.date || '日付なし'}</strong>${v.staff ? ` <span style="background:var(--brand-bg);color:var(--brand-dark);padding:1px 6px;border-radius:8px;font-size:10px;">${escHtml(v.staff)}</span>` : ''} ー ${escHtml(v.facilityName)}
-        ${v.memo ? '<br>' + escHtml(v.memo) : ''}
+        ${v.memo ? '<br>' + escHtml(v.memo).replace(/\n/g, '<br>') : ''}
         ${v.nextAction ? '<br><span style="color:var(--brand);">次回: ' + escHtml(v.nextAction) + '</span>' : ''}
       </div>
     `).join('');
@@ -1594,6 +1643,16 @@ function renderAll() {
   renderCatList();
   renderStatusFilters();
   renderFacilityList();
+}
+
+// ===== Mobile Menu =====
+function toggleMobileMenu() {
+  document.getElementById('sidebarLeft').classList.toggle('mobile-open');
+  document.getElementById('mobileOverlay').classList.toggle('show');
+}
+function closeMobileMenu() {
+  document.getElementById('sidebarLeft').classList.remove('mobile-open');
+  document.getElementById('mobileOverlay').classList.remove('show');
 }
 
 // ===== Start =====
