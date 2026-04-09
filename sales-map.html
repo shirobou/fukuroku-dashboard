@@ -361,12 +361,12 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
     </div>
 
     <div class="panel-section">
-      <h3>カテゴリ</h3>
+      <h3>カテゴリ <span style="margin-left:auto;font-size:10px;display:flex;gap:4px;"><button onclick="toggleAllCategories(true)" style="background:none;border:1px solid var(--gray-300);border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;">全選択</button><button onclick="toggleAllCategories(false)" style="background:none;border:1px solid var(--gray-300);border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;">全解除</button></span></h3>
       <div class="cat-list" id="catList"></div>
     </div>
 
     <div class="panel-section">
-      <h3>ステータス</h3>
+      <h3>ステータス <span style="margin-left:auto;font-size:10px;display:flex;gap:4px;"><button onclick="toggleAllStatuses(true)" style="background:none;border:1px solid var(--gray-300);border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;">全選択</button><button onclick="toggleAllStatuses(false)" style="background:none;border:1px solid var(--gray-300);border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;">全解除</button></span></h3>
       <div class="status-filters" id="statusFilters"></div>
     </div>
 
@@ -896,6 +896,13 @@ function toggleCategory(key, on) {
   applyFilters();
 }
 
+function toggleAllCategories(on) {
+  if (on) Object.keys(CATEGORIES).forEach(k => activeFilters.categories.add(k));
+  else activeFilters.categories.clear();
+  renderCatList();
+  applyFilters();
+}
+
 // ===== UI: Status filter =====
 function renderStatusFilters() {
   const el = document.getElementById('statusFilters');
@@ -908,6 +915,13 @@ function renderStatusFilters() {
 function toggleStatus(key) {
   if (activeFilters.statuses.has(key)) activeFilters.statuses.delete(key);
   else activeFilters.statuses.add(key);
+  renderStatusFilters();
+  applyFilters();
+}
+
+function toggleAllStatuses(on) {
+  if (on) Object.keys(STATUSES).forEach(k => activeFilters.statuses.add(k));
+  else activeFilters.statuses.clear();
   renderStatusFilters();
   applyFilters();
 }
