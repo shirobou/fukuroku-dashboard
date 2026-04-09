@@ -1505,6 +1505,7 @@ function loadData() {
       Object.values(facilities).forEach(f => { f.category = migrateCategory(f.category); });
       Object.values(facilities).forEach(f => addMarker(f));
       renderAll();
+      applyFilters();
     }
   } catch (e) {}
 
@@ -1522,6 +1523,7 @@ function loadData() {
     Object.values(facilities).forEach(f => { f.category = migrateCategory(f.category); });
     Object.values(facilities).forEach(f => addMarker(f));
     renderAll();
+    applyFilters();
 
     // Update local cache
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
