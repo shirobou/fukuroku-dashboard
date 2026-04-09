@@ -2116,34 +2116,37 @@ function openTodayRoute() {
     return;
   }
 
-  // Check if any have assignedStaff
+  // Always show selection screen
   const staffNames = [...new Set(todayFacilities.map(f => f.todayStaff || '').filter(Boolean))];
 
-  if (staffNames.length === 0) {
-    // No staff assigned, show all
-    openRouteForFacilities(todayFacilities);
-  } else {
-    // Show staff selection
-    const allOption = `<div onclick="openRouteForStaff('')" style="padding:8px 12px;border-bottom:1px solid var(--gray-200);cursor:pointer;font-weight:600;" onmouseover="this.style.background='var(--brand-bg)'" onmouseout="this.style.background=''">全員（${todayFacilities.length}件）</div>`;
-    const staffOptions = staffNames.map(s => {
-      const count = todayFacilities.filter(f => f.todayStaff === s).length;
-      return `<div onclick="openRouteForStaff('${escAttr(s)}')" style="padding:8px 12px;border-bottom:1px solid var(--gray-200);cursor:pointer;" onmouseover="this.style.background='var(--brand-bg)'" onmouseout="this.style.background=''">${escHtml(s)}（${count}件）</div>`;
-    }).join('');
-    const unassigned = todayFacilities.filter(f => !f.todayStaff).length;
-    const unassignedOption = unassigned > 0 ? `<div onclick="openRouteForStaff('__none__')" style="padding:8px 12px;border-bottom:1px solid var(--gray-200);cursor:pointer;color:var(--gray-600);" onmouseover="this.style.background='var(--brand-bg)'" onmouseout="this.style.background=''">担当未設定（${unassigned}件）</div>` : '';
+  const allOption = `<div onclick="openRouteForStaff('')" style="padding:12px 16px;border-bottom:1px solid var(--gray-200);cursor:pointer;font-weight:600;font-size:15px;" onmouseover="this.style.background='var(--brand-bg)'" onmouseout="this.style.background=''">全員のルート（${todayFacilities.length}件）</div>`;
 
-    document.getElementById('reportContent').innerHTML = `
-      <h1>ルート表示</h1>
-      <div class="report-meta"><span>誰のルートを表示しますか？</span></div>
-      <div style="border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;margin-top:12px;">
-        ${allOption}${staffOptions}${unassignedOption}
-      </div>
-      <div style="margin-top:16px;font-size:11px;color:var(--gray-600);">
-        ※担当者は施設の詳細パネルで「本日訪問予定」に変更する際に設定できます
-      </div>
-    `;
-    document.getElementById('reportOverlay').classList.add('show');
-  }
+  const staffOptions = staffList.map(s => {
+    const count = todayFacilities.filter(f => f.todayStaff === s.name).length;
+    return `<div onclick="openRouteForStaff('${escAttr(s.name)}')" style="padding:12px 16px;border-bottom:1px solid var(--gray-200);cursor:pointer;font-size:15px;${count === 0 ? 'color:var(--gray-600);' : ''}" onmouseover="this.style.background='var(--brand-bg)'" onmouseout="this.style.background=''">${escHtml(s.name)}（${count}件）</div>`;
+  }).join('');
+
+  // List today's facilities
+  const listHtml = todayFacilities.map(f => `
+    <div style="padding:6px 12px;border-bottom:1px solid var(--gray-200);font-size:12px;display:flex;justify-content:space-between;">
+      <span>${escHtml(f.name)}</span>
+      <span style="color:var(--gray-600);">${escHtml(f.todayStaff || '未設定')}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('reportContent').innerHTML = `
+    <h1>ルート表示</h1>
+    <div class="report-meta"><span>誰のルートを表示しますか？</span></div>
+    <div style="border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;margin-top:12px;">
+      ${allOption}${staffOptions}
+    </div>
+    <h2>本日の訪問予定（${todayFacilities.length}件）</h2>
+    <div style="border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;">
+      <div style="padding:6px 12px;background:var(--gray-100);font-size:11px;font-weight:600;display:flex;justify-content:space-between;"><span>施設名</span><span>担当者</span></div>
+      ${listHtml}
+    </div>
+  `;
+  document.getElementById('reportOverlay').classList.add('show');
 }
 
 function openRouteForStaff(staffName) {
