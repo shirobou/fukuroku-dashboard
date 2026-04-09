@@ -392,6 +392,10 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   <div class="map-container">
     <div id="map"></div>
     <div class="map-toolbar">
+      <div style="display:flex;gap:4px;flex:1;min-width:0;">
+        <input type="text" id="placeSearchInput" placeholder="施設名・住所で検索..." style="flex:1;min-width:120px;padding:8px 12px;border:1px solid var(--gray-300);border-radius:var(--radius);font-size:13px;box-shadow:var(--shadow);" onkeydown="if(event.key==='Enter')searchPlace()">
+        <button class="toolbar-btn" onclick="searchPlace()" style="flex-shrink:0;">検索</button>
+      </div>
       <button class="toolbar-btn" id="addModeBtn" onclick="toggleAddMode()">+ 営業先を追加</button>
       <button class="toolbar-btn" onclick="gmap.panTo(HOME_LATLNG); gmap.setZoom(15);">自社に戻る</button>
       <button class="toolbar-btn" onclick="generateReport()" style="background:var(--brand);color:#fff;border-color:var(--brand);">営業報告書PDF</button>
@@ -416,6 +420,16 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <h3>営業先を追加</h3>
+    <div class="form-group">
+      <label>施設名・住所で検索</label>
+      <div style="display:flex;gap:4px;">
+        <input type="text" id="addSearchQuery" placeholder="例: ○○クリニック 大東市" style="flex:1;" onkeydown="if(event.key==='Enter')searchForAdd()">
+        <button class="primary" onclick="searchForAdd()" style="padding:8px 14px;white-space:nowrap;">検索</button>
+      </div>
+      <div id="addSearchResults" style="margin-top:6px;max-height:150px;overflow-y:auto;font-size:12px;"></div>
+    </div>
+    <hr style="margin:8px 0;border:none;border-top:1px solid var(--gray-200);">
+    <div style="font-size:11px;color:var(--gray-600);margin-bottom:8px;">検索結果を選択、または手動入力：</div>
     <div class="form-group">
       <label>施設名 *</label>
       <input type="text" id="addName" placeholder="例: ○○クリニック">
@@ -1304,6 +1318,10 @@ function toggleAddMode() {
 function closeAddModal() {
   document.getElementById('addModal').classList.remove('show');
   addLatLng = null;
+  window._selectedPlaceId = null;
+  window._addSearchResults = [];
+  const resultsEl = document.getElementById('addSearchResults');
+  if (resultsEl) resultsEl.innerHTML = '';
 }
 
 function submitAddFacility() {
@@ -1311,9 +1329,12 @@ function submitAddFacility() {
   if (!name) { toast('施設名を入力してください'); return; }
   if (!addLatLng) { toast('位置が指定されていません'); return; }
 
-  const id = 'manual_' + Date.now();
+  const placeId = window._selectedPlaceId || null;
+  const id = placeId ? 'gp_' + placeId : 'manual_' + Date.now();
+  if (facilities[id]) { toast('この施設は既に登録済みです'); return; }
   facilities[id] = {
     id, name,
+    placeId: placeId,
     lat: addLatLng.lat, lng: addLatLng.lng,
     category: document.getElementById('addCategory').value,
     address: document.getElementById('addAddress').value.trim(),
@@ -1321,7 +1342,8 @@ function submitAddFacility() {
     status: 'unvisited',
     contactName: '', contactPhone: '',
     visits: [], cardImages: [],
-    source: 'manual',
+    source: placeId ? 'search' : 'manual',
+    detailsLoaded: false,
   };
   addMarker(facilities[id]);
   saveData();
@@ -1764,6 +1786,122 @@ function renderAll() {
   renderCatList();
   renderStatusFilters();
   renderFacilityList();
+}
+
+// ===== Place Search (toolbar) =====
+function searchPlace() {
+  const query = document.getElementById('placeSearchInput').value.trim();
+  if (!query) return;
+
+  const request = {
+    query: query,
+    fields: ['name', 'geometry', 'place_id', 'formatted_address', 'rating', 'user_ratings_total', 'types'],
+  };
+
+  const service = new google.maps.places.PlacesService(gmap);
+  service.findPlaceFromQuery(request, (results, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+      const place = results[0];
+      const loc = place.geometry.location;
+      gmap.panTo(loc);
+      gmap.setZoom(17);
+
+      // Check if already exists
+      const existingId = Object.keys(facilities).find(id => {
+        const f = facilities[id];
+        return f.placeId === place.place_id;
+      });
+
+      if (existingId) {
+        selectFacility(existingId);
+        toast('既に登録済みの施設です');
+      } else {
+        // Ask to add
+        if (confirm(`「${place.name}」を営業先に追加しますか？`)) {
+          const cat = guessCategory(place.name, place.types || []);
+          const id = 'gp_' + place.place_id;
+          facilities[id] = {
+            id,
+            placeId: place.place_id,
+            name: place.name || '',
+            lat: loc.lat(),
+            lng: loc.lng(),
+            category: cat,
+            address: place.formatted_address || '',
+            phone: '',
+            rating: place.rating || null,
+            ratingCount: place.user_ratings_total || 0,
+            status: 'unvisited',
+            contactName: '', contactPhone: '',
+            visits: [], cardImages: [],
+            source: 'search',
+            detailsLoaded: false,
+          };
+          addMarker(facilities[id]);
+          saveData();
+          renderAll();
+          selectFacility(id);
+          toast(`${place.name} を追加しました`);
+        }
+      }
+    } else {
+      toast('見つかりませんでした。キーワードを変えてみてください');
+    }
+  });
+  document.getElementById('placeSearchInput').value = '';
+}
+
+// Search within Add modal
+function searchForAdd() {
+  const query = document.getElementById('addSearchQuery').value.trim();
+  if (!query) return;
+  const resultsEl = document.getElementById('addSearchResults');
+  resultsEl.innerHTML = '<div style="color:var(--gray-600);">検索中...</div>';
+
+  const request = { query, fields: ['name', 'geometry', 'place_id', 'formatted_address'] };
+  const service = new google.maps.places.PlacesService(gmap);
+
+  // Use textSearch for broader results
+  service.textSearch({ query, location: HOME_LATLNG, radius: 20000 }, (results, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+      resultsEl.innerHTML = results.slice(0, 8).map((p, i) => `
+        <div onclick="selectSearchResult(${i})" style="padding:6px 8px;border-bottom:1px solid var(--gray-200);cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='var(--brand-bg)'" onmouseout="this.style.background=''">
+          <div style="font-weight:600;">${escHtml(p.name)}</div>
+          <div style="font-size:10px;color:var(--gray-600);">${escHtml(p.formatted_address || '')}</div>
+        </div>
+      `).join('');
+      // Store results for selection
+      window._addSearchResults = results.slice(0, 8);
+    } else {
+      resultsEl.innerHTML = '<div style="color:var(--gray-600);padding:4px;">見つかりませんでした</div>';
+    }
+  });
+}
+
+function selectSearchResult(index) {
+  const p = window._addSearchResults[index];
+  if (!p) return;
+  document.getElementById('addName').value = p.name || '';
+  document.getElementById('addAddress').value = p.formatted_address || '';
+  addLatLng = { lat: p.geometry.location.lat(), lng: p.geometry.location.lng() };
+  document.getElementById('addLatLng').textContent = `座標: ${addLatLng.lat.toFixed(5)}, ${addLatLng.lng.toFixed(5)}`;
+  document.getElementById('addSearchResults').innerHTML = `<div style="padding:4px;color:var(--brand);">✓ ${escHtml(p.name)} を選択しました</div>`;
+  // Store placeId for later
+  window._selectedPlaceId = p.place_id;
+}
+
+function guessCategory(name, types) {
+  const n = (name || '').toLowerCase();
+  const t = types || [];
+  if (t.includes('hospital')) return 'hospital';
+  if (t.includes('doctor') || n.includes('クリニック') || n.includes('診療所') || n.includes('内科')) return 'clinic';
+  if (t.includes('pharmacy') || n.includes('薬局')) return 'pharmacy';
+  if (n.includes('居宅介護') || n.includes('ケアマネ')) return 'care_mgr';
+  if (n.includes('地域包括')) return 'houkatsu';
+  if (n.includes('相談支援')) return 'soudan';
+  if (n.includes('デイサービス') || n.includes('デイケア') || n.includes('通所')) return 'dayservice';
+  if (n.includes('老人ホーム') || n.includes('サ高住') || n.includes('特養') || n.includes('グループホーム') || n.includes('老健')) return 'residential';
+  return 'other';
 }
 
 // ===== Help =====
