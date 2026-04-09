@@ -298,6 +298,11 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .mobile-menu-btn { display: flex !important; }
   .map-toolbar { left: 60px; top: 12px; }
   .map-toolbar .toolbar-btn { font-size: 11px; padding: 6px 10px; }
+  .report-page { padding: 12px; font-size: 11px; width: 100%; }
+  .report-page h1 { font-size: 16px; }
+  .report-page table { font-size: 10px; }
+  .report-page th, .report-page td { padding: 4px 5px; }
+  .report-actions { flex-wrap: wrap; }
 }
 </style>
 </head>
@@ -431,6 +436,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   <div>
     <div class="report-actions">
       <button class="print-btn" onclick="window.print()">PDF保存 / 印刷</button>
+      <button class="print-btn" onclick="shareReport()" style="background:#25D366;">LINE共有</button>
       <button class="close-report-btn" onclick="closeReport()">閉じる</button>
     </div>
     <div class="report-page" id="reportContent"></div>
@@ -1496,6 +1502,35 @@ function closeReport() {
   document.getElementById('reportOverlay').classList.remove('show');
 }
 
+async function shareReport() {
+  // Use Web Share API (works on smartphones)
+  const reportEl = document.getElementById('reportContent');
+  const title = reportEl.querySelector('h1')?.textContent || '営業報告書';
+
+  // Try sharing as text (most reliable on mobile)
+  const textContent = reportEl.innerText;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: title,
+        text: textContent.slice(0, 3000),
+      });
+      toast('共有しました');
+    } catch(e) {
+      if (e.name !== 'AbortError') toast('共有に失敗しました');
+    }
+  } else {
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(textContent);
+      toast('テキストをコピーしました。LINEに貼り付けてください');
+    } catch(e) {
+      toast('この端末では共有機能が使えません。スクリーンショットをご利用ください');
+    }
+  }
+}
+
 function generateFacilityReport(id) {
   const f = facilities[id];
   if (!f) return;
@@ -1528,7 +1563,7 @@ function generateFacilityReport(id) {
   let cardsHtml = '';
   if (f.cardImages.length > 0) {
     cardsHtml = `<h2>名刺画像</h2><div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;">
-      ${f.cardImages.map(img => `<img src="${img}" style="max-width:280px;max-height:170px;border:1px solid var(--gray-300);border-radius:6px;object-fit:contain;">`).join('')}
+      ${f.cardImages.map(img => `<img src="${img}" style="max-width:min(280px, 45%);height:auto;border:1px solid var(--gray-300);border-radius:6px;object-fit:contain;">`).join('')}
     </div>`;
   }
 
