@@ -1694,11 +1694,18 @@ async function saveReportAsImage() {
   const reportEl = document.getElementById('reportContent');
   toast('画像を生成中...');
   try {
+    // Close all details elements and temporarily show content inline
+    const detailsEls = reportEl.querySelectorAll('details');
+    detailsEls.forEach(d => { d.removeAttribute('open'); d.style.display = 'none'; });
+
     const canvas = await html2canvas(reportEl, {
       scale: 2,
       useCORS: true,
       backgroundColor: '#ffffff',
     });
+
+    // Restore details elements
+    detailsEls.forEach(d => { d.style.display = ''; });
     const dataUrl = canvas.toDataURL('image/png');
 
     // Try Web Share API first (mobile)
