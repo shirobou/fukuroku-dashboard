@@ -218,6 +218,54 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 }
 .lightbox.show { display: flex; }
 .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+/* Report overlay */
+.report-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2500;
+  background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-start;
+  overflow-y: auto; padding: 20px;
+}
+.report-overlay.show { display: flex; }
+.report-page {
+  background: #fff; width: 210mm; max-width: 100%; padding: 20mm 15mm;
+  box-shadow: var(--shadow-lg); border-radius: 4px; font-size: 12px; color: #222;
+  line-height: 1.7;
+}
+.report-page h1 { font-size: 20px; text-align: center; color: var(--brand-dark); border-bottom: 3px solid var(--brand); padding-bottom: 8px; margin-bottom: 16px; }
+.report-page .report-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray-600); margin-bottom: 16px; }
+.report-page h2 { font-size: 14px; color: var(--brand-dark); border-left: 4px solid var(--brand); padding-left: 8px; margin: 16px 0 8px; }
+.report-page table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px; }
+.report-page th { background: var(--brand); color: #fff; padding: 6px 8px; text-align: left; font-weight: 600; }
+.report-page td { padding: 5px 8px; border-bottom: 1px solid var(--gray-200); }
+.report-page tr:nth-child(even) td { background: var(--gray-50); }
+.report-page .status-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; color: #fff; }
+.report-page .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px; }
+.report-page .summary-card { text-align: center; padding: 10px; border-radius: var(--radius); border: 1px solid var(--gray-200); }
+.report-page .summary-card .num { font-size: 24px; font-weight: 700; }
+.report-page .summary-card .lbl { font-size: 10px; color: var(--gray-600); }
+.report-page .visit-detail { margin-bottom: 6px; padding: 6px 8px; background: var(--gray-50); border-radius: 4px; font-size: 11px; }
+.report-page .visit-detail strong { color: var(--brand-dark); }
+.report-page .report-footer { margin-top: 20px; padding-top: 10px; border-top: 1px solid var(--gray-300); font-size: 10px; color: var(--gray-600); text-align: center; }
+.report-actions { position: sticky; top: 0; z-index: 10; background: rgba(0,0,0,0.7); padding: 10px; display: flex; gap: 8px; justify-content: center; border-radius: 0 0 8px 8px; margin-bottom: 16px; }
+.report-actions button { padding: 10px 24px; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; }
+.report-actions .print-btn { background: var(--brand); color: #fff; }
+.report-actions .print-btn:hover { background: var(--brand-dark); }
+.report-actions .close-report-btn { background: #fff; color: var(--gray-800); }
+
+/* Print styles */
+@media print {
+  body * { visibility: hidden; }
+  .report-overlay, .report-overlay * { visibility: visible; }
+  .report-overlay { position: absolute; top: 0; left: 0; background: #fff; padding: 0; display: flex !important; }
+  .report-page { box-shadow: none; padding: 10mm; width: 100%; }
+  .report-actions { display: none !important; }
+  .report-page h1 { font-size: 18px; }
+  .report-page table { page-break-inside: auto; }
+  .report-page tr { page-break-inside: avoid; }
+  .report-page h2 { page-break-after: avoid; }
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  .status-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .sidebar-left { width: 260px; min-width: 260px; }
@@ -289,6 +337,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
     <div class="map-toolbar">
       <button class="toolbar-btn" id="addModeBtn" onclick="toggleAddMode()">+ 施設を追加</button>
       <button class="toolbar-btn" onclick="gmap.panTo(HOME_LATLNG); gmap.setZoom(15);">自社に戻る</button>
+      <button class="toolbar-btn" onclick="generateReport()" style="background:var(--brand);color:#fff;border-color:var(--brand);">営業報告書PDF</button>
     </div>
     <div class="loading-overlay" id="loading">
       <div class="spinner"></div>
@@ -342,6 +391,17 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+
+<!-- Report overlay -->
+<div class="report-overlay" id="reportOverlay">
+  <div>
+    <div class="report-actions">
+      <button class="print-btn" onclick="window.print()">PDF保存 / 印刷</button>
+      <button class="close-report-btn" onclick="closeReport()">閉じる</button>
+    </div>
+    <div class="report-page" id="reportContent"></div>
+  </div>
+</div>
 
 <!-- Lightbox for images -->
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('show')">
@@ -1155,6 +1215,132 @@ function clearAllData() {
   renderAll();
   closeDetail();
   toast('全データを削除しました');
+}
+
+// ===== Report Generation =====
+function generateReport() {
+  const all = Object.values(facilities);
+  if (all.length === 0) { toast('施設データがありません'); return; }
+
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+
+  // Summary counts
+  const counts = {};
+  Object.keys(STATUSES).forEach(k => counts[k] = all.filter(f => f.status === k).length);
+
+  // Category counts
+  const catCounts = {};
+  Object.keys(CATEGORIES).forEach(k => catCounts[k] = all.filter(f => f.category === k).length);
+
+  // Visited facilities with details
+  const visited = all.filter(f => f.status !== 'unvisited').sort((a, b) => {
+    const aDate = (a.visits && a.visits[0]) ? a.visits[0].date : '';
+    const bDate = (b.visits && b.visits[0]) ? b.visits[0].date : '';
+    return bDate.localeCompare(aDate);
+  });
+
+  // Summary cards
+  const summaryHtml = `
+    <div class="summary-grid">
+      ${Object.entries(STATUSES).map(([k, s]) => `
+        <div class="summary-card">
+          <div class="num" style="color:${s.color}">${counts[k]}</div>
+          <div class="lbl">${s.emoji} ${s.label}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // Category breakdown table
+  const catTableHtml = `
+    <table>
+      <tr><th>カテゴリ</th><th>件数</th><th>訪問済</th><th>契約済</th><th>訪問率</th></tr>
+      ${Object.entries(CATEGORIES).map(([k, cat]) => {
+        const catFacs = all.filter(f => f.category === k);
+        const catVisited = catFacs.filter(f => f.status !== 'unvisited').length;
+        const catContracted = catFacs.filter(f => f.status === 'contracted').length;
+        const rate = catFacs.length > 0 ? Math.round(catVisited / catFacs.length * 100) : 0;
+        return `<tr>
+          <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${cat.color};margin-right:4px;"></span>${cat.label}</td>
+          <td>${catFacs.length}</td>
+          <td>${catVisited}</td>
+          <td>${catContracted}</td>
+          <td>${rate}%</td>
+        </tr>`;
+      }).join('')}
+    </table>
+  `;
+
+  // Visited facility details
+  let visitedHtml = '';
+  if (visited.length > 0) {
+    visitedHtml = `<table>
+      <tr><th>施設名</th><th>カテゴリ</th><th>ステータス</th><th>担当者</th><th>最終訪問</th><th>次回アクション</th></tr>
+      ${visited.map(f => {
+        const cat = CATEGORIES[f.category] || CATEGORIES.other;
+        const st = STATUSES[f.status] || STATUSES.unvisited;
+        const lastVisit = (f.visits && f.visits[0]) ? f.visits[0].date : (f.visitDate || '-');
+        const nextAction = (f.visits && f.visits[0]) ? (f.visits[0].nextAction || '-') : (f.nextAction || '-');
+        return `<tr>
+          <td><strong>${escHtml(f.name)}</strong><br><span style="font-size:10px;color:#888;">${escHtml(f.address || '')}</span></td>
+          <td>${cat.label}</td>
+          <td><span class="status-badge" style="background:${st.color}">${st.label}</span></td>
+          <td>${escHtml(f.contactName || '-')}</td>
+          <td>${lastVisit}</td>
+          <td>${escHtml(nextAction)}</td>
+        </tr>`;
+      }).join('')}
+    </table>`;
+  }
+
+  // Recent visit logs (last 20)
+  let recentLogsHtml = '';
+  const allVisits = [];
+  all.forEach(f => {
+    if (f.visits) {
+      f.visits.forEach(v => allVisits.push({ ...v, facilityName: f.name, facilityId: f.id }));
+    }
+  });
+  allVisits.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const recentVisits = allVisits.slice(0, 20);
+  if (recentVisits.length > 0) {
+    recentLogsHtml = recentVisits.map(v => `
+      <div class="visit-detail">
+        <strong>${v.date || '日付なし'}</strong> ー ${escHtml(v.facilityName)}
+        ${v.memo ? '<br>' + escHtml(v.memo) : ''}
+        ${v.nextAction ? '<br><span style="color:var(--brand);">次回: ' + escHtml(v.nextAction) + '</span>' : ''}
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('reportContent').innerHTML = `
+    <h1>営業活動報告書</h1>
+    <div class="report-meta">
+      <span>ふくろく訪問看護ステーション</span>
+      <span>報告日: ${dateStr}</span>
+    </div>
+
+    <h2>営業サマリー（全${all.length}施設）</h2>
+    ${summaryHtml}
+
+    <h2>カテゴリ別実績</h2>
+    ${catTableHtml}
+
+    ${visited.length > 0 ? `<h2>営業先一覧（訪問済み ${visited.length}件）</h2>${visitedHtml}` : ''}
+
+    ${recentVisits.length > 0 ? `<h2>最近の訪問記録</h2>${recentLogsHtml}` : ''}
+
+    <div class="report-footer">
+      ふくろく訪問看護ステーション ／ 株式会社T-Connect ／ ${dateStr} 作成
+    </div>
+  `;
+
+  document.getElementById('reportOverlay').classList.add('show');
+}
+
+function closeReport() {
+  document.getElementById('reportOverlay').classList.remove('show');
 }
 
 // ===== Utilities =====
