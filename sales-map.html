@@ -1090,6 +1090,12 @@ function renderDetail(f) {
     <hr style="margin:12px 0;border:none;border-top:1px solid var(--gray-200);">
 
     <div class="form-group">
+      <label>カテゴリ</label>
+      <select class="status-select" onchange="updateCategory('${f.id}',this.value)">
+        ${Object.entries(CATEGORIES).map(([k, c]) => `<option value="${k}" ${k === f.category ? 'selected' : ''}>${c.icon} ${c.label}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
       <label>営業ステータス</label>
       <select class="status-select" onchange="updateFacilityField('${f.id}','status',this.value)">${statusOpts}</select>
     </div>
@@ -1144,6 +1150,7 @@ function renderDetail(f) {
 
     <hr style="margin:16px 0;border:none;border-top:1px solid var(--gray-200);">
     <button class="search-btn" style="margin-top:8px;font-size:12px;padding:8px;" onclick="generateFacilityReport('${f.id}')">この施設の報告書PDF</button>
+    <button class="delete-btn" onclick="deleteFacilitySafe('${f.id}')">この営業先を削除</button>
   `;
 }
 
@@ -1304,6 +1311,31 @@ function saveLightboxRotation() {
     toast('回転を保存しました');
   };
   img.src = f.cardImages[lightboxImageIndex];
+}
+
+function updateCategory(id, value) {
+  if (!facilities[id]) return;
+  facilities[id].category = value;
+  addMarker(facilities[id]);
+  renderFacilityList();
+  renderCatList();
+  saveData();
+  toast('カテゴリを変更しました');
+}
+
+function deleteFacilitySafe(id) {
+  const f = facilities[id];
+  if (!f) return;
+  const name = prompt(`削除するには施設名「${f.name}」を入力してください:`);
+  if (name !== f.name) { if (name !== null) toast('施設名が一致しません'); return; }
+  if (gMarkers[id]) gMarkers[id].setMap(null);
+  delete gMarkers[id];
+  delete facilities[id];
+  closeDetail();
+  dbRef.child(id).remove().catch(e => console.error(e));
+  saveData();
+  renderAll();
+  toast('削除しました');
 }
 
 function updateFacilityField(id, field, value) {
