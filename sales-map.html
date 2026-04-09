@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ふくろく訪問看護ステーション - 営業マップ</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2e7d32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="営業マップ">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -2268,6 +2275,55 @@ function closeMobileMenu() {
 
 // ===== Start =====
 init();
+
+// ===== PWA: Service Worker 登録 & アイコン生成 =====
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(function(reg) {
+    console.log('SW registered:', reg.scope);
+  }).catch(function(err) {
+    console.warn('SW registration failed:', err);
+  });
+}
+
+// Canvas で PNG アイコンを動的生成（manifest用）
+(function generatePWAIcons() {
+  function createIcon(size) {
+    var c = document.createElement('canvas');
+    c.width = size; c.height = size;
+    var ctx = c.getContext('2d');
+    // 緑の円
+    ctx.fillStyle = '#2e7d32';
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size/2, 0, Math.PI*2);
+    ctx.fill();
+    // 白い星
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold ' + (size * 0.55) + 'px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('\u2605', size/2, size/2 + size*0.02);
+    return c;
+  }
+  [192, 512].forEach(function(size) {
+    var c = createIcon(size);
+    c.toBlob(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('link');
+      link.rel = 'icon';
+      link.type = 'image/png';
+      link.sizes = size + 'x' + size;
+      link.href = url;
+      document.head.appendChild(link);
+      if (size === 192) {
+        var touch = document.createElement('link');
+        touch.rel = 'apple-touch-icon';
+        touch.sizes = '192x192';
+        touch.href = url;
+        document.head.appendChild(touch);
+      }
+    }, 'image/png');
+  });
+})();
 </script>
 </body>
 </html>
