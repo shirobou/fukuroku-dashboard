@@ -336,7 +336,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   <!-- Left Sidebar -->
   <div class="sidebar-left" id="sidebarLeft">
     <div class="logo">
-      <h1>ふくろく訪問看護ステーション</h1>
+      <h1>ふくろく訪問看護ステーション <button onclick="showHelp()" style="background:rgba(255,255,255,0.25);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:13px;cursor:pointer;vertical-align:middle;">?</button></h1>
       <p>営業マップダッシュボード <span id="syncStatus" style="font-size:10px;opacity:0.7;">同期中...</span></p>
     </div>
 
@@ -446,6 +446,66 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
     <div class="modal-actions">
       <button onclick="closeAddModal()">キャンセル</button>
       <button class="primary" onclick="submitAddFacility()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal-overlay" id="helpModal">
+  <div class="modal" style="width:500px;max-height:85vh;overflow-y:auto;">
+    <h3>使い方ガイド</h3>
+
+    <div style="font-size:13px;line-height:1.8;">
+      <p style="font-weight:700;color:var(--brand-dark);margin-top:12px;">基本操作</p>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);width:40%;">周辺施設を検索</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">Google Placesで半径内の施設を自動取得</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">検索半径を変更</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">表示するピンも自動で絞り込み</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">ピンをタップ</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">施設詳細・営業記録を表示</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">+ 営業先を追加</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">地図タップで手動登録</td></tr>
+      </table>
+
+      <p style="font-weight:700;color:var(--brand-dark);margin-top:14px;">ピンの見方</p>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">ピンの色（中）</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">カテゴリ（病院=赤、クリニック=橙、薬局=紫 など）</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">ピンの枠色</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">営業ステータス（下記参照）</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">ピンの文字</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">病/医/薬/ケ/包/相/入/通/他</td></tr>
+      </table>
+
+      <p style="font-weight:700;color:var(--brand-dark);margin-top:14px;">ステータス一覧</p>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">⚪ 未訪問（灰色）</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">まだ訪問していない</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">🟠 本日訪問予定（橙）</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">今日の営業先に設定</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">🔵 訪問済み（青）</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">営業訪問済み</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">🟡 商談中（黄）</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">関係構築・継続フォロー中</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">🟢 契約済み（緑）</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">利用者紹介の実績あり</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">🔴 NG（赤）</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">断られた・対象外</td></tr>
+      </table>
+
+      <p style="font-weight:700;color:var(--brand-dark);margin-top:14px;">カテゴリ一覧</p>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);"><span style="color:#e53935;">●</span> 病 = 病院</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);"><span style="color:#FB8C00;">●</span> 医 = クリニック・診療所</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);"><span style="color:#8E24AA;">●</span> 薬 = 薬局</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);"><span style="color:#1565C0;">●</span> ケ = 居宅介護支援事業所</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);"><span style="color:#283593;">●</span> 包 = 地域包括支援センター</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);"><span style="color:#AD1457;">●</span> 相 = 相談支援事業所</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);"><span style="color:#00897B;">●</span> 入 = 入居系施設</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);"><span style="color:#00838F;">●</span> 通 = 通所系施設</td></tr>
+      </table>
+
+      <p style="font-weight:700;color:var(--brand-dark);margin-top:14px;">営業記録</p>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">訪問記録を追加</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">日付・担当者・メモを記録</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">名刺画像</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">写真をアップロード（タップで拡大・回転可）</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">報告書PDF</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">個別 or 全体の営業報告書を出力</td></tr>
+      </table>
+
+      <p style="font-weight:700;color:var(--brand-dark);margin-top:14px;">データ共有</p>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">自動同期</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">全スタッフの端末でリアルタイム共有（Firebase）</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">画像で保存</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">報告書を画像化してLINEに送信可能</td></tr>
+        <tr><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">エクスポート</td><td style="padding:4px 8px;border-bottom:1px solid var(--gray-200);">JSONファイルでバックアップ</td></tr>
+      </table>
+    </div>
+
+    <div class="modal-actions">
+      <button class="primary" onclick="document.getElementById('helpModal').classList.remove('show')">閉じる</button>
     </div>
   </div>
 </div>
@@ -1704,6 +1764,11 @@ function renderAll() {
   renderCatList();
   renderStatusFilters();
   renderFacilityList();
+}
+
+// ===== Help =====
+function showHelp() {
+  document.getElementById('helpModal').classList.add('show');
 }
 
 // ===== Mobile Menu =====
