@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ふくろく訪問看護ステーション - 営業マップ</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -287,22 +287,40 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .sidebar-right { width: 320px; min-width: 320px; }
 }
 @media (max-width: 768px) {
+  .app { flex-direction: column; }
   .sidebar-left {
-    position: fixed; left: -300px; top: 0; bottom: 0; width: 280px; min-width: 280px;
+    position: fixed; left: -280px; top: 0; bottom: 0; width: 280px; min-width: 280px;
     transition: left 0.3s; z-index: 2000;
   }
   .sidebar-left.mobile-open { left: 0; }
   .mobile-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1999; }
   .mobile-overlay.show { display: block; }
-  .sidebar-right { position: fixed; right: 0; top: 0; bottom: 0; width: 100%; min-width: unset; z-index: 1500; }
+  .sidebar-right {
+    position: fixed; right: 0; top: 0; bottom: 0; width: 100%; min-width: unset; z-index: 1500;
+    transform: translateX(100%);
+  }
+  .sidebar-right.open { transform: translateX(0); }
   .mobile-menu-btn { display: flex !important; }
-  .map-toolbar { left: 60px; top: 12px; }
-  .map-toolbar .toolbar-btn { font-size: 11px; padding: 6px 10px; }
+  .map-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; }
+  .map-toolbar {
+    left: 60px; top: 10px; right: 10px;
+    flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .map-toolbar .toolbar-btn { font-size: 11px; padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }
+  .report-overlay { padding: 8px; }
   .report-page { padding: 12px; font-size: 11px; width: 100%; }
   .report-page h1 { font-size: 16px; }
-  .report-page table { font-size: 10px; }
+  .report-page table { font-size: 10px; display: block; overflow-x: auto; }
   .report-page th, .report-page td { padding: 4px 5px; }
   .report-actions { flex-wrap: wrap; }
+}
+/* Landscape on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .mobile-menu-btn { width: 36px; height: 36px; font-size: 18px; top: 8px; left: 8px; }
+  .map-toolbar { left: 52px; top: 8px; }
+  .map-toolbar .toolbar-btn { font-size: 10px; padding: 4px 8px; }
+  .sidebar-left { width: 240px; min-width: 240px; }
+  .sidebar-right { width: 50%; min-width: 50%; }
 }
 </style>
 </head>
@@ -558,7 +576,7 @@ async function init() {
     center: HOME_LATLNG,
     zoom: 15,
     mapTypeControl: true,
-    mapTypeControlOptions: { position: google.maps.ControlPosition.TOP_RIGHT },
+    mapTypeControlOptions: { position: google.maps.ControlPosition.BOTTOM_LEFT, style: google.maps.MapTypeControlStyle.DROPDOWN_MENU },
     streetViewControl: false,
     fullscreenControl: false,
     styles: [
