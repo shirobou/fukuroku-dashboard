@@ -1461,8 +1461,8 @@ function generateFacilityReport(id) {
   // Visit history for report
   let visitsHtml = '';
   if (f.visits.length > 0) {
-    visitsHtml = `<table>
-      <tr><th>回</th><th>日付</th><th>担当者</th><th>内容</th><th>次回アクション</th></tr>
+    visitsHtml = `<table style="table-layout:auto;">
+      <tr><th style="width:30px;">回</th><th style="width:80px;white-space:nowrap;">日付</th><th style="width:60px;white-space:nowrap;">担当者</th><th>内容</th><th style="width:120px;white-space:nowrap;">次回</th></tr>
       ${f.visits.map((v, i) => `<tr>
         <td style="text-align:center;font-weight:700;">${f.visits.length - i}</td>
         <td style="white-space:nowrap;">${v.date || '-'}</td>
