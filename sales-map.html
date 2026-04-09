@@ -966,7 +966,8 @@ function applyFilters() {
   Object.entries(facilities).forEach(([id, f]) => {
     const dist = getDistance(HOME_LATLNG.lat, HOME_LATLNG.lng, f.lat, f.lng);
     const inRadius = dist <= radius;
-    const show = inRadius && activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status);
+    const hasActivity = ['visited', 'negotiating', 'contracted', 'today'].includes(f.status);
+    const show = (inRadius || hasActivity) && activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status);
     if (gMarkers[id]) gMarkers[id].setVisible(show);
   });
   renderFacilityList();
@@ -978,7 +979,8 @@ function renderFacilityList() {
   const radius = parseInt(document.getElementById('radiusSelect').value);
   const filtered = Object.values(facilities).filter(f => {
     const dist = getDistance(HOME_LATLNG.lat, HOME_LATLNG.lng, f.lat, f.lng);
-    return dist <= radius && activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status);
+    const hasActivity = ['visited', 'negotiating', 'contracted', 'today'].includes(f.status);
+    return (dist <= radius || hasActivity) && activeFilters.categories.has(f.category) && activeFilters.statuses.has(f.status);
   }).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ja'));
 
   el.innerHTML = filtered.map(f => {
