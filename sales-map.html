@@ -445,6 +445,7 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
         <option value="soudan">相談支援事業所</option>
         <option value="residential">入居系施設</option>
         <option value="dayservice">通所系施設</option>
+        <option value="visiting_ns">訪問看護</option>
         <option value="other">その他</option>
       </select>
     </div>
@@ -596,6 +597,7 @@ const CATEGORIES = {
   soudan:       { label: '相談支援事業所',     color: '#AD1457', icon: '相', gTypes: [], keywords: ['相談支援事業所', '相談支援'] },
   residential:  { label: '入居系施設',         color: '#00897B', icon: '入', gTypes: [], keywords: ['老人ホーム', '有料老人ホーム', 'サ高住', 'サービス付き高齢者', '特別養護老人ホーム', '特養', 'グループホーム', '介護老人保健施設', '老健'] },
   dayservice:   { label: '通所系施設',         color: '#00838F', icon: '通', gTypes: [], keywords: ['デイサービス', 'デイケア', '通所介護', '通所リハ'] },
+  visiting_ns:  { label: '訪問看護',           color: '#6A1B9A', icon: '訪', gTypes: [], keywords: ['訪問看護'] },
   other:        { label: 'その他',             color: '#546E7A', icon: '他', gTypes: [], keywords: [] },
 };
 
@@ -1900,6 +1902,7 @@ function guessCategory(name, types) {
   if (n.includes('地域包括')) return 'houkatsu';
   if (n.includes('相談支援')) return 'soudan';
   if (n.includes('デイサービス') || n.includes('デイケア') || n.includes('通所')) return 'dayservice';
+  if (n.includes('訪問看護')) return 'visiting_ns';
   if (n.includes('老人ホーム') || n.includes('サ高住') || n.includes('特養') || n.includes('グループホーム') || n.includes('老健')) return 'residential';
   return 'other';
 }
