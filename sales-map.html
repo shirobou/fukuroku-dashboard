@@ -369,7 +369,11 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
         <option value="hospital">病院</option>
         <option value="clinic">クリニック・診療所</option>
         <option value="pharmacy">薬局</option>
-        <option value="nursing_home">老人ホーム・介護施設</option>
+        <option value="care_mgr">居宅介護支援事業所</option>
+        <option value="houkatsu">地域包括支援センター</option>
+        <option value="soudan">相談支援事業所</option>
+        <option value="residential">入居系施設</option>
+        <option value="dayservice">通所系施設</option>
         <option value="other">その他</option>
       </select>
     </div>
@@ -438,9 +442,19 @@ const CATEGORIES = {
   hospital:     { label: '病院',               color: '#e53935', icon: '病', gTypes: ['hospital'], keywords: [] },
   clinic:       { label: 'クリニック・診療所', color: '#FB8C00', icon: '医', gTypes: ['doctor'], keywords: ['クリニック', '診療所', '内科'] },
   pharmacy:     { label: '薬局',               color: '#8E24AA', icon: '薬', gTypes: ['pharmacy'], keywords: [] },
-  nursing_home: { label: '老人ホーム・介護施設', color: '#00897B', icon: '介', gTypes: [], keywords: ['老人ホーム', '介護施設', 'サ高住', '特別養護老人ホーム', 'グループホーム', 'デイサービス', '居宅介護支援'] },
+  care_mgr:     { label: '居宅介護支援事業所', color: '#1565C0', icon: 'ケ', gTypes: [], keywords: ['居宅介護支援', 'ケアマネ', '居宅介護支援事業所'] },
+  houkatsu:     { label: '地域包括支援センター', color: '#283593', icon: '包', gTypes: [], keywords: ['地域包括支援センター', '包括支援'] },
+  soudan:       { label: '相談支援事業所',     color: '#AD1457', icon: '相', gTypes: [], keywords: ['相談支援事業所', '相談支援'] },
+  residential:  { label: '入居系施設',         color: '#00897B', icon: '入', gTypes: [], keywords: ['老人ホーム', '有料老人ホーム', 'サ高住', 'サービス付き高齢者', '特別養護老人ホーム', '特養', 'グループホーム', '介護老人保健施設', '老健'] },
+  dayservice:   { label: '通所系施設',         color: '#00838F', icon: '通', gTypes: [], keywords: ['デイサービス', 'デイケア', '通所介護', '通所リハ'] },
   other:        { label: 'その他',             color: '#546E7A', icon: '他', gTypes: [], keywords: [] },
 };
+
+// Migrate old category names
+function migrateCategory(cat) {
+  if (cat === 'nursing_home') return 'residential';
+  return cat;
+}
 
 const STATUSES = {
   unvisited:   { label: '未訪問',   color: '#9e9e9e', emoji: '⚪' },
@@ -1133,6 +1147,7 @@ function loadData() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       facilities = JSON.parse(raw);
+      Object.values(facilities).forEach(f => { f.category = migrateCategory(f.category); });
       Object.values(facilities).forEach(f => addMarker(f));
       renderAll();
     }
@@ -1148,6 +1163,8 @@ function loadData() {
     gMarkers = {};
 
     facilities = data;
+    // Migrate old categories
+    Object.values(facilities).forEach(f => { f.category = migrateCategory(f.category); });
     Object.values(facilities).forEach(f => addMarker(f));
     renderAll();
 
