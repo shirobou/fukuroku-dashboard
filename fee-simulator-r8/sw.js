@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'fukuroku-fee-v1';
+const CACHE_VERSION = 'fukuroku-fee-r8-v1';
 const ASSETS = [
   './index.html',
   './manifest.json',
