@@ -4,7 +4,7 @@
   "description": "訪問先で使える営業トークスクリプト検索ツール",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f1f5f9",
-  "theme_color": "#0f766e",
+  "background_color": "#f2f2f7",
+  "theme_color": "#f2f2f7",
   "icons": []
 }
