@@ -126,16 +126,16 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   display: flex; gap: 4px;
 }
 .toolbar-search input {
-  flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid var(--gray-300);
-  border-radius: var(--radius); font-size: 13px; box-shadow: var(--shadow);
+  flex: 1; min-width: 180px; padding: 12px 14px; border: 1px solid var(--gray-300);
+  border-radius: var(--radius); font-size: 15px; box-shadow: var(--shadow);
 }
 .toolbar-search input:focus { outline: none; border-color: var(--brand); }
 .toolbar-buttons {
   display: flex; gap: 4px; flex-wrap: wrap;
 }
 .toolbar-btn {
-  padding: 8px 14px; background: #fff; border: 1px solid var(--gray-300); border-radius: var(--radius);
-  font-size: 12px; cursor: pointer; box-shadow: var(--shadow); transition: all 0.2s;
+  padding: 12px 20px; background: #fff; border: 1px solid var(--gray-300); border-radius: var(--radius);
+  font-size: 15px; cursor: pointer; box-shadow: var(--shadow); transition: all 0.2s;
 }
 .toolbar-btn:hover { background: var(--brand-bg); border-color: var(--brand); }
 .toolbar-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
@@ -305,11 +305,6 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
 @media (max-width: 1024px) {
   .sidebar-left { width: 260px; min-width: 260px; }
   .sidebar-right { width: 320px; min-width: 320px; }
-}
-/* Tablet touch devices (iPad etc.) */
-@media (pointer: coarse) {
-  .toolbar-btn { padding: 12px 20px; font-size: 15px; }
-  .toolbar-search input { padding: 12px 14px; font-size: 15px; }
 }
 @media (max-width: 768px), (pointer: coarse) and (max-width: 1024px) {
   .app { flex-direction: column; }
