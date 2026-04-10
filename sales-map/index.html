@@ -2266,12 +2266,30 @@ function showHelp() {
 
 // ===== Mobile Menu =====
 function toggleMobileMenu() {
-  document.getElementById('sidebarLeft').classList.toggle('mobile-open');
+  const open = document.getElementById('sidebarLeft').classList.toggle('mobile-open');
   document.getElementById('mobileOverlay').classList.toggle('show');
+  const toolbar = document.getElementById('mapToolbar');
+  const btn = document.getElementById('mobileMenuBtn');
+  if (toolbar && window.innerWidth <= 1024) {
+    const sidebarWidth = document.getElementById('sidebarLeft').offsetWidth;
+    toolbar.style.transition = 'left 0.3s';
+    btn.style.transition = 'left 0.3s';
+    if (open) {
+      toolbar.style.left = (sidebarWidth + 12) + 'px';
+      btn.style.left = (sidebarWidth + 12) + 'px';
+    } else {
+      toolbar.style.left = '';
+      btn.style.left = '';
+    }
+  }
 }
 function closeMobileMenu() {
   document.getElementById('sidebarLeft').classList.remove('mobile-open');
   document.getElementById('mobileOverlay').classList.remove('show');
+  const toolbar = document.getElementById('mapToolbar');
+  const btn = document.getElementById('mobileMenuBtn');
+  if (toolbar) { toolbar.style.left = ''; toolbar.style.transition = 'left 0.3s'; }
+  if (btn) { btn.style.left = ''; btn.style.transition = 'left 0.3s'; }
 }
 
 // ===== Start =====
