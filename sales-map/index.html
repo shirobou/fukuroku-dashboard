@@ -328,12 +328,12 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
     flex-direction: column; gap: 4px;
   }
   .toolbar-search { display: flex; gap: 4px; }
-  .toolbar-search input { min-width: 0; flex: 1; padding: 7px 10px; font-size: 12px; }
+  .toolbar-search input { min-width: 0; flex: 1; padding: 10px 12px; font-size: 14px; }
   .toolbar-buttons {
-    display: flex; gap: 3px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    display: flex; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch;
     flex-wrap: nowrap;
   }
-  .toolbar-buttons .toolbar-btn { font-size: 10px; padding: 5px 8px; white-space: nowrap; flex-shrink: 0; }
+  .toolbar-buttons .toolbar-btn { font-size: 14px; padding: 10px 16px; white-space: nowrap; flex-shrink: 0; }
   .report-overlay { padding: 8px; }
   .report-page { padding: 12px; font-size: 11px; width: 100%; }
   .report-page h1 { font-size: 16px; }
@@ -344,6 +344,11 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .report-page th, .report-page td { padding: 4px 5px; }
   .report-actions { flex-wrap: wrap; }
   .hide-on-mobile { display: none !important; }
+}
+/* Phone only - smaller buttons */
+@media (max-width: 480px) {
+  .toolbar-search input { padding: 7px 8px; font-size: 12px; }
+  .toolbar-buttons .toolbar-btn { font-size: 10px; padding: 5px 8px; }
 }
 /* Landscape on mobile - tighter layout */
 @media (pointer: coarse) and (orientation: landscape), (max-height: 500px) {
