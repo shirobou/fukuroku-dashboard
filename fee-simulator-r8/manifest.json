@@ -3,7 +3,7 @@
   "short_name": "料金R8",
   "start_url": "/fukuroku-dashboard/fee-simulator-r8/index.html",
   "scope": "/fukuroku-dashboard/fee-simulator-r8/",
-  "id": "/fukuroku-dashboard/fee-simulator-r8",
+  "id": "fukuroku-fee-r8",
   "display": "standalone",
   "theme_color": "#0f766e",
   "background_color": "#f1f5f9",
