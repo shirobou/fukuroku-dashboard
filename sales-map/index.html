@@ -2295,12 +2295,13 @@ function closeMobileMenu() {
 // ===== Start =====
 init();
 
-// ===== PWA: Service Worker 登録 & アイコン生成 =====
+// ===== PWA: 既存Service Workerを解除（キャッシュ問題防止） =====
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(function(reg) {
-    console.log('SW registered:', reg.scope);
-  }).catch(function(err) {
-    console.warn('SW registration failed:', err);
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(reg) { reg.unregister(); });
+  });
+  caches.keys().then(function(keys) {
+    keys.forEach(function(key) { caches.delete(key); });
   });
 }
 
