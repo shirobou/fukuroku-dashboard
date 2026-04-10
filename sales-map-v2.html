@@ -350,8 +350,8 @@ body { font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', san
   .toolbar-search input { padding: 7px 8px; font-size: 12px; }
   .toolbar-buttons .toolbar-btn { font-size: 10px; padding: 5px 8px; }
 }
-/* Landscape on mobile - tighter layout */
-@media (pointer: coarse) and (orientation: landscape), (max-height: 500px) {
+/* Landscape on PHONE only (not tablet) */
+@media (max-height: 500px) {
   .mobile-menu-btn { width: 36px; height: 36px; font-size: 18px; top: 6px; left: 6px; display: flex !important; }
   .map-toolbar { left: 48px; top: 6px; right: 8px; }
   .toolbar-search input { padding: 5px 8px; font-size: 11px; }
