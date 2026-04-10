@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="営業トーク">
+<title>営業トークスクリプト - ふくろく訪問看護ステーション</title>
+<link rel="manifest" href="manifest.json">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', Meiryo, sans-serif;
+  background: linear-gradient(135deg, #e0f2f1 0%, #e8eaf6 50%, #f3e5f5 100%);
+  min-height: 100vh;
+  color: #1a1a2e;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.header {
+  background: linear-gradient(135deg, #0f766e, #0369a1);
+  color: white;
+  padding: 16px 20px;
+  text-align: center;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(15,118,110,0.3);
+}
+.header h1 { font-size: 18px; font-weight: 700; }
+.header p { font-size: 12px; opacity: 0.85; margin-top: 4px; }
+.header-actions {
+  display: flex; gap: 8px; justify-content: center; margin-top: 8px;
+}
+.header-btn {
+  background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);
+  color: white; padding: 4px 12px; border-radius: 8px;
+  font-size: 11px; cursor: pointer; transition: all 0.2s;
+}
+.header-btn:hover { background: rgba(255,255,255,0.3); }
+.header-btn.active { background: rgba(255,255,255,0.4); font-weight: 700; }
+
+.container { max-width: 600px; margin: 0 auto; padding: 16px; }
+
+.section-label {
+  font-size: 13px; font-weight: 700; color: #0f766e;
+  margin: 16px 0 8px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.section-label .step {
+  background: #0f766e; color: white;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0;
+}
+
+.facility-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.facility-btn {
+  background: white; border: 2px solid #e0e7ef;
+  border-radius: 12px; padding: 12px 6px;
+  font-size: 12px; font-weight: 600; color: #334155;
+  cursor: pointer; transition: all 0.2s;
+  text-align: center; line-height: 1.4;
+  position: relative;
+  border-left: 3px solid var(--cat-color, #e0e7ef);
+}
+.facility-btn .cat-count {
+  position: absolute; top: 4px; right: 6px;
+  background: #94a3b8; color: white;
+  font-size: 9px; padding: 1px 5px; border-radius: 8px;
+}
+.facility-btn:hover { border-color: #0f766e; background: #f0fdf4; }
+.facility-btn.active {
+  background: var(--cat-color, #0f766e); color: white;
+  border-color: var(--cat-color, #0f766e);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.facility-btn.active .cat-count { background: rgba(255,255,255,0.4); }
+
+.reaction-list { display: flex; flex-direction: column; gap: 8px; }
+.reaction-btn {
+  background: white; border: 2px solid #e0e7ef;
+  border-radius: 12px; padding: 14px 16px;
+  font-size: 14px; color: #334155;
+  cursor: pointer; transition: all 0.2s;
+  text-align: left; line-height: 1.4;
+}
+.reaction-btn:hover { border-color: #0369a1; background: #eff6ff; }
+.reaction-btn.active { background: #0369a1; color: white; border-color: #0369a1; }
+.reaction-btn .reaction-icon { margin-right: 8px; }
+.reaction-temp {
+  display: inline-block; font-size: 10px; padding: 1px 6px;
+  border-radius: 8px; margin-left: 6px; font-weight: 600; vertical-align: middle;
+}
+.temp-hot { background: #fee2e2; color: #dc2626; }
+.temp-warm { background: #fef3c7; color: #d97706; }
+.temp-cold { background: #e0f2fe; color: #0284c7; }
+.temp-neutral { background: #f1f5f9; color: #64748b; }
+
+.result-card {
+  background: white; border-radius: 16px;
+  padding: 20px; margin-top: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  animation: slideUp 0.3s ease;
+  border-left: 4px solid #0f766e;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-section { margin-bottom: 16px; }
+.result-section:last-child { margin-bottom: 0; }
+.result-section h3 {
+  font-size: 13px; font-weight: 700; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.result-section h3.talk { color: #0f766e; }
+.result-section h3.point { color: #0369a1; }
+.result-section h3.strength { color: #7c3aed; }
+.result-section h3.next { color: #ea580c; }
+.result-section h3.ng { color: #dc2626; }
+.result-section p, .result-section li { font-size: 14px; line-height: 1.7; color: #374151; }
+.result-section ul { padding-left: 20px; }
+.result-section li { margin-bottom: 4px; }
+
+.talk-example {
+  background: #f0fdf4; border-radius: 10px;
+  padding: 14px 16px; font-size: 15px; line-height: 1.8;
+  color: #065f46; position: relative; margin-top: 6px;
+}
+.talk-example::before {
+  content: '\201C'; font-size: 32px; color: #0f766e;
+  position: absolute; top: 2px; left: 8px; opacity: 0.3;
+}
+.point-box {
+  background: #eff6ff; border-radius: 10px;
+  padding: 12px 16px; margin-top: 6px;
+  font-size: 13px; color: #1e40af; line-height: 1.6;
+}
+.strength-tag {
+  display: inline-block; background: #ede9fe; color: #6d28d9;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; margin: 2px 4px 2px 0;
+}
+.next-action {
+  background: #fff7ed; border-radius: 10px;
+  padding: 12px 16px; margin-top: 6px;
+}
+.next-action li { color: #9a3412; }
+.ng-box {
+  background: #fef2f2; border-radius: 10px;
+  padding: 12px 16px; margin-top: 6px;
+  font-size: 13px; color: #991b1b; line-height: 1.6;
+}
+
+.reset-btn, .add-btn-bottom {
+  display: block; width: 100%;
+  margin-top: 12px; padding: 14px;
+  border-radius: 12px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; border: 2px solid;
+}
+.reset-btn { background: #f1f5f9; border-color: #cbd5e1; color: #475569; }
+.reset-btn:hover { background: #e2e8f0; }
+.add-btn-bottom { background: #0f766e; border-color: #0f766e; color: white; }
+.add-btn-bottom:hover { background: #0d6963; }
+
+.edit-actions {
+  display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end;
+}
+.edit-btn {
+  padding: 6px 14px; border-radius: 8px; font-size: 12px;
+  font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+}
+.edit-btn.edit { background: #dbeafe; color: #1d4ed8; }
+.edit-btn.delete { background: #fee2e2; color: #dc2626; }
+.edit-btn:hover { opacity: 0.8; }
+
+/* ===== フォーム ===== */
+.form-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); z-index: 200;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.form-sheet {
+  background: white; border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 600px;
+  max-height: 90vh; overflow-y: auto;
+  padding: 20px 20px 40px; animation: sheetUp 0.3s ease;
+}
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.form-sheet h2 {
+  font-size: 16px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block; font-size: 12px; font-weight: 700;
+  color: #475569; margin-bottom: 4px;
+}
+.form-group label .required {
+  color: #dc2626; font-size: 10px; margin-left: 4px;
+}
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0;
+  border-radius: 10px; font-size: 14px;
+  font-family: inherit; transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+  outline: none; border-color: #0f766e;
+}
+.form-group textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+.form-group .hint {
+  font-size: 11px; color: #94a3b8; margin-top: 3px;
+}
+.form-actions {
+  display: flex; gap: 8px; margin-top: 20px;
+}
+.form-actions button {
+  flex: 1; padding: 12px; border-radius: 10px;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; border: none; transition: all 0.2s;
+}
+.btn-cancel { background: #f1f5f9; color: #475569; }
+.btn-save { background: #0f766e; color: white; }
+.btn-cancel:hover { background: #e2e8f0; }
+.btn-save:hover { background: #0d6963; }
+
+/* データ管理パネル */
+.data-panel {
+  background: white; border-radius: 16px;
+  padding: 16px; margin-top: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.data-panel h3 { font-size: 14px; margin-bottom: 12px; color: #334155; }
+.data-panel-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.data-panel-btn {
+  padding: 8px 14px; border-radius: 8px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid #e2e8f0;
+  background: #f8fafc; color: #475569;
+  transition: all 0.2s;
+}
+.data-panel-btn:hover { background: #e2e8f0; }
+.data-panel-btn.danger { border-color: #fecaca; color: #dc2626; }
+.data-panel-btn.danger:hover { background: #fef2f2; }
+.data-stats {
+  font-size: 12px; color: #94a3b8; margin-top: 10px;
+}
+
+.hidden { display: none; }
+.footer { text-align: center; padding: 20px; font-size: 11px; color: #94a3b8; }
+
+/* ===== レスポンシブ ===== */
+
+/* スマホ（〜480px） */
+@media (max-width: 480px) {
+  .header { padding: 12px 16px; }
+  .header h1 { font-size: 16px; }
+  .container { padding: 12px; }
+  .facility-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .facility-btn { padding: 10px 4px; font-size: 11px; }
+  .reaction-btn { padding: 12px 14px; font-size: 13px; }
+  .result-card { padding: 16px; }
+  .talk-example { font-size: 14px; padding: 12px 14px; line-height: 1.7; }
+  .talk-example::before { font-size: 24px; }
+  .strength-tag { font-size: 11px; padding: 3px 8px; }
+  .form-sheet { padding: 16px 16px 32px; }
+  .form-group input, .form-group textarea, .form-group select { font-size: 16px; /* iOS zoom防止 */ }
+}
+
+/* タブレット（481px〜1024px） */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .container { max-width: 700px; }
+  .facility-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .facility-btn { padding: 14px 8px; font-size: 13px; }
+  .reaction-btn { padding: 16px 18px; font-size: 15px; }
+  .talk-example { font-size: 16px; }
+}
+
+/* タブレット横・PC（1025px〜） */
+@media (min-width: 1025px) {
+  .container { max-width: 720px; }
+  .facility-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .facility-btn { padding: 14px 10px; font-size: 14px; }
+}
+
+/* タッチデバイス用 */
+@media (hover: none) {
+  .facility-btn:hover { border-color: #e0e7ef; background: white; }
+  .facility-btn.active:hover { background: var(--cat-color, #0f766e); }
+  .reaction-btn:hover { border-color: #e0e7ef; background: white; }
+  .reaction-btn.active:hover { background: #0369a1; }
+  .facility-btn:active { transform: scale(0.97); }
+  .reaction-btn:active { transform: scale(0.98); }
+  .add-btn-bottom:active { transform: scale(0.98); }
+  .edit-btn:active { transform: scale(0.95); }
+}
+
+/* セーフエリア対応（ノッチ付き端末） */
+@supports (padding: env(safe-area-inset-top)) {
+  .header { padding-top: calc(12px + env(safe-area-inset-top)); }
+  .form-sheet { padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
+}
+
+/* トースト */
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: #1e293b; color: white; padding: 10px 20px;
+  border-radius: 10px; font-size: 13px; z-index: 300;
+  animation: fadeInOut 2s ease forwards;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>営業トークスクリプト</h1>
+  <p>ふくろく訪問看護ステーション</p>
+  <div class="header-actions">
+    <button class="header-btn active" onclick="setMode('view')">検索</button>
+    <button class="header-btn" onclick="setMode('manage')">データ管理</button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- 検索モード -->
+  <div id="viewMode">
+    <div class="section-label"><span class="step">1</span> 訪問先の種別</div>
+    <div class="facility-grid" id="facilityGrid"></div>
+
+    <div class="section-label hidden" id="reactionLabel"><span class="step">2</span> 相手の反応</div>
+    <div class="reaction-list hidden" id="reactionList"></div>
+
+    <div id="resultArea"></div>
+  </div>
+
+  <!-- データ管理モード -->
+  <div id="manageMode" class="hidden">
+    <div class="data-panel">
+      <h3>データ管理</h3>
+      <div class="data-panel-actions">
+        <button class="data-panel-btn" onclick="exportData()">エクスポート (JSON)</button>
+        <button class="data-panel-btn" onclick="document.getElementById('importFile').click()">インポート (JSON)</button>
+        <button class="data-panel-btn danger" onclick="resetToDefault()">サンプルデータに戻す</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+      </div>
+      <div class="data-stats" id="dataStats"></div>
+    </div>
+
+    <div class="section-label" style="margin-top:20px"><span class="step">一</span> カテゴリ別一覧</div>
+    <div id="manageList"></div>
+  </div>
+
+  <div class="footer">v3.0 - 営業マップ連動 - 職員編集対応</div>
+</div>
+
+<!-- 入力フォーム（オーバーレイ） -->
+<div class="form-overlay hidden" id="formOverlay" onclick="if(event.target===this)closeForm()">
+  <div class="form-sheet" onclick="event.stopPropagation()">
+    <h2 id="formTitle">新しいトークを追加</h2>
+    <input type="hidden" id="editId">
+
+    <div class="form-group">
+      <label>カテゴリ <span class="required">必須</span></label>
+      <select id="fCategory"></select>
+    </div>
+
+    <div class="form-group">
+      <label>相手の反応（セリフ） <span class="required">必須</span></label>
+      <input type="text" id="fReaction" placeholder="例：訪問看護を入れたい利用者がいます">
+      <div class="hint">相手が実際に言った言葉をそのまま入力</div>
+    </div>
+
+    <div class="form-group">
+      <label>温度感</label>
+      <select id="fTemp">
+        <option value="hot">好感触（前向き・すぐ繋がりそう）</option>
+        <option value="warm" selected>興味あり（話は聞いてくれる）</option>
+        <option value="cold">消極的（断り気味）</option>
+        <option value="neutral">中立（情報収集レベル）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>こう返す（トーク例） <span class="required">必須</span></label>
+      <textarea id="fTalk" rows="5" placeholder="実際に使えるトーク例を入力&#10;改行で段落分けできます"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>ポイント（なぜこの返しが効くか）</label>
+      <textarea id="fPoint" rows="2" placeholder="例：ケアマネは限度額管理が最大の関心事。医療保険適用を示すと響く"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>アピールする強み</label>
+      <input type="text" id="fStrengths" placeholder="カンマ区切り 例：精神科対応,医療保険適用,迅速対応">
+      <div class="hint">カンマ（,）で区切って複数入力</div>
+    </div>
+
+    <div class="form-group">
+      <label>次のアクション</label>
+      <textarea id="fNext" rows="3" placeholder="1行に1つずつ入力&#10;例：&#10;パンフレットを渡す&#10;1週間後にフォロー電話"></textarea>
+      <div class="hint">1行に1つずつ。訪問後にやるべきこと</div>
+    </div>
+
+    <div class="form-group">
+      <label>NG行動</label>
+      <textarea id="fNg" rows="2" placeholder="例：既存の事業所の悪口は絶対NG"></textarea>
+      <div class="hint">やってはいけないこと・注意点</div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeForm()">キャンセル</button>
+      <button class="btn-save" onclick="saveForm()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== カテゴリ定義（営業マップと完全一致） =====
+const CATEGORIES = {
+  hospital:    { label: '病院',           icon: '病', color: '#e53935' },
+  clinic:      { label: 'クリニック',     icon: '医', color: '#FB8C00' },
+  pharmacy:    { label: '薬局',           icon: '薬', color: '#8E24AA' },
+  care_mgr:    { label: '居宅介護支援',   icon: 'ケ', color: '#1565C0' },
+  houkatsu:    { label: '地域包括',       icon: '包', color: '#283593' },
+  soudan:      { label: '相談支援',       icon: '相', color: '#AD1457' },
+  residential: { label: '入居系施設',     icon: '入', color: '#00897B' },
+  dayservice:  { label: '通所系施設',     icon: '通', color: '#00838F' },
+  visiting_ns: { label: '訪問看護',       icon: '訪', color: '#6A1B9A' },
+};
+
+const CAT_TARGETS = {
+  hospital: '医療相談員（MSW）・退院調整看護師',
+  clinic: '院長・看護師長・事務長',
+  pharmacy: '管理薬剤師・薬局長',
+  care_mgr: 'ケアマネジャー',
+  houkatsu: '主任ケアマネ・保健師・社会福祉士',
+  soudan: '相談支援専門員',
+  residential: '施設長・管理者・ケアマネ',
+  dayservice: '管理者・生活相談員・看護師',
+  visiting_ns: '管理者・所長',
+};
+
+// ===== サンプルデータ =====
+function getDefaultData() {
+  return [
+  // --- 病院 ---
+  { id:'h1', cat:'hospital', temp:'hot', reaction:'精神科の訪問看護を探していた',
+    talk:'精神科の患者さまの退院支援でお困りのケース、多くないですか？\n弊社は精神科訪問看護の経験豊富なスタッフが揃っておりまして、退院直後の不安定な時期でもしっかりフォローできます。\n退院前カンファにも参加できますし、退院直後は週3回の集中訪問から始めて徐々に減らすことも可能です。',
+    point:'精神科退院支援は「退院後すぐ」が最重要。集中訪問→段階的減少の具体プランを提示するとMSWが退院計画を立てやすい。',
+    strengths:['精神科訪問看護の実績','退院カンファ参加OK','退院直後の集中訪問'],
+    next:['パンフレットを渡す','MSWの名刺をもらう','退院調整看護師にもつないでもらう','1週間後にフォロー電話'],
+    ng:'入院中の患者に直接アプローチしない。必ずMSWを通す。' },
+  { id:'h2', cat:'hospital', temp:'warm', reaction:'内科の在宅フォローができる事業所は？',
+    talk:'内科全般の訪問看護でしたら幅広く対応しております。\n糖尿病の血糖管理、心不全の体重・浮腫チェック、COPD の呼吸管理など、退院後に継続的な観察が必要な方をしっかりフォローいたします。\n状態の変化があれば主治医の先生にすぐご報告しますので、再入院の予防にもつながります。',
+    point:'内科の訪問看護は需要が大きい。具体的な疾患名を挙げて「対応できる範囲」を示すと信頼感が増す。',
+    strengths:['内科全般の対応力','バイタル管理・状態観察','主治医への迅速な報告','再入院予防'],
+    next:['対応可能な疾患の一覧を渡す','FAX番号を交換','退院予定の方がいれば詳細を聞く'],
+    ng:'「何でもできます」と大風呂敷を広げない。対応可能な範囲を正直に伝える。' },
+  { id:'h3', cat:'hospital', temp:'cold', reaction:'もう付き合いのある訪問看護がいるので',
+    talk:'信頼関係のある事業所さんがおありなのは当然かと思います。\nただ、精神科の方は「対応が難しい」と断られるケースも少なくないのではないでしょうか。\n既存の事業所さんとの関係はそのままで、精神科の部分だけ弊社がお手伝いする形も可能です。困ったケースの際に思い出していただければ嬉しいです。',
+    point:'「切り替え」ではなく「補完」のポジション。既存関係を脅かさない提案が信頼につながる。',
+    strengths:['精神科特化の補完','既存関係を壊さない'],
+    next:['パンフレット＋名刺を置く','「精神科で困ったらふくろく」と印象づける','1ヶ月後に再訪問'],
+    ng:'既存事業所の悪口・比較は絶対NG。' },
+  { id:'h4', cat:'hospital', temp:'cold', reaction:'訪問看護はあまり使わないですね',
+    talk:'そうなんですね。退院後に状態が悪化して再入院されるケースはございませんか？\n最近は退院後の在宅フォローに訪問看護を活用して再入院率を下げている病院さんが増えています。\n服薬管理や生活状況のモニタリングで異変を早期発見し、主治医に報告することで重症化を防げます。\n選択肢の一つとして覚えていただければ。',
+    point:'「再入院率の低下」は病院経営の重要KPI。病院側のメリットに寄せた説明が効果的。',
+    strengths:['再入院予防','服薬管理','異変の早期発見→主治医報告'],
+    next:['パンフレットを置く','病棟師長への紹介を依頼','2週間後にフォロー電話'],
+    ng:'「使うべき」と押し付けない。種を蒔く意識で。' },
+  { id:'h5', cat:'hospital', temp:'warm', reaction:'どんなことをしてくれるんですか？',
+    talk:'主に3つです。\n1つ目が退院後の健康管理 — バイタルチェック・服薬確認・状態変化の主治医フィードバック。\n2つ目が精神科の生活支援 — 生活リズムの安定や社会復帰に向けたサポート。\n3つ目がご家族のサポート — 介護負担軽減のアドバイスや制度案内。\n医療保険・介護保険のどちらでも対応しておりますので、患者さまの状況に合わせて柔軟にプランを組めます。',
+    point:'「3つ」と構造化すると記憶に残りやすい。医療保険・介護保険の両対応を伝えることで間口の広さをアピール。',
+    strengths:['健康管理','精神科生活支援','家族サポート','医療保険・介護保険の両対応'],
+    next:['具体的な患者像をヒアリング','パンフレットと名刺を渡す','訪問看護指示書の流れを説明'],
+    ng:'専門用語を並べすぎない。加算の話は初回不要。' },
+  { id:'h6', cat:'hospital', temp:'warm', reaction:'訪問看護指示書のやり取りが面倒で…',
+    talk:'書類のやり取りは本当にご負担ですよね。\n指示書の手配はすべてこちらで段取りいたしますので、相談員さんのお手間は最小限です。\n主治医の先生に直接ご連絡してやり取りすることも可能です。FAXでもメールでも貴院のご都合に合わせます。',
+    point:'MSWの業務負担軽減が提案できると「この事業所は楽」と思ってもらえる。指示書周りのストレスは紹介のハードルになっている。',
+    strengths:['指示書手配すべて対応','柔軟な連絡手段','主治医直接連絡OK'],
+    next:['FAX番号・メアドを交換','指示書テンプレ有無を確認','1週間後にフォロー'],
+    ng:'「簡単ですよ」と軽く言わない。相手の負担感を認めた上で解決策を提示。' },
+
+  // --- クリニック ---
+  { id:'c1', cat:'clinic', temp:'hot', reaction:'精神科の患者さんで困っている',
+    talk:'精神科の患者さまは通院が途切れたり服薬を自己中断されることがありますよね。\n弊社は精神科訪問看護の経験豊富なスタッフが、ご自宅での服薬確認や生活モニタリングを行います。\n先生の治療方針に沿って通院の間をフォローし、状態変化はすぐご報告します。\n「最近受診に来なくなった」方のフォローにも対応しています。',
+    point:'精神科クリニックの最大の悩みは「通院中断」。通院合間のフォローと中断防止を強調すると響く。',
+    strengths:['精神科訪問看護の専門性','服薬管理・通院フォロー','通院中断の早期発見'],
+    next:['訪問看護指示書の流れを説明','該当患者を具体的に相談','FAX番号を交換','1週間後にフォロー'],
+    ng:'医師の治療方針に口出ししない。処方変更の提案はNG。' },
+  { id:'c2', cat:'clinic', temp:'warm', reaction:'在宅で診ている患者が増えてきて…',
+    talk:'在宅患者さんが増えると先生のご負担も大きいですよね。\n訪問看護で診察の間の状態観察を行い、変化があればすぐご報告する体制を作れます。\n往診時に「前回からこういう変化がありました」と事前情報が入ると、診察効率も上がるかと思います。\n先生の往診と訪問看護を組み合わせて、患者さまの在宅生活を一緒に支えさせてください。',
+    point:'在宅医療に力を入れ始めたクリニックは訪問看護のニーズが高い。往診との連携メリットを具体的に伝える。',
+    strengths:['往診との連携','状態変化の迅速報告','在宅療養サポート','医療保険・介護保険両対応'],
+    next:['往診スケジュールに合わせた訪問プラン提案','報告のタイミングを共有','指示書の説明'],
+    ng:'「先生だけでは大変でしょう」など現状否定の言い方はNG。' },
+  { id:'c3', cat:'clinic', temp:'neutral', reaction:'忙しいので手短にお願いします',
+    talk:'申し訳ありません、お忙しいところ失礼します。\n大東市で精神科と内科の訪問看護をしている「ふくろく」です。\n通院が途切れがちな方や退院後のフォローが必要な方がいらっしゃいましたら、こちらにご連絡ください。パンフレットを置かせていただきます。',
+    point:'30秒で切り上げる潔さが好印象。「忙しいのに長居する事業所」は二度と会えない。',
+    strengths:['即対応できるフットワーク','精神科＋内科両対応'],
+    next:['パンフレット＋名刺を受付に預ける','30秒以内で退出','2週間後に再訪問（事前アポ必須）'],
+    ng:'「もう少しだけ」は禁句。潔く退出する。' },
+  { id:'c4', cat:'clinic', temp:'cold', reaction:'もう連携している事業所があります',
+    talk:'信頼されている事業所さんがおありなのは素晴らしいですね。\n弊社は精神科に特に力を入れておりまして、「精神科のケースだけ」お任せいただいている先もございます。\n対応が難しいケースやエリア的にカバーしきれない方が出てきた際に、思い出していただければ嬉しいです。',
+    point:'「精神科だけ」「エリアの補完」と具体的シーンを提示すると記憶に残る。',
+    strengths:['精神科特化の補完','大東市・東大阪市エリアに強い'],
+    next:['パンフレットを渡す','3〜4週間後に再訪問'],
+    ng:'既存事業所を否定しない。' },
+  { id:'c5', cat:'clinic', temp:'warm', reaction:'訪問看護の手続きがわからない',
+    talk:'ご安心ください。先生に「訪問看護指示書」を書いていただくだけで大丈夫です。フォーマットはこちらでご用意します。\nケアマネさんとの調整や患者さまへの説明、保険の確認など、それ以外はすべて弊社で対応いたします。\nまずは「この患者さん」という方がいれば、お気軽にお声がけください。',
+    point:'手続きの煩雑さが導入障壁。「指示書だけ」と明示してハードルを下げる。',
+    strengths:['指示書フォーマット提供','手続き一切代行','初回導入サポート'],
+    next:['指示書サンプルを後日FAX','具体的な患者像をヒアリング','1週間以内にフォロー'],
+    ng:'「簡単ですよ」と軽く言いすぎると不信感。丁寧に流れを説明する。' },
+
+  // --- 薬局 ---
+  { id:'p1', cat:'pharmacy', temp:'hot', reaction:'服薬管理が心配な患者さんがいる',
+    talk:'服薬管理でお困りの患者さまがいらっしゃるんですね。\n弊社の訪問看護では残薬確認・お薬カレンダーの管理・飲み忘れ防止の声かけなどを行っています。\n「この方、ちゃんと飲めているかな」と気になる方がいらっしゃったら、ぜひご紹介ください。\n処方医の先生にも服薬状況をフィードバックします。',
+    point:'薬局は「調剤後のフォロー」に課題を感じていることが多い。服薬フォローを訪問看護が担うと薬局の不安解消に。',
+    strengths:['残薬管理・服薬フォロー','処方医への状況報告','薬局との情報共有'],
+    next:['具体的な患者情報をヒアリング','訪問看護で確認できる内容を共有','1週間後にフォロー'],
+    ng:'薬剤師の業務領域（服薬指導等）に踏み込まない。' },
+  { id:'p2', cat:'pharmacy', temp:'warm', reaction:'訪問看護と連携したことがない',
+    talk:'連携はとてもシンプルです。「在宅で服薬管理が心配な方」がいたら弊社にお電話いただくだけ。\n処方医への訪問看護指示書の依頼もケアマネとの調整もすべて弊社で行います。\n薬局さんには「気になる方を教えていただく」だけです。',
+    point:'手続きのハードルを徹底的に下げて「教えてもらうだけ」を強調する。',
+    strengths:['手続きはすべて代行','薬局の負担ゼロ'],
+    next:['パンフレット＋名刺を渡す','1ヶ月後に再訪問'],
+    ng:'初めての連携であることを尊重して丁寧に。' },
+  { id:'p3', cat:'pharmacy', temp:'cold', reaction:'うちの患者さんは元気な方が多いので',
+    talk:'それは良いことですね。\n一つだけ、精神科のお薬を受け取りに来られる方の中に、ご自宅で不安を抱えている方がいらっしゃることがあります。\n窓口ではお元気でも、実は飲み忘れが多かったりすることも。「大丈夫かな」と感じることがあった時にご連絡ください。',
+    point:'窓口では見えない在宅の実態を示唆。押し付けず「気づいた時に」で種を蒔く。',
+    strengths:['在宅での見守り','精神科の生活支援'],
+    next:['パンフレットを置く','3〜4週間後に再訪問'],
+    ng:'「実は大変な患者がいるはず」と決めつけない。' },
+
+  // --- 居宅介護支援事業所 ---
+  { id:'cm1', cat:'care_mgr', temp:'hot', reaction:'訪問看護を入れたい利用者がいる',
+    talk:'ぜひお手伝いさせてください。内科的なフォローが必要な方なら幅広く対応しますし、精神科なら経験豊富なスタッフがおります。\n訪問看護指示書の手配もこちらで主治医に依頼しますので、ケアマネさんには利用者さまの情報を共有いただくだけで大丈夫です。\nサービス担当者会議にも参加して、ケアプランに沿った訪問内容を一緒に詰めさせてください。',
+    point:'ケアマネは「ケアプランにどう組み込むか」が関心事。担当者会議参加の意思を示すと信頼を得やすい。',
+    strengths:['内科＋精神科対応','指示書手配代行','担当者会議参加','ケアプランに沿った訪問'],
+    next:['利用者の状態をヒアリング','主治医を確認','訪問開始スケジュール共有','初回訪問後に報告'],
+    ng:'ケアマネのプラン作成に口を出さない。「プランに沿って対応します」。' },
+  { id:'cm2', cat:'care_mgr', temp:'warm', reaction:'精神科の受け入れ先が見つからない',
+    talk:'精神科は断られることも多いですよね。弊社は統合失調症・うつ病・双極性障害など幅広く対応しています。\n利用者さまの状態を教えていただければ、受け入れ可否をすぐにお返事できます。\n精神科の訪問看護は医療保険適用が多いので、介護保険の限度額を使わずに組み込めるケースもあります。',
+    point:'医療保険適用で介護保険の限度額を圧迫しない。ケアマネにとって大きなメリット。',
+    strengths:['精神科受け入れOK','医療保険で枠を圧迫しない','迅速な受け入れ判断'],
+    next:['利用者の状態と主治医を確認','医療/介護保険どちらか確認','当日〜翌日に回答'],
+    ng:'「何でも受けます」と安請け合いしない。状態確認してから判断する姿勢を。' },
+  { id:'cm3', cat:'care_mgr', temp:'warm', reaction:'限度額がギリギリで訪問看護を入れにくい',
+    talk:'限度額の調整は大変ですよね。\n精神科の訪問看護は医療保険適用になるケースが多く、介護保険の限度額を使わずに導入できることがあります。\n末期がんや神経難病なども医療保険対象です。該当するかどうかの判断もお手伝いしますので、お気軽にご相談ください。',
+    point:'医療保険適用の訪問看護は介護保険の限度額に含まれない。この知識はケアマネに非常に有用。',
+    strengths:['医療保険で枠を圧迫しない','保険適用の判断サポート'],
+    next:['対象利用者がいないか確認','適用条件の簡易資料を送付','具体的ケースの相談に応じる'],
+    ng:'保険制度の説明が長くなりすぎない。要点だけ伝えて「いつでも相談を」で。' },
+  { id:'cm4', cat:'care_mgr', temp:'cold', reaction:'いつも使っている事業所があるので',
+    talk:'信頼関係のある事業所さんが一番ですよね。\n精神科の方や大東市・東大阪市エリアの方で既存事業所で対応が難しいケースが出た際に、選択肢の一つとして覚えていただければ嬉しいです。',
+    point:'無理に食い込まない。「精神科」「エリア」のキーワードを残して思い出してもらう。',
+    strengths:['精神科対応','エリアの補完'],
+    next:['パンフレットと名刺を渡す','1ヶ月後に顔つなぎ再訪問'],
+    ng:'押し売りしない。ケアマネは多くの事業所から営業を受けている。' },
+
+  // --- 地域包括支援センター ---
+  { id:'hk1', cat:'houkatsu', temp:'warm', reaction:'新しい訪問看護の事業所、助かります',
+    talk:'ありがとうございます。精神科と内科の訪問看護に対応しておりまして、医療保険・介護保険どちらでもご利用いただけます。\n管轄エリアのケアマネさんに「精神科もOKの訪問看護がある」とお伝えいただけると嬉しいです。\n地域ケア会議や事例検討会があればぜひ参加させてください。',
+    point:'包括は直接サービス紹介ではなくケアマネへの橋渡し役。包括を通じてエリアのケアマネに認知を広げる。',
+    strengths:['精神科＋内科両対応','医療保険・介護保険どちらも可','地域連携への積極参加'],
+    next:['ケアマネを紹介してもらう','パンフレット複数部を置く','地域ケア会議の予定を聞く','2週間後に再訪問'],
+    ng:'包括に「利用者を紹介して」とストレートに言わない。ケアマネへつないでもらう意識で。' },
+  { id:'hk2', cat:'houkatsu', temp:'cold', reaction:'訪問看護の事業所は足りていますよ',
+    talk:'確かにこの地域は事業所さんが充実していますよね。\nただ精神科に対応できる訪問看護はまだ少ないのではないかと思いまして。\n通常の訪問看護は既存事業所さんにお任せしつつ、精神科のケースだけ弊社に、という形でも構いません。',
+    point:'「総量は足りている」に対して「精神科は足りていない」で差別化。',
+    strengths:['精神科対応の希少性'],
+    next:['パンフレットを渡す','地域ケア会議への参加を打診'],
+    ng:'「足りている」に反論しない。ニッチな立ち位置を提示して引く。' },
+  { id:'hk3', cat:'houkatsu', temp:'warm', reaction:'独居高齢者の見守りに困っている',
+    talk:'訪問看護では定期訪問でバイタルチェックや生活状況の確認を行いますので、見守り機能としても活用いただけます。\n異変があればすぐ包括さんやケアマネさんにご報告します。\n介護保険を使いたくない方でも、医療保険で訪問看護を利用できるケースがあります。',
+    point:'独居高齢者の見守りは包括の重要テーマ。訪問看護を「見守りインフラ」として位置づけると刺さる。',
+    strengths:['定期的な見守り訪問','異変時の即時報告','医療保険でも利用可'],
+    next:['具体的な対象者がいれば情報共有','見守りフローを提案','地域見守りネットワークへの参加意思を伝える'],
+    ng:'「包括さんだけでは対応しきれないでしょう」はNG。' },
+
+  // --- 相談支援事業所 ---
+  { id:'s1', cat:'soudan', temp:'hot', reaction:'訪問看護の需要はあります',
+    talk:'具体的にどのような利用者さまが多いですか？\n精神疾患のある方でしたら弊社は実績がありますので、しっかり対応させていただけます。\n計画相談で「訪問看護を入れたいけど受けてくれる事業所がない」というケースがあれば、ぜひご相談ください。\n精神科の訪問看護は医療保険になるケースが多いので、障害福祉サービスの支給量にも影響しません。',
+    point:'精神科の受け皿不足を解消できることが最大のアピール。医療保険適用で支給量に影響しない点も重要。',
+    strengths:['精神科対応','障害福祉との連携','支給量に影響しない','計画相談との情報共有'],
+    next:['利用者像をヒアリング','名刺をもらう','2週間後にフォロー'],
+    ng:'初回で個人情報を求めない。まず関係構築。' },
+  { id:'s2', cat:'soudan', temp:'cold', reaction:'訪問看護はあまり使わないですね',
+    talk:'利用者さまの中で服薬管理が難しい方や生活リズムが乱れがちな方はいらっしゃいませんか？\nヘルパーさんに加えて訪問看護を組み合わせると、医療面のフォローも入れられます。\n「こんなケースは対応できる？」というお問い合わせだけでもお気軽にどうぞ。',
+    point:'「選択肢の一つ」として提案。押し付けない。',
+    strengths:['医療+福祉の橋渡し','計画の選択肢を広げる'],
+    next:['パンフレットを渡す','1ヶ月後に再訪問'],
+    ng:'「使うべき」と押し付けない。' },
+  { id:'s3', cat:'soudan', temp:'warm', reaction:'退院後のフォローで困ることが多い',
+    talk:'精神科の退院後は特に不安定ですよね。\n弊社では退院直後に集中訪問（週3回など）を行い、安定してきたら徐々に減らす対応をしています。\n退院前カンファにも参加できますし、病院MSWとの連携も慣れています。退院が決まった段階でご連絡いただければスムーズに導入できます。',
+    point:'退院後の不安定期に集中訪問できることは大きな差別化ポイント。',
+    strengths:['退院直後の集中訪問','退院前カンファ参加OK','病院MSWとの連携'],
+    next:['退院予定の利用者がいれば情報共有','カンファ参加方法を説明','連絡先交換'],
+    ng:'「退院後すぐ連絡ください」と急かさない。余裕を持った提案を。' },
+  { id:'s4', cat:'soudan', temp:'neutral', reaction:'STやOTを探しているんですが',
+    talk:'申し訳ございません、現在弊社にはST・OTは在籍しておりません。\nただ、ST・OTがいる事業所の情報を調べてご連絡することは可能です。\n看護の面でもニーズがありましたら併せてご相談ください。',
+    point:'できないことは正直に。情報提供を実行すれば信頼構築のチャンスになる。',
+    strengths:['情報提供で信頼構築','看護での補完'],
+    next:['ST/OTのいる事業所を調べて1週間以内に連絡（重要）','パンフレットを渡す'],
+    ng:'「調べます」と言ったら必ず実行する。放置は致命的。' },
+
+  // --- 入居系施設 ---
+  { id:'r1', cat:'residential', temp:'hot', reaction:'訪問看護を入れたい入居者がいます',
+    talk:'ぜひお手伝いさせてください。内科全般に加えて精神科の対応もしておりますので、幅広い入居者さまに対応可能です。\nまず状態を共有いただいて、訪問頻度やケア内容をご提案させてください。\n施設スタッフさんとの情報共有もしっかり行いますので、ケアの連続性もご安心ください。',
+    point:'施設系は「施設スタッフとの連携」が鍵。情報共有と役割分担を明確に。',
+    strengths:['内科＋精神科対応','施設との連携','柔軟な訪問スケジュール'],
+    next:['入居者の状態をヒアリング','主治医確認','指示書の流れを説明','初回訪問の日程調整'],
+    ng:'施設の介護スタッフの対応を否定しない。「看護で補完する」スタンスで。' },
+  { id:'r2', cat:'residential', temp:'warm', reaction:'費用がどれくらいかかるか心配で…',
+    talk:'費用面のご不安、ごもっともです。\n医療保険または介護保険が使えますので、自己負担は1〜3割です。\n弊社で料金シミュレーターをご用意しておりまして、保険の種類と訪問回数を入れるだけで具体的な金額がわかります。\nよろしければ今お見せしましょうか？',
+    point:'料金シミュレーターは他事業所にはない武器。「その場で見せられる」具体性が信頼につながる。',
+    strengths:['料金シミュレーターで即時試算','保険適用で自己負担軽減','明朗な料金体系'],
+    next:['料金シミュレーターを見せる','入居者の保険情報を確認','見積もりを後日送付'],
+    ng:'「安いです」は言わない。明確に試算できることを伝える。' },
+  { id:'r3', cat:'residential', temp:'warm', reaction:'精神疾患のある入居者の対応に困っている',
+    talk:'精神疾患のある入居者さまの対応は、専門知識がないと難しいですよね。\n弊社は精神科訪問看護の経験が豊富ですので、状態観察やコミュニケーションの取り方のアドバイスも含めてサポートできます。\nスタッフの方が「最近様子がおかしい」と感じた時にすぐ相談できる窓口としてもご活用いただけます。',
+    point:'介護スタッフが精神科対応で疲弊しているケースは多い。「スタッフの相談窓口」という付加価値が大きい。',
+    strengths:['精神科アセスメント','スタッフへの助言','症状悪化の早期発見','相談窓口'],
+    next:['困っている入居者のケースを聞く','スタッフ向け相談体制を提案','初回訪問で状態評価'],
+    ng:'「スタッフの対応が不十分」と取られる発言はNG。' },
+  { id:'r4', cat:'residential', temp:'cold', reaction:'配置医がいるので看護は間に合ってます',
+    talk:'配置医の先生がいらっしゃると安心ですよね。\n往診は週1〜2回が多いかと思いますが、その間の日常的な健康管理はスタッフの方のご負担になっていませんか？\n訪問看護で往診の合間の状態観察を看護師が担えば、「次の往診まで大丈夫か」の判断負担が軽減されます。',
+    point:'配置医がいても「往診の間」のカバーに課題がある場合が多い。隙間を埋める提案が効果的。',
+    strengths:['往診の合間のフォロー','状態変化の早期発見'],
+    next:['パンフレットを渡す','1ヶ月後に再訪問'],
+    ng:'配置医の診療を否定するのは絶対NG。' },
+
+  // --- 通所系施設 ---
+  { id:'d1', cat:'dayservice', temp:'warm', reaction:'利用者さんの在宅の様子が気になる',
+    talk:'デイサービスではお元気でも、ご自宅での過ごし方は見えにくいですよね。\n訪問看護で定期的にご自宅を訪問し、服薬管理・健康チェック・生活環境の確認を行います。\nデイサービスさんと情報共有できれば、お互いの情報で利用者理解が深まります。',
+    point:'通所と訪問は「在宅が見えない」vs「通所が見えない」の関係。情報連携で利用者理解が深まる。',
+    strengths:['在宅での状態確認','通所との情報連携'],
+    next:['気になる利用者をヒアリング','情報共有方法を決める','パンフレットを渡す'],
+    ng:'デイの看護師と役割が被る発言は避ける。「在宅でのフォロー」に焦点を。' },
+  { id:'d2', cat:'dayservice', temp:'cold', reaction:'うちは看護師もいるので…',
+    talk:'デイに看護師さんがいらっしゃると心強いですよね。\n訪問看護は「ご自宅での生活」をフォローする役割ですので、デイの看護師さんとは活動の場が異なります。\n自宅で転倒していたり薬を飲めていなかったりするケースもありますので、在宅側からのサポートとしてお役に立てます。',
+    point:'デイの看護師と訪問看護は活動場所が違う。競合ではなく「在宅と通所で二重の安心」で差別化。',
+    strengths:['在宅側のサポート','通所できない日のフォロー'],
+    next:['「在宅フォロー」に絞ってアピール','ケアマネへの紹介を依頼'],
+    ng:'デイの看護師の業務と比較しない。' },
+  { id:'d3', cat:'dayservice', temp:'hot', reaction:'ケアマネに紹介していいですか？',
+    talk:'ぜひお願いします、大変ありがたいです。\n「精神科と内科に対応できる訪問看護がある」とお伝えいただくだけで結構です。\nケアマネさんからご連絡いただければ詳しくご説明します。名刺やパンフレットの追加が必要でしたらいつでもお持ちします。',
+    point:'デイサービスはケアマネとの接点が多い。デイからの紹介はケアマネの信頼を得やすいルート。',
+    strengths:['ケアマネへの間接営業ルート'],
+    next:['名刺・パンフレット複数枚を渡す','紹介後のフォローを約束','定期的に顔を出す'],
+    ng:'紹介してもらった後のお礼連絡を忘れない。' },
+
+  // --- 訪問看護（同業他社） ---
+  { id:'v1', cat:'visiting_ns', temp:'warm', reaction:'精神科のケースを受けてくれる事業所を探していた',
+    talk:'精神科は対応できる事業所が少なくてお困りも多いかと思います。\n弊社は精神科訪問看護の経験豊富なスタッフがおりますので、ぜひお任せください。\n逆に弊社でリハビリ系のご相談をいただいた際は御社にお声がけすることも可能です。お互いに補い合える関係を作りたいです。',
+    point:'同業他社は「競合」ではなく「連携先」。得意分野の違いで相互紹介できる関係が理想。',
+    strengths:['精神科特化','相互紹介','Win-Winの連携'],
+    next:['お互いの得意分野を共有','紹介フローを決める','定期情報交換を提案'],
+    ng:'利用者の取り合いになる発言は絶対NG。' },
+  { id:'v2', cat:'visiting_ns', temp:'warm', reaction:'同じエリアで活動しているんですね',
+    talk:'はい、大東市を拠点にしております。同じエリアの事業所さんとはぜひ連携させてください。\n弊社は精神科と内科を中心に対応しておりまして、御社と得意分野が違う部分もあるかと思います。\nお互いの空き状況や得意分野を共有して、地域全体でより良いサービスを届けられればと思っています。',
+    point:'同エリアの訪問看護と仲良くなることは長期的に重要。紹介し合える関係は安定した利用者獲得につながる。',
+    strengths:['地域連携','精神科＋内科','相互紹介'],
+    next:['お互いの強み・対応エリア・疾患を共有','連絡先交換','勉強会で再会できるよう情報交換'],
+    ng:'営業成績を競うような発言は避ける。' },
+  { id:'v3', cat:'visiting_ns', temp:'neutral', reaction:'今は特に困っていないですね',
+    talk:'それは良かったです。\n今後精神科のケースで受け入れ先にお困りの際はいつでもお声がけください。\n同じ地域の事業所同士、顔が見える関係があると安心ですよね。',
+    point:'同業他社には無理に営業しない。「顔見知り」になるだけでいつかケース紹介につながる。',
+    strengths:['精神科の受け皿'],
+    next:['名刺交換','短時間で退出','勉強会等で声をかける'],
+    ng:'長居しない。関係構築だけが目的。' },
+  ];
+}
+
+// ===== ストレージ =====
+const STORAGE_KEY = 'fukuroku_sales_talk_v3';
+
+function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try { return JSON.parse(saved); } catch(e) {}
+  }
+  const def = getDefaultData();
+  saveData(def);
+  return def;
+}
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+let allData = loadData();
+
+// ===== UI =====
+let selectedFacility = null;
+let currentMode = 'view';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.header-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.header-btn')[mode === 'view' ? 0 : 1].classList.add('active');
+  document.getElementById('viewMode').classList.toggle('hidden', mode !== 'view');
+  document.getElementById('manageMode').classList.toggle('hidden', mode !== 'manage');
+  if (mode === 'manage') renderManageList();
+  if (mode === 'view') { resetAll(); renderGrid(); }
+}
+
+function renderGrid() {
+  const grid = document.getElementById('facilityGrid');
+  grid.innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => {
+    const count = allData.filter(d => d.cat === key).length;
+    return `<button class="facility-btn" data-facility="${key}" style="--cat-color:${cat.color}" onclick="selectFacility(this)">
+      ${cat.label}
+      <span class="cat-count">${count}</span>
+    </button>`;
+  }).join('');
+}
+
+function selectFacility(btn) {
+  document.querySelectorAll('.facility-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedFacility = btn.dataset.facility;
+
+  const items = allData.filter(d => d.cat === selectedFacility);
+  const label = document.getElementById('reactionLabel');
+  const list = document.getElementById('reactionList');
+  label.classList.remove('hidden');
+  list.classList.remove('hidden');
+  document.getElementById('resultArea').innerHTML = '';
+
+  const target = CAT_TARGETS[selectedFacility] || '';
+  label.innerHTML = `<span class="step">2</span> 相手の反応 <span style="font-weight:400;color:#64748b;font-size:12px;">（窓口: ${target}）</span>`;
+
+  const tempLabels = { hot: '好感触', warm: '興味あり', cold: '消極的', neutral: '中立' };
+  const tempClass = { hot: 'temp-hot', warm: 'temp-warm', cold: 'temp-cold', neutral: 'temp-neutral' };
+
+  list.innerHTML = items.map(r => `
+    <button class="reaction-btn" data-id="${r.id}" onclick="selectReaction('${r.id}')">
+      ${r.reaction}
+      <span class="reaction-temp ${tempClass[r.temp] || 'temp-neutral'}">${tempLabels[r.temp] || '中立'}</span>
+    </button>
+  `).join('') + `
+    <button class="add-btn-bottom" onclick="openForm('${selectedFacility}')">＋ この反応を追加する</button>
+  `;
+}
+
+function selectReaction(id) {
+  document.querySelectorAll('.reaction-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`[data-id="${id}"]`);
+  if (btn) btn.classList.add('active');
+
+  const r = allData.find(d => d.id === id);
+  if (!r) return;
+  const cat = CATEGORIES[r.cat];
+
+  const strengths = (r.strengths || []).map(s => `<span class="strength-tag">${s}</span>`).join('');
+  const nextItems = (r.next || []).map(n => `<li>${n}</li>`).join('');
+
+  document.getElementById('resultArea').innerHTML = `
+    <div class="result-card" style="border-left-color:${cat.color}">
+      <div class="result-section">
+        <h3 class="talk">\uD83D\uDCAC こう返す</h3>
+        <div class="talk-example">${(r.talk||'').replace(/\n/g, '<br>')}</div>
+      </div>
+      ${r.point ? `<div class="result-section">
+        <h3 class="point">\uD83D\uDCA1 ポイント</h3>
+        <div class="point-box">${r.point}</div>
+      </div>` : ''}
+      ${strengths ? `<div class="result-section">
+        <h3 class="strength">\uD83D\uDCAA アピールする強み</h3>
+        <div>${strengths}</div>
+      </div>` : ''}
+      ${nextItems ? `<div class="result-section">
+        <h3 class="next">\u27A1\uFE0F 次のアクション</h3>
+        <div class="next-action"><ul>${nextItems}</ul></div>
+      </div>` : ''}
+      ${r.ng ? `<div class="result-section">
+        <h3 class="ng">\u26A0\uFE0F NG行動</h3>
+        <div class="ng-box">${r.ng}</div>
+      </div>` : ''}
+      <div class="edit-actions">
+        <button class="edit-btn edit" onclick="openFormEdit('${r.id}')">編集</button>
+        <button class="edit-btn delete" onclick="deleteItem('${r.id}')">削除</button>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="resetAll()">\uD83D\uDD04 最初からやり直す</button>
+  `;
+  document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetAll() {
+  document.querySelectorAll('.facility-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('reactionLabel').classList.add('hidden');
+  document.getElementById('reactionList').classList.add('hidden');
+  document.getElementById('resultArea').innerHTML = '';
+  selectedFacility = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== フォーム =====
+function populateCategorySelect() {
+  const sel = document.getElementById('fCategory');
+  sel.innerHTML = Object.entries(CATEGORIES).map(([k, c]) =>
+    `<option value="${k}">${c.icon} ${c.label}</option>`
+  ).join('');
+}
+
+function openForm(cat) {
+  populateCategorySelect();
+  document.getElementById('formTitle').textContent = '新しいトークを追加';
+  document.getElementById('editId').value = '';
+  document.getElementById('fCategory').value = cat || 'hospital';
+  document.getElementById('fReaction').value = '';
+  document.getElementById('fTemp').value = 'warm';
+  document.getElementById('fTalk').value = '';
+  document.getElementById('fPoint').value = '';
+  document.getElementById('fStrengths').value = '';
+  document.getElementById('fNext').value = '';
+  document.getElementById('fNg').value = '';
+  document.getElementById('formOverlay').classList.remove('hidden');
+}
+
+function openFormEdit(id) {
+  const r = allData.find(d => d.id === id);
+  if (!r) return;
+  populateCategorySelect();
+  document.getElementById('formTitle').textContent = 'トークを編集';
+  document.getElementById('editId').value = r.id;
+  document.getElementById('fCategory').value = r.cat;
+  document.getElementById('fReaction').value = r.reaction || '';
+  document.getElementById('fTemp').value = r.temp || 'warm';
+  document.getElementById('fTalk').value = r.talk || '';
+  document.getElementById('fPoint').value = r.point || '';
+  document.getElementById('fStrengths').value = (r.strengths || []).join(', ');
+  document.getElementById('fNext').value = (r.next || []).join('\n');
+  document.getElementById('fNg').value = r.ng || '';
+  document.getElementById('formOverlay').classList.remove('hidden');
+}
+
+function closeForm() {
+  document.getElementById('formOverlay').classList.add('hidden');
+}
+
+function saveForm() {
+  const reaction = document.getElementById('fReaction').value.trim();
+  const talk = document.getElementById('fTalk').value.trim();
+  if (!reaction || !talk) {
+    toast('「相手の反応」と「トーク例」は必須です');
+    return;
+  }
+
+  const editId = document.getElementById('editId').value;
+  const item = {
+    id: editId || ('u' + Date.now()),
+    cat: document.getElementById('fCategory').value,
+    temp: document.getElementById('fTemp').value,
+    reaction,
+    talk,
+    point: document.getElementById('fPoint').value.trim(),
+    strengths: document.getElementById('fStrengths').value.split(/[,、，]/).map(s => s.trim()).filter(Boolean),
+    next: document.getElementById('fNext').value.split('\n').map(s => s.trim()).filter(Boolean),
+    ng: document.getElementById('fNg').value.trim(),
+  };
+
+  if (editId) {
+    const idx = allData.findIndex(d => d.id === editId);
+    if (idx >= 0) allData[idx] = item;
+  } else {
+    allData.push(item);
+  }
+
+  saveData(allData);
+  closeForm();
+  toast(editId ? '更新しました' : '追加しました');
+
+  if (currentMode === 'view') {
+    renderGrid();
+    if (selectedFacility) {
+      const btn = document.querySelector(`[data-facility="${item.cat}"]`);
+      if (btn) selectFacility(btn);
+    }
+  } else {
+    renderManageList();
+  }
+}
+
+function deleteItem(id) {
+  if (!confirm('このトークを削除しますか？')) return;
+  allData = allData.filter(d => d.id !== id);
+  saveData(allData);
+  toast('削除しました');
+  if (currentMode === 'view') {
+    renderGrid();
+    if (selectedFacility) {
+      const btn = document.querySelector(`[data-facility="${selectedFacility}"]`);
+      if (btn) selectFacility(btn);
+      else { document.getElementById('resultArea').innerHTML = ''; }
+    }
+  } else {
+    renderManageList();
+  }
+}
+
+// ===== データ管理 =====
+function renderManageList() {
+  const stats = document.getElementById('dataStats');
+  stats.textContent = `全 ${allData.length} 件のトークスクリプト`;
+
+  const container = document.getElementById('manageList');
+  let html = '';
+  for (const [catKey, cat] of Object.entries(CATEGORIES)) {
+    const items = allData.filter(d => d.cat === catKey);
+    if (items.length === 0) {
+      html += `<div style="margin:12px 0">
+        <div style="font-size:13px;font-weight:700;color:${cat.color};margin-bottom:6px;">${cat.label} <span style="color:#94a3b8;font-weight:400">(0件)</span></div>
+        <button class="add-btn-bottom" style="margin-top:0;font-size:12px;padding:10px" onclick="openForm('${catKey}')">＋ 追加する</button>
+      </div>`;
+      continue;
+    }
+    html += `<div style="margin:12px 0">
+      <div style="font-size:13px;font-weight:700;color:${cat.color};margin-bottom:6px;">${cat.label} <span style="color:#94a3b8;font-weight:400">(${items.length}件)</span></div>`;
+    for (const item of items) {
+      html += `<div style="background:white;border-radius:10px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,0.06)">
+        <div style="flex:1;font-size:13px;line-height:1.4">${item.reaction}</div>
+        <button class="edit-btn edit" onclick="openFormEdit('${item.id}')">編集</button>
+        <button class="edit-btn delete" onclick="deleteItem('${item.id}')">削除</button>
+      </div>`;
+    }
+    html += `<button class="add-btn-bottom" style="margin-top:4px;font-size:12px;padding:10px" onclick="openForm('${catKey}')">＋ 追加する</button></div>`;
+  }
+  container.innerHTML = html;
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sales-talk-data.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('エクスポートしました');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error('invalid');
+      const merged = [...allData];
+      let added = 0;
+      for (const item of data) {
+        if (!item.id || !item.cat || !item.reaction) continue;
+        const exists = merged.findIndex(d => d.id === item.id);
+        if (exists >= 0) { merged[exists] = item; }
+        else { merged.push(item); added++; }
+      }
+      allData = merged;
+      saveData(allData);
+      renderManageList();
+      toast(`インポート完了（${added}件追加）`);
+    } catch(err) {
+      toast('ファイルの読み込みに失敗しました');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetToDefault() {
+  if (!confirm('サンプルデータに戻しますか？\n追加・編集した内容はすべて消えます。\n\n※先に「エクスポート」でバックアップを取ることをおすすめします。')) return;
+  allData = getDefaultData();
+  saveData(allData);
+  renderManageList();
+  toast('サンプルデータに戻しました');
+}
+
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
+
+// ===== 初期化 =====
+renderGrid();
+populateCategorySelect();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
