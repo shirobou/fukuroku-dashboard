@@ -782,24 +782,30 @@ function updateRadiusCircle() {
 }
 
 // ===== Google Places Search =====
-function searchPlacesByType(type, radius) {
+// nearbySearch は 1 リクエスト20件上限。ページングで最大60件（20×3ページ）取得する。
+function nearbySearchPaginated(request) {
   return new Promise((resolve) => {
-    const request = { location: HOME_LATLNG, radius, type };
-    placesService.nearbySearch(request, (results, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK) resolve(results);
-      else resolve([]);
-    });
+    const all = [];
+    const handle = (results, status, pagination) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+        all.push(...results);
+      }
+      if (pagination && pagination.hasNextPage && all.length < 60) {
+        setTimeout(() => pagination.nextPage(), 2100);
+      } else {
+        resolve(all);
+      }
+    };
+    placesService.nearbySearch(request, handle);
   });
 }
 
+function searchPlacesByType(type, radius) {
+  return nearbySearchPaginated({ location: HOME_LATLNG, radius, type });
+}
+
 function searchPlacesByKeyword(keyword, radius) {
-  return new Promise((resolve) => {
-    const request = { location: HOME_LATLNG, radius, keyword };
-    placesService.nearbySearch(request, (results, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK) resolve(results);
-      else resolve([]);
-    });
-  });
+  return nearbySearchPaginated({ location: HOME_LATLNG, radius, keyword });
 }
 
 function getPlaceDetails(placeId) {
