@@ -97,8 +97,8 @@
   <div class="gantt-section-label">KOT処理</div>
 
   <div class="gantt-row">
-    <div class="gantt-label">3. 打刻修正</div>
-    <div class="gantt-track"><div class="gantt-bar" style="left:33%;width:33%;background:#e67e22;" onclick="openModal('m2')">月末〜翌月1日</div></div>
+    <div class="gantt-label">3. 打刻入力＋修正</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:33%;width:33%;background:linear-gradient(90deg,#27ae60 0,#27ae60 50%,#e67e22 50%,#e67e22 100%);" onclick="openModal('m2')">自動＋手動</div></div>
   </div>
   <div class="gantt-row">
     <div class="gantt-label">4. 振替処理</div>
@@ -124,7 +124,7 @@
 
   <div class="gantt-row">
     <div class="gantt-label">8. スケジュール登録</div>
-    <div class="gantt-track"><div class="gantt-bar" style="left:75%;width:25%;background:#9b59b6;" onclick="openModal('m7')">翌月初旬</div></div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:75%;width:25%;background:#27ae60;" onclick="openModal('m7')">自動</div></div>
   </div>
 
   <div style="text-align:right;margin-top:10px;font-size:11px;color:#aaa;">
@@ -153,9 +153,9 @@
 <div class="phase-label"><span>KOT処理（月末〜翌月1日）</span></div>
 
 <div class="card c2" onclick="openModal('m2')">
-  <h3><span class="step-num">3</span> 打刻抜け・欠勤の修正 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">月末</span></h3>
-  <p>KOTの「スケジュール管理」から対象者のタイムカードを開き、打刻の抜け漏れや欠勤などの実績を入力します。</p>
-  <span class="cmd">KOT &gt; 全メニュー &gt; スケジュール管理 &gt; タイムカード</span>
+  <h3><span class="step-num">3</span> 打刻入力（自動）+ 修正（手動） <span class="badge badge-auto">自動</span> <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">月末</span></h3>
+  <p>スマホ操作が苦手な6名（志摩・松生・宮地・中尾・木村・田中）はスクリプトで一括打刻。打刻抜け・欠勤・遅刻早退などの修正は引き続き手動で対応します。</p>
+  <span class="cmd">npm run kingoftime:punch -- --month=YYYY-MM</span>
 </div>
 
 <div class="card c2" onclick="openModal('m3')">
@@ -184,13 +184,14 @@
 <div class="phase-label"><span>翌月準備</span></div>
 
 <div class="card c4" onclick="openModal('m7')">
-  <h3><span class="step-num">8</span> 翌月スケジュール登録 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">翌月初旬</span></h3>
-  <p>当月の処理完了後、翌月のスケジュール（予定）をKOTに登録して作業完了です。</p>
+  <h3><span class="step-num">8</span> 翌月スケジュール登録（自動） <span class="badge badge-auto">自動</span> <span style="font-size:11px;color:#999;font-weight:400;">翌月初旬</span></h3>
+  <p>共有フォルダのExcelに翌月予定を入力 → スクリプトで訪問看護部門10名分を一括登録します。</p>
+  <span class="cmd">npm run kingoftime:schedule -- --month=YYYY-MM</span>
 </div>
 
 </div>
 
-<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月3日</p></div>
+<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月27日（KOT自動化対応）</p></div>
 
 <!-- モーダル -->
 <div class="modal-overlay" id="m0" onclick="closeOut(event)"><div class="modal">
@@ -240,9 +241,21 @@
 </div></div>
 
 <div class="modal-overlay" id="m2" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>3. 打刻抜け・欠勤の修正 <span style="font-size:13px;color:#999;">月末</span></h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
+  <div class="modal-header"><h2>3. 打刻入力（自動）+ 修正（手動） <span style="font-size:13px;color:#999;">月末</span></h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
   <div class="modal-body">
-    <div class="modal-section"><h3>操作手順</h3>
+    <div class="modal-section"><h3>① 自動打刻（6名・スクリプト） <span class="badge badge-auto" style="margin-left:6px;">自動</span></h3>
+      <p>スマホ操作が苦手な以下6名の打刻は、スケジュール時刻 ±5分のランダムで一括入力します。既存打刻ありの日はスキップされるので何度でも安全に実行可能です。</p>
+      <table class="table-box" style="margin-top:8px;">
+        <tr><th>対象6名</th><td>志摩 早苗、松生 仁美、宮地 あけみ、中尾 梨加、木村 恵美、田中 佐和子</td></tr>
+        <tr><th>出勤打刻</th><td>予定9:00 → 8:55〜9:00 ランダム</td></tr>
+        <tr><th>退勤打刻</th><td>予定17:30 → 17:30〜17:35 ランダム</td></tr>
+        <tr><th>事前確認（推奨）</th><td><code>npm run kingoftime:punch:dry -- --month=YYYY-MM</code></td></tr>
+        <tr><th>本番実行</th><td><code>npm run kingoftime:punch -- --month=YYYY-MM</code></td></tr>
+      </table>
+      <div class="tip-box" style="margin-top:8px;">引数 <code>--month</code> を省略するとプロンプトで月を聞かれます。Claudeに「今月分の打刻入れて」と頼むだけでもOK。</div>
+    </div>
+    <div class="modal-section"><h3>② 手動修正（その他全員） <span class="badge badge-manual" style="margin-left:6px;">手動</span></h3>
+      <p>その他の従業員はスマホで自打刻済み。打刻抜け・欠勤・遅刻早退などの修正のみ手動で対応します。</p>
       <ul>
         <li>KOTにログイン（<a href="https://s4.ta.kingoftime.jp/admin" target="_blank" style="color:#5c6bc0;">https://s4.ta.kingoftime.jp/admin</a>）</li>
         <li><strong>全メニュー</strong> &gt; <strong>スケジュール管理</strong> を開く</li>
@@ -359,14 +372,22 @@
 </div></div>
 
 <div class="modal-overlay" id="m7" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>8. 翌月スケジュール登録 <span style="font-size:13px;color:#999;">翌月初旬</span></h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
+  <div class="modal-header"><h2>8. 翌月スケジュール登録（自動） <span style="font-size:13px;color:#999;">翌月初旬</span></h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
   <div class="modal-body">
-    <div class="modal-section"><h3>作業内容</h3>
-      <ul>
-        <li>当月の処理がすべて完了していることを確認</li>
-        <li>KOTの <strong>スケジュール管理</strong> から翌月分を開く</li>
-        <li>翌月のシフト予定を登録</li>
-      </ul>
+    <div class="modal-section"><h3>① Excelに翌月予定を入力（事前作業）</h3>
+      <p>共有フォルダの勤務表Excelを開き、対象月のシートに各人の予定を入力します。「日」=通常出勤、「公」=公休、空欄=該当なし。</p>
+      <div class="example-box"><div class="label">Excelファイルパス</div><pre>\\192.168.0.60\share\出勤簿\2026年勤務表（予定・実績）\勤務表（2026年度）.xlsx</pre></div>
+      <p style="margin-top:8px;font-size:12px;color:#999;">※対象シート名は <code>YYYYMM（予定）</code> 形式（例: <code>202606（予定）</code>）</p>
+    </div>
+    <div class="modal-section"><h3>② スクリプトで一括登録 <span class="badge badge-auto" style="margin-left:6px;">自動</span></h3>
+      <p>訪問看護部門10名（正社員2名＋パート8名）の予定をKOTに一括登録します。「通常」「公休（法定/法定外を週単位で自動判定）」も自動処理。</p>
+      <table class="table-box" style="margin-top:8px;">
+        <tr><th>事前確認（推奨）</th><td><code>npm run kingoftime:schedule:dry -- --month=YYYY-MM</code></td></tr>
+        <tr><th>本番実行</th><td><code>npm run kingoftime:schedule -- --month=YYYY-MM</code></td></tr>
+        <tr><th>登録内容</th><td>パート: 通常出勤のみ／正社員: 通常出勤＋公休（法定休日/法定外休日を自動振り分け）</td></tr>
+        <tr><th>既存上書き</th><td>OK（チェックON＝上書き、OFF＝既存維持）</td></tr>
+      </table>
+      <div class="tip-box" style="margin-top:8px;">Excelを更新しておけば、Claudeに「来月分のスケジュール入れて」と頼むだけでOK。法定休日/法定外休日は「週内で最後の公休=法定休日、それ以外=法定外」のルールで自動分類します。</div>
     </div>
     <div class="modal-section"><h3>補足：従業員の表示順を変えたい場合</h3>
       <ul>
