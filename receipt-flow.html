@@ -112,35 +112,39 @@
     <div class="gantt-label">4. 医療レセプト送信</div>
     <div class="gantt-track"><div class="gantt-bar" style="left:14%;width:19%;background:#3498db;" onclick="openModal('m8')">5〜10日</div></div>
   </div>
+  <div class="gantt-row">
+    <div class="gantt-label">5. 税理士に請求書共有</div>
+    <div class="gantt-track"><div class="gantt-bar" style="left:14%;width:19%;background:#3498db;" onclick="openModal('m13')">5〜10日</div></div>
+  </div>
 
   <div class="gantt-section-label">自己負担管理</div>
 
   <div class="gantt-row">
-    <div class="gantt-label">5. 口座情報確認</div>
+    <div class="gantt-label">6. 口座情報確認</div>
     <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:12%;background:#e67e22;" onclick="openModal('m2')">1〜4日</div></div>
   </div>
   <div class="gantt-row">
-    <div class="gantt-label">6. 振替結果出力</div>
+    <div class="gantt-label">7. 振替結果出力</div>
     <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:12%;background:#e67e22;" onclick="openModal('m4')">1〜4日</div></div>
   </div>
   <div class="gantt-row">
-    <div class="gantt-label">7. 入金確認</div>
+    <div class="gantt-label">8. 入金確認</div>
     <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:12%;background:#e67e22;" onclick="openModal('m5')">1〜4日</div></div>
   </div>
   <div class="gantt-row">
-    <div class="gantt-label">8. 管理シート更新</div>
+    <div class="gantt-label">9. 管理シート更新</div>
     <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:12%;background:#e67e22;" onclick="openModal('m6')">1〜4日</div></div>
   </div>
   <div class="gantt-row">
-    <div class="gantt-label">9. 領収書・請求書郵送</div>
+    <div class="gantt-label">10. 領収書・請求書郵送</div>
     <div class="gantt-track"><div class="gantt-bar" style="left:0%;width:33%;background:#e67e22;" onclick="openModal('m7')">1〜10日</div></div>
   </div>
   <div class="gantt-row">
-    <div class="gantt-label">10. 振替データ登録</div>
+    <div class="gantt-label">11. 振替データ登録</div>
     <div class="gantt-track"><div class="gantt-bar" style="left:14%;width:19%;background:#e67e22;" onclick="openModal('m9')">5〜10日</div></div>
   </div>
   <div class="gantt-row">
-    <div class="gantt-label">11. 新規口座登録</div>
+    <div class="gantt-label">12. 新規口座登録</div>
     <div class="gantt-track"><div class="gantt-bar" style="left:50%;width:33%;background:#e67e22;" onclick="openModal('m10')">15〜25日</div></div>
   </div>
 
@@ -174,47 +178,52 @@
   <p>iBowからCSVを出力 → 共有フォルダ経由 → オンライン請求パソコンから国保連・社保にアップロード。</p>
 </div>
 
+<div class="card c3" onclick="openModal('m13')">
+  <h3><span class="step-num">5</span> 顧問税理士に請求書データを共有 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">5〜10日</span></h3>
+  <p>iBowから出力した国保連・社保への請求書PDFを、ChatWorkで顧問税理士に共有する。</p>
+</div>
+
 <div class="phase-label"><span>自己負担管理（1〜25日）</span></div>
 
 <div class="card c5" onclick="openModal('m2')">
-  <h3><span class="step-num">5</span> 口座情報の登録確認（iBow） <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">1〜4日</span></h3>
+  <h3><span class="step-num">6</span> 口座情報の登録確認（iBow） <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">1〜4日</span></h3>
   <p>請求対象者の口座振替情報がiBowに正しく入力されているか確認。支払方法・銀行・支店コード・口座番号・預金者名（半角カタカナ）。</p>
 </div>
 
 <div class="card c5" onclick="openModal('m4')">
-  <h3><span class="step-num">6</span> 前月分の口座振替結果出力（メルネッツ） <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">1〜4日</span></h3>
+  <h3><span class="step-num">7</span> 前月分の口座振替結果出力（メルネッツ） <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">1〜4日</span></h3>
   <p>メルネッツからオートネットサービス資金手数料明細表を印刷・ファイリング。振替不能エラーがあれば原因を特定。</p>
 </div>
 
 <div class="card c5" onclick="openModal('m5')">
-  <h3><span class="step-num">7</span> 入金確認（アプラス s-web → iBow取込） <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">1〜4日</span></h3>
+  <h3><span class="step-num">8</span> 入金確認（アプラス s-web → iBow取込） <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">1〜4日</span></h3>
   <p>アプラスs-webで振替結果データを受信 → batファイル作成 → iBowレセプトの入金管理に取り込む。</p>
 </div>
 
 <div class="card c5" onclick="openModal('m6')">
-  <h3><span class="step-num">8</span> 自己負担金管理シートの更新 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">1〜4日</span></h3>
+  <h3><span class="step-num">9</span> 自己負担金管理シートの更新 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">1〜4日</span></h3>
   <p>入金状況を記録。新規利用者がいる場合は氏名・ふりがな・保険種別等の情報を追記。</p>
 </div>
 
 <div class="card c5" onclick="openModal('m7')">
-  <h3><span class="step-num">9</span> 領収書兼明細書・請求書を郵送 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">1〜10日</span></h3>
+  <h3><span class="step-num">10</span> 領収書兼明細書・請求書を郵送 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">1〜10日</span></h3>
   <p>iBowからPDF出力 → 窓付き封筒の送付状を作成 → 領収書兼明細書・請求書をまとめて郵送。請求データを確定して締める。</p>
 </div>
 
 <div class="card c5" onclick="openModal('m9')">
-  <h3><span class="step-num">10</span> 口座振替データ登録 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">5〜10日</span></h3>
+  <h3><span class="step-num">11</span> 口座振替データ登録 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">5〜10日</span></h3>
   <p>iBowから口座振替データを出力し、アプラスs-webにアップロード。件数と合計金額を照合。</p>
 </div>
 
 <div class="card c5" onclick="openModal('m10')">
-  <h3><span class="step-num">11</span> 新規利用者の口座振替登録 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">15〜25日</span></h3>
+  <h3><span class="step-num">12</span> 新規利用者の口座振替登録 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">15〜25日</span></h3>
   <p>口座振替依頼書を記入してもらい、アプラスに簡易書留で送付。管理シートを更新。</p>
 </div>
 
 <div class="phase-label"><span>通年</span></div>
 
 <div class="card c2" onclick="openModal('m11')">
-  <h3><span class="step-num">12</span> 書類ファイリング <span class="badge badge-manual">手動</span></h3>
+  <h3><span class="step-num">13</span> 書類ファイリング <span class="badge badge-manual">手動</span></h3>
   <p>明細書・請求書・領収書兼明細書を印刷してファイリング（事務所の金属棚）。</p>
 </div>
 
@@ -229,7 +238,7 @@
 </div>
 
 <div class="footer">
-  <p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月6日</p>
+  <p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月27日</p>
 </div>
 
 <!-- モーダル群 -->
@@ -252,7 +261,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m2" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>5. 口座情報の登録確認（iBow） <span style="font-size:13px;color:#999;">1〜4日</span></h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
+  <div class="modal-header"><h2>6. 口座情報の登録確認（iBow） <span style="font-size:13px;color:#999;">1〜4日</span></h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>確認項目</h3>
       <ul>
@@ -289,7 +298,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m4" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>6. 前月分の口座振替結果出力 <span style="font-size:13px;color:#999;">1〜4日</span></h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
+  <div class="modal-header"><h2>7. 前月分の口座振替結果出力 <span style="font-size:13px;color:#999;">1〜4日</span></h2><button class="modal-close" onclick="closeModal('m4')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>手順</h3>
       <ul>
@@ -325,7 +334,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m5" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>7. 入金確認（アプラス s-web → iBow取込） <span style="font-size:13px;color:#999;">1〜4日</span></h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
+  <div class="modal-header"><h2>8. 入金確認（アプラス s-web → iBow取込） <span style="font-size:13px;color:#999;">1〜4日</span></h2><button class="modal-close" onclick="closeModal('m5')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>振替結果データの取込</h3>
       <ul>
@@ -342,7 +351,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m6" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>8. 自己負担金管理シートの更新 <span style="font-size:13px;color:#999;">1〜4日</span></h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
+  <div class="modal-header"><h2>9. 自己負担金管理シートの更新 <span style="font-size:13px;color:#999;">1〜4日</span></h2><button class="modal-close" onclick="closeModal('m6')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>新規利用者の追加</h3>
       <p>新規利用者がいる場合、以下の情報をシートに追記する：</p>
@@ -370,7 +379,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m7" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>9. 領収書兼明細書・請求書の郵送 <span style="font-size:13px;color:#999;">1〜10日</span></h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
+  <div class="modal-header"><h2>10. 領収書兼明細書・請求書の郵送 <span style="font-size:13px;color:#999;">1〜10日</span></h2><button class="modal-close" onclick="closeModal('m7')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>領収書兼明細書</h3>
       <ul>
@@ -460,8 +469,29 @@
   </div>
 </div></div>
 
+<div class="modal-overlay" id="m13" onclick="closeOut(event)"><div class="modal">
+  <div class="modal-header"><h2>5. 顧問税理士に請求書データを共有 <span style="font-size:13px;color:#999;">5〜10日</span></h2><button class="modal-close" onclick="closeModal('m13')">&times;</button></div>
+  <div class="modal-body">
+    <div class="modal-section"><h3>手順</h3>
+      <ul>
+        <li>iBow →「<strong>医療請求管理（新：電子/紙）</strong>」を開く</li>
+        <li>対象年月で<strong>請求書PDF</strong>を出力（国保連分・社保分の両方）</li>
+        <li><strong>ChatWork</strong>を開き、顧問税理士のチャットルームを選択</li>
+        <li>国保連・社保の請求書PDFを<strong>添付して送信</strong></li>
+        <li>対象月（◯月請求分）と請求総額をメッセージに明記</li>
+      </ul>
+    </div>
+    <div class="modal-section">
+      <div class="tip-box"><strong>共有目的：</strong>税理士が月次の売上計上・記帳を行うために必要。レセプト送信完了後すぐに共有する。</div>
+    </div>
+    <div class="modal-section">
+      <div class="warn-box"><strong>注意：</strong>国保連・社保の<strong>両方</strong>を忘れずに送ること。片方だけだと売上計上に漏れが出る。</div>
+    </div>
+  </div>
+</div></div>
+
 <div class="modal-overlay" id="m9" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>10. 口座振替データ登録 <span style="font-size:13px;color:#999;">5〜10日</span></h2><button class="modal-close" onclick="closeModal('m9')">&times;</button></div>
+  <div class="modal-header"><h2>11. 口座振替データ登録 <span style="font-size:13px;color:#999;">5〜10日</span></h2><button class="modal-close" onclick="closeModal('m9')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>手順</h3>
       <ul>
@@ -478,7 +508,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m10" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>11. 新規利用者の口座振替登録 <span style="font-size:13px;color:#999;">15〜25日</span></h2><button class="modal-close" onclick="closeModal('m10')">&times;</button></div>
+  <div class="modal-header"><h2>12. 新規利用者の口座振替登録 <span style="font-size:13px;color:#999;">15〜25日</span></h2><button class="modal-close" onclick="closeModal('m10')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>手順</h3>
       <ul>
@@ -507,7 +537,7 @@
 </div></div>
 
 <div class="modal-overlay" id="m11" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>12. 書類ファイリング</h2><button class="modal-close" onclick="closeModal('m11')">&times;</button></div>
+  <div class="modal-header"><h2>13. 書類ファイリング</h2><button class="modal-close" onclick="closeModal('m11')">&times;</button></div>
   <div class="modal-body">
     <div class="modal-section"><h3>毎月ファイリングする書類</h3>
       <ul>
