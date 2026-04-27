@@ -154,8 +154,8 @@
 
 <div class="card c2" onclick="openModal('m2')">
   <h3><span class="step-num">3</span> 打刻入力（自動）+ 修正（手動） <span class="badge badge-auto">自動</span> <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">月末</span></h3>
-  <p>スマホ操作が苦手な6名（志摩・松生・宮地・中尾・木村・田中）はスクリプトで一括打刻。打刻抜け・欠勤・遅刻早退などの修正は引き続き手動で対応します。</p>
-  <span class="cmd">npm run kingoftime:punch -- --month=YYYY-MM</span>
+  <p>スマホ操作が苦手な訪問看護6名はスクリプトで一括打刻、山上さんはLINEのPDFから代理打刻。打刻抜け・欠勤・遅刻早退などの修正は引き続き手動で対応します。</p>
+  <span class="cmd">npm run kingoftime:punch / kingoftime:yamagami</span>
 </div>
 
 <div class="card c2" onclick="openModal('m3')">
@@ -191,7 +191,7 @@
 
 </div>
 
-<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月27日（KOT自動化対応）</p></div>
+<div class="footer"><p>ふくろく訪問看護ステーション ／ 最終更新: 2026年4月27日（KOT自動化対応・山上さんPDF代理打刻追加）</p></div>
 
 <!-- モーダル -->
 <div class="modal-overlay" id="m0" onclick="closeOut(event)"><div class="modal">
@@ -243,8 +243,8 @@
 <div class="modal-overlay" id="m2" onclick="closeOut(event)"><div class="modal">
   <div class="modal-header"><h2>3. 打刻入力（自動）+ 修正（手動） <span style="font-size:13px;color:#999;">月末</span></h2><button class="modal-close" onclick="closeModal('m2')">&times;</button></div>
   <div class="modal-body">
-    <div class="modal-section"><h3>① 自動打刻（6名・スクリプト） <span class="badge badge-auto" style="margin-left:6px;">自動</span></h3>
-      <p>スマホ操作が苦手な以下6名の打刻は、スケジュール時刻 ±5分のランダムで一括入力します。既存打刻ありの日はスキップされるので何度でも安全に実行可能です。</p>
+    <div class="modal-section"><h3>① 訪問看護6名の自動打刻 <span class="badge badge-auto" style="margin-left:6px;">自動</span></h3>
+      <p>スマホ操作が苦手な以下6名の打刻は、KOTのスケジュール時刻 ±5分のランダムで一括入力します。既存打刻ありの日はスキップされるので何度でも安全に実行可能です。</p>
       <table class="table-box" style="margin-top:8px;">
         <tr><th>対象6名</th><td>志摩 早苗、松生 仁美、宮地 あけみ、中尾 梨加、木村 恵美、田中 佐和子</td></tr>
         <tr><th>出勤打刻</th><td>予定9:00 → 8:55〜9:00 ランダム</td></tr>
@@ -254,7 +254,18 @@
       </table>
       <div class="tip-box" style="margin-top:8px;">引数 <code>--month</code> を省略するとプロンプトで月を聞かれます。Claudeに「今月分の打刻入れて」と頼むだけでもOK。</div>
     </div>
-    <div class="modal-section"><h3>② 手動修正（その他全員） <span class="badge badge-manual" style="margin-left:6px;">手動</span></h3>
+    <div class="modal-section"><h3>② 山上さんのPDF代理打刻 <span class="badge badge-auto" style="margin-left:6px;">自動</span></h3>
+      <p>山上 真那実さん（飲食部門）はLINEで送られてくる勤怠PDFを読み取って代理打刻します。休憩・残業・残業理由はすべて無視して、始業/終業時刻のみ入力。</p>
+      <table class="table-box" style="margin-top:8px;">
+        <tr><th>対象</th><td>山上 真那実（飲食部門・1名）</td></tr>
+        <tr><th>データソース</th><td>LINE で送られてくる勤怠PDF（毎月）</td></tr>
+        <tr><th>PDF保存先</th><td><code>C:\Users\白桜介護事務\OneDrive\ドキュメント\(月)月勤怠_山上.pdf</code></td></tr>
+        <tr><th>事前確認</th><td><code>npm run kingoftime:yamagami:dry</code>（OneDriveから自動検出）</td></tr>
+        <tr><th>本番実行</th><td><code>npm run kingoftime:yamagami</code></td></tr>
+      </table>
+      <div class="tip-box" style="margin-top:8px;">PDFをOneDriveに保存してからClaudeに「山上さんの勤怠入れて」と頼むだけでOK。</div>
+    </div>
+    <div class="modal-section"><h3>③ 手動修正（その他全員） <span class="badge badge-manual" style="margin-left:6px;">手動</span></h3>
       <p>その他の従業員はスマホで自打刻済み。打刻抜け・欠勤・遅刻早退などの修正のみ手動で対応します。</p>
       <ul>
         <li>KOTにログイン（<a href="https://s4.ta.kingoftime.jp/admin" target="_blank" style="color:#5c6bc0;">https://s4.ta.kingoftime.jp/admin</a>）</li>
