@@ -113,7 +113,7 @@
     <div class="gantt-track"><div class="gantt-bar" style="left:14%;width:19%;background:#3498db;" onclick="openModal('m8')">5〜10日</div></div>
   </div>
   <div class="gantt-row">
-    <div class="gantt-label">5. 税理士に請求書共有</div>
+    <div class="gantt-label">5. 税理士に請求書・通知書共有</div>
     <div class="gantt-track"><div class="gantt-bar" style="left:14%;width:19%;background:#3498db;" onclick="openModal('m13')">5〜10日</div></div>
   </div>
 
@@ -179,8 +179,8 @@
 </div>
 
 <div class="card c3" onclick="openModal('m13')">
-  <h3><span class="step-num">5</span> 顧問税理士に請求書データを共有 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">5〜10日</span></h3>
-  <p>iBowから出力した国保連・社保への請求書PDFを、ChatWorkで顧問税理士に共有する。</p>
+  <h3><span class="step-num">5</span> 顧問税理士に請求書・支払通知書を共有 <span class="badge badge-manual">手動</span> <span style="font-size:11px;color:#999;font-weight:400;">5〜10日</span></h3>
+  <p>iBowから出力した国保連・社保への請求書PDFに加え、国保連・社保から届く支払い通知書も、ChatWorkで顧問税理士に共有する。</p>
 </div>
 
 <div class="phase-label"><span>自己負担管理（1〜25日）</span></div>
@@ -470,9 +470,9 @@
 </div></div>
 
 <div class="modal-overlay" id="m13" onclick="closeOut(event)"><div class="modal">
-  <div class="modal-header"><h2>5. 顧問税理士に請求書データを共有 <span style="font-size:13px;color:#999;">5〜10日</span></h2><button class="modal-close" onclick="closeModal('m13')">&times;</button></div>
+  <div class="modal-header"><h2>5. 顧問税理士に請求書・支払通知書を共有 <span style="font-size:13px;color:#999;">5〜10日</span></h2><button class="modal-close" onclick="closeModal('m13')">&times;</button></div>
   <div class="modal-body">
-    <div class="modal-section"><h3>手順</h3>
+    <div class="modal-section"><h3>手順①：請求書PDFの共有（レセプト送信後すぐ）</h3>
       <ul>
         <li>iBow →「<strong>医療請求管理（新：電子/紙）</strong>」を開く</li>
         <li>対象年月で<strong>請求書PDF</strong>を出力（国保連分・社保分の両方）</li>
@@ -481,11 +481,20 @@
         <li>対象月（◯月請求分）と請求総額をメッセージに明記</li>
       </ul>
     </div>
-    <div class="modal-section">
-      <div class="tip-box"><strong>共有目的：</strong>税理士が月次の売上計上・記帳を行うために必要。レセプト送信完了後すぐに共有する。</div>
+    <div class="modal-section"><h3>手順②：支払通知書の共有（国保連・社保から届き次第）</h3>
+      <ul>
+        <li>国保連から届く<strong>支払額決定通知書</strong>（増減点・返戻があればその明細も）</li>
+        <li>社保（支払基金）から届く<strong>支払額決定通知書</strong>（増減点連絡書があれば併せて）</li>
+        <li>紙で届いた場合はスキャンしてPDF化、電子で届いた場合はそのままダウンロード</li>
+        <li>ChatWorkの顧問税理士チャットルームに<strong>添付して送信</strong></li>
+        <li>対象月（◯月請求分の支払通知）と入金予定日・入金額をメッセージに明記</li>
+      </ul>
     </div>
     <div class="modal-section">
-      <div class="warn-box"><strong>注意：</strong>国保連・社保の<strong>両方</strong>を忘れずに送ること。片方だけだと売上計上に漏れが出る。</div>
+      <div class="tip-box"><strong>共有目的：</strong>請求書は売上計上（発生主義）、支払通知書は実際の入金額・返戻・増減点の確定に必要。税理士が月次決算と記帳を正確に行うため、両方を共有する。</div>
+    </div>
+    <div class="modal-section">
+      <div class="warn-box"><strong>注意：</strong>請求書・支払通知書ともに<strong>国保連・社保の両方</strong>を忘れずに送ること。片方だけだと売上計上・入金消込に漏れが出る。</div>
     </div>
   </div>
 </div></div>
