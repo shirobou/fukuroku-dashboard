@@ -71,6 +71,34 @@
   .gantt-bar:hover { opacity:0.85;transform:scaleY(1.15);box-shadow:0 2px 8px rgba(0,0,0,0.2); }
   .gantt-divider { position:absolute;top:-8px;bottom:0;width:1px;border-left:1px dashed #ccc;z-index:0; }
   .gantt-section-label { font-size:11px;color:#999;font-weight:700;margin:12px 0 6px 152px;letter-spacing:1px; }
+
+  /* 並び替えモード */
+  .reorder-bar { max-width:800px;margin:0 auto 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px; }
+  .rb-hint { font-size:11px;color:#78909c;margin-right:auto; }
+  .rb-btn { background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.08);color:#546e7a;padding:7px 14px;border-radius:10px;font-size:12px;font-family:inherit;cursor:pointer;transition:all .2s; }
+  .rb-btn:hover { background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+  .rb-btn.primary { background:#546e7a;color:#fff;border-color:#546e7a; }
+  .rb-btn.primary:hover { background:#455a64; }
+  body.reordering .card { cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;padding-right:100px; }
+  @media (max-width:600px){
+    body.reordering .card { padding-right:78px; }
+    .reorder-ctrl .ro-grip { display:none; }
+  }
+  body.reordering .card:hover { transform:none;box-shadow:0 8px 32px rgba(0,0,0,0.1); }
+  body.reordering .card::after { display:none; }
+  body.reordering .phase-label { opacity:.55; }
+  body.reordering .gantt-bar { cursor:default; }
+  .reorder-ctrl { display:none;position:absolute;top:10px;right:10px;align-items:center;gap:4px; }
+  body.reordering .reorder-ctrl { display:flex; }
+  .reorder-ctrl button { width:28px;height:28px;border-radius:8px;border:1px solid #e0e0e0;background:#fafafa;color:#78909c;font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center; }
+  .reorder-ctrl button:hover { background:#eceff1;color:#37474f; }
+  .reorder-ctrl .ro-grip { color:#cfd8dc;font-size:17px;padding-left:2px;cursor:grab; }
+  .card.dragging { box-shadow:0 16px 48px rgba(0,0,0,0.25);opacity:.96;margin:0; }
+  .drag-placeholder { border:2px dashed #b0bec5;border-radius:16px;margin-bottom:16px;background:rgba(255,255,255,0.35); }
+  .order-out { max-width:800px;margin:0 auto 16px;display:none; }
+  .order-out.show { display:block; }
+  .order-out textarea { width:100%;height:170px;border-radius:12px;border:1px solid #cfd8dc;padding:12px;font-family:Consolas,monospace;font-size:12px;color:#455a64;background:rgba(255,255,255,0.9); }
+  .order-out p { font-size:11px;color:#78909c;margin-bottom:6px; }
 </style>
 </head>
 <body>
@@ -147,6 +175,17 @@
     <span style="display:inline-block;width:10px;height:10px;background:#3498db;border-radius:3px;margin-right:2px;"></span> オンライン請求
     <span style="display:inline-block;width:10px;height:10px;background:#e67e22;border-radius:3px;margin:0 2px 0 10px;"></span> 自己負担管理
   </div>
+</div>
+
+<div class="reorder-bar">
+  <span class="rb-hint" id="rbHint"></span>
+  <button class="rb-btn primary" id="rbToggle" type="button">↕ 並び替え</button>
+  <button class="rb-btn" id="rbCopy" type="button" hidden>並び順をコピー</button>
+  <button class="rb-btn" id="rbReset" type="button" hidden>既定に戻す</button>
+</div>
+<div class="order-out" id="orderOut">
+  <p>この内容をコピーして Claude に渡すと、HTML本体に並び順を反映できます（全端末に反映されます）。</p>
+  <textarea id="orderText" readonly></textarea>
 </div>
 
 <div class="timeline">
@@ -565,6 +604,242 @@ function openModal(id){document.getElementById(id).classList.add('active');docum
 function closeModal(id){document.getElementById(id).classList.remove('active');document.body.style.overflow='';}
 function closeOut(e){if(e.target===e.currentTarget){e.target.classList.remove('active');document.body.style.overflow='';}}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.active').forEach(function(m){m.classList.remove('active')});document.body.style.overflow='';}});
+
+/* ===== 並び替え（手動で順番を入れ替える） ===== */
+(function(){
+  var STORE_KEY='fukuroku:receipt-flow:order:v1';
+  var timeline=document.querySelector('.timeline');
+  var ganttWrap=document.querySelector('.gantt-wrap');
+  if(!timeline)return;
+
+  var nodes=Array.prototype.slice.call(timeline.children);
+  var seq=0;
+  nodes.forEach(function(n){
+    if(n.classList.contains('card')){
+      var m=(n.getAttribute('onclick')||'').match(/openModal\('([^']+)'\)/);
+      n.dataset.key=m?m[1]:'card'+(seq++);
+    }else{
+      n.dataset.key='sec'+(seq++);
+    }
+  });
+  var defaultOrder=nodes.map(function(n){return n.dataset.key;});
+  var byKey={};
+  nodes.forEach(function(n){byKey[n.dataset.key]=n;});
+
+  // ガントの行（カードと同じキーで対応付け）
+  var ganttRows={};
+  var ganttAnchor=null;
+  if(ganttWrap){
+    var rows=Array.prototype.slice.call(ganttWrap.querySelectorAll('.gantt-row'));
+    rows.forEach(function(r){
+      var bar=r.querySelector('.gantt-bar');
+      var m=((bar&&bar.getAttribute('onclick'))||'').match(/openModal\('([^']+)'\)/);
+      if(m)ganttRows[m[1]]=r;
+    });
+    if(rows.length)ganttAnchor=rows[rows.length-1].nextElementSibling;
+  }
+
+  // 各カードに並び替えコントロールを追加
+  nodes.forEach(function(n){
+    if(!n.classList.contains('card'))return;
+    var ctrl=document.createElement('div');
+    ctrl.className='reorder-ctrl';
+    ctrl.innerHTML='<button type="button" class="ro-up" title="上へ">▲</button>'+
+                   '<button type="button" class="ro-down" title="下へ">▼</button>'+
+                   '<span class="ro-grip" title="ドラッグで移動">⠿</span>';
+    n.appendChild(ctrl);
+  });
+
+  function currentOrder(){
+    return Array.prototype.slice.call(timeline.children).map(function(n){return n.dataset.key;});
+  }
+  function sameSet(a,b){
+    if(a.length!==b.length)return false;
+    return a.slice().sort().join('|')===b.slice().sort().join('|');
+  }
+  function isCustom(){
+    return currentOrder().join('|')!==defaultOrder.join('|');
+  }
+
+  // 番号（カード・モーダル見出し・ガント）を並び順に合わせて振り直す
+  function renumber(){
+    var cards=Array.prototype.slice.call(timeline.querySelectorAll('.card'));
+    cards.forEach(function(card,i){
+      var num=i+1;
+      var sn=card.querySelector('.step-num');
+      if(sn)sn.textContent=num;
+      var modal=document.getElementById(card.dataset.key);
+      var h2=modal&&modal.querySelector('.modal-header h2');
+      if(h2&&h2.firstChild&&h2.firstChild.nodeType===3){
+        h2.firstChild.nodeValue=h2.firstChild.nodeValue.replace(/^\s*\d+\.\s*/,num+'. ');
+      }
+      var row=ganttRows[card.dataset.key];
+      if(row){
+        var lbl=row.querySelector('.gantt-label');
+        if(lbl)lbl.textContent=lbl.textContent.replace(/^\s*\d+\.\s*/,num+'. ');
+        if(ganttAnchor)ganttWrap.insertBefore(row,ganttAnchor);
+        else ganttWrap.appendChild(row);
+      }
+    });
+  }
+
+  function save(){
+    try{localStorage.setItem(STORE_KEY,JSON.stringify(currentOrder()));}catch(e){}
+    updateBar();
+  }
+  function restore(){
+    var saved=null;
+    try{saved=JSON.parse(localStorage.getItem(STORE_KEY)||'null');}catch(e){saved=null;}
+    // ページ側の項目が増減していたら保存済みの並びは破棄（番号ズレ防止）
+    if(!saved||!Array.isArray(saved)||!sameSet(saved,defaultOrder)){
+      if(saved){try{localStorage.removeItem(STORE_KEY);}catch(e){}}
+      renumber();
+      return;
+    }
+    saved.forEach(function(k){if(byKey[k])timeline.appendChild(byKey[k]);});
+    renumber();
+  }
+  function resetOrder(){
+    defaultOrder.forEach(function(k){timeline.appendChild(byKey[k]);});
+    try{localStorage.removeItem(STORE_KEY);}catch(e){}
+    renumber();
+    updateBar();
+  }
+
+  var hint=document.getElementById('rbHint');
+  var btnToggle=document.getElementById('rbToggle');
+  var btnCopy=document.getElementById('rbCopy');
+  var btnReset=document.getElementById('rbReset');
+  var out=document.getElementById('orderOut');
+  var outText=document.getElementById('orderText');
+
+  function reordering(){return document.body.classList.contains('reordering');}
+  function updateBar(){
+    if(reordering()){
+      hint.textContent='カードをドラッグ、または ▲▼ で移動できます';
+      btnToggle.textContent='✓ 完了';
+      btnCopy.hidden=false;
+      btnReset.hidden=false;
+    }else{
+      hint.textContent=isCustom()?'並び順を変更しています（この端末に保存済み）':'';
+      btnToggle.textContent='↕ 並び替え';
+      btnCopy.hidden=true;
+      btnReset.hidden=!isCustom();
+      out.classList.remove('show');
+    }
+  }
+
+  btnToggle.addEventListener('click',function(){
+    document.body.classList.toggle('reordering');
+    updateBar();
+  });
+  btnReset.addEventListener('click',resetOrder);
+  btnCopy.addEventListener('click',function(){
+    var lines=['レセプト業務フロー 並び順（'+new Date().toLocaleDateString('ja-JP')+'）',''];
+    Array.prototype.slice.call(timeline.children).forEach(function(n){
+      if(n.classList.contains('card')){
+        var h3=n.querySelector('h3');
+        lines.push(h3?h3.textContent.replace(/\s+/g,' ').trim():'');
+      }else{
+        lines.push('【'+n.textContent.trim()+'】');
+      }
+    });
+    lines.push('','--- 内部キー ---',currentOrder().join(','));
+    var text=lines.join('\n');
+    outText.value=text;
+    out.classList.add('show');
+    outText.focus();
+    outText.select();
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).catch(function(){});
+    }else{
+      try{document.execCommand('copy');}catch(e){}
+    }
+  });
+
+  // 並び替え中はカードのクリック（モーダル表示）を止め、▲▼ の移動だけ処理する
+  // （キャプチャ段階で止めるため、移動処理も同じリスナー内で行う）
+  timeline.addEventListener('click',function(e){
+    if(!reordering())return;
+    e.stopPropagation();e.preventDefault();
+    var up=e.target.closest('.ro-up'),down=e.target.closest('.ro-down');
+    if(!up&&!down)return;
+    var card=e.target.closest('.card');
+    if(up&&card.previousElementSibling){
+      timeline.insertBefore(card,card.previousElementSibling);
+    }else if(down&&card.nextElementSibling){
+      timeline.insertBefore(card.nextElementSibling,card);
+    }else{
+      return;
+    }
+    renumber();
+    save();
+    card.scrollIntoView({block:'nearest',behavior:'smooth'});
+  },true);
+
+  // ドラッグ（マウス・タッチ共通：Pointer Events）
+  var drag=null,scrollRaf=null,scrollDir=0;
+  function autoScroll(){
+    if(!drag){scrollRaf=null;return;}
+    if(scrollDir)window.scrollBy(0,scrollDir*12);
+    scrollRaf=requestAnimationFrame(autoScroll);
+  }
+  timeline.addEventListener('pointerdown',function(e){
+    if(!reordering()||e.button>0)return;
+    if(e.target.closest('.ro-up,.ro-down'))return;
+    var card=e.target.closest('.card');
+    if(!card)return;
+    e.preventDefault();
+    var r=card.getBoundingClientRect();
+    var ph=document.createElement('div');
+    ph.className='drag-placeholder';
+    ph.style.height=r.height+'px';
+    timeline.insertBefore(ph,card);
+    card.classList.add('dragging');
+    card.style.position='fixed';
+    card.style.width=r.width+'px';
+    card.style.left=r.left+'px';
+    card.style.top=r.top+'px';
+    card.style.zIndex='900';
+    drag={card:card,ph:ph,offsetY:e.clientY-r.top,pointerId:e.pointerId};
+    try{card.setPointerCapture(e.pointerId);}catch(err){}
+    if(!scrollRaf)scrollRaf=requestAnimationFrame(autoScroll);
+  });
+  timeline.addEventListener('pointermove',function(e){
+    if(!drag)return;
+    e.preventDefault();
+    drag.card.style.top=(e.clientY-drag.offsetY)+'px';
+    var edge=90;
+    scrollDir=e.clientY<edge?-1:(e.clientY>window.innerHeight-edge?1:0);
+    var sibs=Array.prototype.slice.call(timeline.children),target=null;
+    for(var i=0;i<sibs.length;i++){
+      var n=sibs[i];
+      if(n===drag.card||n===drag.ph)continue;
+      var rect=n.getBoundingClientRect();
+      if(e.clientY<rect.top+rect.height/2){target=n;break;}
+    }
+    if(target)timeline.insertBefore(drag.ph,target);
+    else timeline.appendChild(drag.ph);
+  });
+  function endDrag(){
+    if(!drag)return;
+    var card=drag.card;
+    timeline.insertBefore(card,drag.ph);
+    drag.ph.remove();
+    card.classList.remove('dragging');
+    card.style.position='';card.style.width='';card.style.left='';card.style.top='';card.style.zIndex='';
+    try{card.releasePointerCapture(drag.pointerId);}catch(err){}
+    drag=null;
+    scrollDir=0;
+    renumber();
+    save();
+  }
+  timeline.addEventListener('pointerup',endDrag);
+  timeline.addEventListener('pointercancel',endDrag);
+
+  restore();
+  updateBar();
+})();
 </script>
 </body>
 </html>
